@@ -89,9 +89,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\Pollux.csproj",
-      "projectName": "Pollux",
-      "projectPath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\Pollux.csproj",
+      "projectUniqueName": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\Pollux.API.csproj",
+      "projectName": "Pollux.API",
+      "projectPath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\Pollux.API.csproj",
       "packagesPath": "C:\\Users\\odiaz\\.nuget\\packages\\",
       "outputPath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\obj\\",
       "projectStyle": "PackageReference",

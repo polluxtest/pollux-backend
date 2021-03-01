@@ -3,7 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pollux", "Pollux\Pollux.csproj", "{1AF728D0-C17C-4776-A205-FE4EDF27455C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pollux.API", "Pollux\Pollux.API.csproj", "{1AF728D0-C17C-4776-A205-FE4EDF27455C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{AD68A9D2-9E29-4FC5-A1A7-1EB7C3171AAE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{F387E139-AEA2-4807-833D-546AA344B296}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{1B8BADFC-15B2-4401-84FB-A73FDE07EBAE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{CFDEA485-365F-47B6-91A4-55E1F88C2F38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pollux.Domain", "Pollux.Domain\Pollux.Domain.csproj", "{ABE52515-3BB6-4BE8-9AEA-7909B1F05658}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pollux.Application", "Pollux.Application\Pollux.Application.csproj", "{07F6CA37-8D0E-442B-AEDD-DEE092525F46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pollux.Persistence", "Pollux.Persistence\Pollux.Persistence.csproj", "{87D72905-0417-4508-823E-7245E05980D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +29,27 @@ Global
 		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABE52515-3BB6-4BE8-9AEA-7909B1F05658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABE52515-3BB6-4BE8-9AEA-7909B1F05658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABE52515-3BB6-4BE8-9AEA-7909B1F05658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABE52515-3BB6-4BE8-9AEA-7909B1F05658}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07F6CA37-8D0E-442B-AEDD-DEE092525F46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07F6CA37-8D0E-442B-AEDD-DEE092525F46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07F6CA37-8D0E-442B-AEDD-DEE092525F46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07F6CA37-8D0E-442B-AEDD-DEE092525F46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87D72905-0417-4508-823E-7245E05980D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87D72905-0417-4508-823E-7245E05980D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87D72905-0417-4508-823E-7245E05980D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87D72905-0417-4508-823E-7245E05980D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1AF728D0-C17C-4776-A205-FE4EDF27455C} = {AD68A9D2-9E29-4FC5-A1A7-1EB7C3171AAE}
+		{ABE52515-3BB6-4BE8-9AEA-7909B1F05658} = {1B8BADFC-15B2-4401-84FB-A73FDE07EBAE}
+		{07F6CA37-8D0E-442B-AEDD-DEE092525F46} = {1B8BADFC-15B2-4401-84FB-A73FDE07EBAE}
+		{87D72905-0417-4508-823E-7245E05980D6} = {CFDEA485-365F-47B6-91A4-55E1F88C2F38}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {899B42DE-DA04-45EB-A01A-41E7860507D4}

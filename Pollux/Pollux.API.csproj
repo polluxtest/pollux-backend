@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>3040cb38-eb45-4844-9a9b-e266ac353f0e</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <AssemblyName>Pollux.API</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

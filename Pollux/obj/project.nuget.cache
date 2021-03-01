@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "aPD/lC1BoxKoWnlnT/bxAfUWFUVIvM58XAztt8WkBsc1dzEch1M6+vISB+O0sgOLaTi7BuFUHyXwU90248PcHQ==",
+  "dgSpecHash": "e5r+zyNcQuB6Z5JtMJ2aAWzNwoyQjYLUYzJNzMBiGEy7eaiCBiFPeEKT7c+Ddu2WcLdIEPUH8Y6TdkkcEiufEQ==",
   "success": true,
-  "projectFilePath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\Pollux.csproj",
+  "projectFilePath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux\\Pollux.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\odiaz\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.10.9\\microsoft.visualstudio.azure.containers.tools.targets.1.10.9.nupkg.sha512"
   ],
