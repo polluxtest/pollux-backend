@@ -1,0 +1,9 @@
+\\Mac\Home\Documents\Projects\Pollux\Pollux\bin\Debug\netcoreapp3.1\appsettings.Development.json
+\\Mac\Home\Documents\Projects\Pollux\Pollux\bin\Debug\netcoreapp3.1\appsettings.json
+\\Mac\Home\Documents\Projects\Pollux\Pollux\bin\Debug\netcoreapp3.1\Properties\launchSettings.json
+\\Mac\Home\Documents\Projects\Pollux\Pollux\obj\Debug\netcoreapp3.1\Pollux.csprojAssemblyReference.cache
+\\Mac\Home\Documents\Projects\Pollux\Pollux\obj\Debug\netcoreapp3.1\Pollux.AssemblyInfoInputs.cache
+\\Mac\Home\Documents\Projects\Pollux\Pollux\obj\Debug\netcoreapp3.1\Pollux.AssemblyInfo.cs
+\\Mac\Home\Documents\Projects\Pollux\Pollux\obj\Debug\netcoreapp3.1\Pollux.RazorTargetAssemblyInfo.cache
+\\Mac\Home\Documents\Projects\Pollux\Pollux\obj\Debug\netcoreapp3.1\staticwebassets\Pollux.StaticWebAssets.Manifest.cache
+\\Mac\Home\Documents\Projects\Pollux\Pollux\obj\Debug\netcoreapp3.1\staticwebassets\Pollux.StaticWebAssets.xml

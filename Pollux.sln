@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pollux", "Pollux\Pollux.csproj", "{1AF728D0-C17C-4776-A205-FE4EDF27455C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AF728D0-C17C-4776-A205-FE4EDF27455C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {899B42DE-DA04-45EB-A01A-41E7860507D4}
+	EndGlobalSection
+EndGlobal
