@@ -19,9 +19,9 @@
         where TEntity : class
     {
         /// <summary>
-        /// The dbset
+        /// The dbset.
         /// </summary>
-        protected readonly DbSet<TEntity> Dbset;
+        protected readonly DbSet<TEntity> dbSet;
 
         /// <summary>
         /// The database context.
@@ -35,7 +35,7 @@
         protected RepositoryBase(DbContext context)
         {
             this.dbContext = context;
-            this.Dbset = this.dbContext.Set<TEntity>();
+            this.dbSet = this.dbContext.Set<TEntity>();
         }
 
         /// <summary>
@@ -44,7 +44,7 @@
         /// <param name="entity">The entity.</param>
         public virtual void Add(TEntity entity)
         {
-            this.Dbset.Add(entity);
+            this.dbSet.Add(entity);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@
         /// </returns>
         public virtual bool Any(Expression<Func<TEntity, bool>> where)
         {
-            return this.Dbset.Any(where);
+            return this.dbSet.Any(where);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@
         {
             if (this.dbContext.Entry(entity).State == EntityState.Detached)
             {
-                this.Dbset.Attach(entity);
+                this.dbSet.Attach(entity);
             }
         }
 
@@ -77,7 +77,7 @@
         /// <param name="entity">The entity.</param>
         public virtual void Delete(TEntity entity)
         {
-            this.Dbset.Remove(entity);
+            this.dbSet.Remove(entity);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@
             var entity = this.Get(primaryKeys);
             if (entity != null)
             {
-                this.Dbset.Remove(entity);
+                this.dbSet.Remove(entity);
             }
         }
 
@@ -102,7 +102,7 @@
         /// </returns>
         public virtual TEntity Get(Expression<Func<TEntity, bool>> where)
         {
-            return this.Dbset.Where(where).SingleOrDefault();
+            return this.dbSet.Where(where).SingleOrDefault();
         }
 
         /// <summary>
@@ -117,7 +117,7 @@
           Expression<Func<TEntity, bool>> where,
           Func<IQueryable<TEntity>, IQueryable<TEntity>> includeMembers)
         {
-            return includeMembers(this.Dbset.Where(where)).SingleOrDefault();
+            return includeMembers(this.dbSet.Where(where)).SingleOrDefault();
         }
 
         /// <summary>
@@ -129,7 +129,7 @@
         /// </returns>
         public virtual TEntity Get(params object[] primaryKeys)
         {
-            return this.Dbset.Find(primaryKeys);
+            return this.dbSet.Find(primaryKeys);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@
         /// </returns>
         public virtual IEnumerable<TEntity> GetAll(Func<IQueryable<TEntity>, IQueryable<TEntity>> includeMembers)
         {
-            return includeMembers(this.Dbset).ToList();
+            return includeMembers(this.dbSet).ToList();
         }
 
         /// <summary>
@@ -152,7 +152,7 @@
         /// </returns>
         public virtual IEnumerable<TEntity> GetAll()
         {
-            return this.Dbset.ToList();
+            return this.dbSet.ToList();
         }
 
         /// <summary>
@@ -163,7 +163,7 @@
         /// </returns>
         public Task<List<TEntity>> GetAllAsync()
         {
-            return this.Dbset.ToListAsync();
+            return this.dbSet.ToListAsync();
         }
 
         /// <summary>
@@ -175,7 +175,7 @@
         /// </returns>
         public Task<List<TEntity>> GetAllAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> includeMembers)
         {
-            return includeMembers(this.Dbset).ToListAsync();
+            return includeMembers(this.dbSet).ToListAsync();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@
         /// </returns>
         public Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> where)
         {
-            return this.Dbset.Where(where).SingleOrDefaultAsync();
+            return this.dbSet.Where(where).SingleOrDefaultAsync();
         }
 
         /// <summary>
@@ -202,7 +202,7 @@
           Expression<Func<TEntity, bool>> where,
           Func<IQueryable<TEntity>, IQueryable<TEntity>> includeMembers)
         {
-            return includeMembers(this.Dbset.Where(where)).SingleOrDefaultAsync();
+            return includeMembers(this.dbSet.Where(where)).SingleOrDefaultAsync();
         }
 
         /// <summary>
@@ -238,7 +238,7 @@
           Expression<Func<TEntity, bool>> where,
           Func<IQueryable<TEntity>, IQueryable<TEntity>> includeMembers)
         {
-            return includeMembers(this.Dbset.Where(where)).ToList();
+            return includeMembers(this.dbSet.Where(where)).ToList();
         }
 
         /// <summary>
@@ -250,7 +250,7 @@
         /// </returns>
         public virtual IEnumerable<TEntity> GetMany(Expression<Func<TEntity, bool>> where)
         {
-            return this.Dbset.Where(where).ToList();
+            return this.dbSet.Where(where).ToList();
         }
 
         /// <summary>
@@ -262,7 +262,7 @@
         /// </returns>
         public Task<List<TEntity>> GetManyAsync(Expression<Func<TEntity, bool>> where)
         {
-            return this.Dbset.Where(where).ToListAsync();
+            return this.dbSet.Where(where).ToListAsync();
         }
 
         /// <summary>
@@ -277,7 +277,7 @@
           Expression<Func<TEntity, bool>> where,
           Func<IQueryable<TEntity>, IQueryable<TEntity>> includeMembers)
         {
-            return includeMembers(this.Dbset.Where(where)).ToListAsync();
+            return includeMembers(this.dbSet.Where(where)).ToListAsync();
         }
 
         /// <summary>
@@ -311,7 +311,7 @@
         /// </returns>
         public virtual IQueryable<TEntity> GetQuery()
         {
-            return this.Dbset;
+            return this.dbSet;
         }
 
         /// <summary>
@@ -322,8 +322,8 @@
         /// </returns>
         public virtual IQueryable<TEntity> GetQueryAsNoTracking()
         {
-            this.Dbset.GetHashCode();
-            return this.Dbset.AsNoTracking();
+            this.dbSet.GetHashCode();
+            return this.dbSet.AsNoTracking();
         }
 
         /// <summary>
