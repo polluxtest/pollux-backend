@@ -1713,9 +1713,26 @@
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
       },
+      "Pollux.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "Pollux.Common": "1.0.0",
+          "Pollux.Persistence": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Pollux.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Pollux.Application.dll": {}
+        }
+      },
       "Pollux.Common/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "5.0.1"
+        },
         "compile": {
           "bin/placeholder/Pollux.Common.dll": {}
         },
@@ -6429,6 +6446,11 @@
         "system.xml.xmlserializer.nuspec"
       ]
     },
+    "Pollux.Application/1.0.0": {
+      "type": "project",
+      "path": "../Pollux.Application/Pollux.Application.csproj",
+      "msbuildProject": "../Pollux.Application/Pollux.Application.csproj"
+    },
     "Pollux.Common/1.0.0": {
       "type": "project",
       "path": "../Pollux.Common/Pollux.Common.csproj",
@@ -6450,6 +6472,7 @@
       "Microsoft.EntityFrameworkCore.Design >= 5.0.3",
       "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.3",
       "Microsoft.VisualStudio.Azure.Containers.Tools.Targets >= 1.10.9",
+      "Pollux.Application >= 1.0.0",
       "Pollux.Common >= 1.0.0",
       "Pollux.Persistence >= 1.0.0",
       "StyleCop.Analyzers >= 1.1.118",
@@ -6486,6 +6509,9 @@
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
+            "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux.Application\\Pollux.Application.csproj": {
+              "projectPath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux.Application\\Pollux.Application.csproj"
+            },
             "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux.Common\\Pollux.Common.csproj": {
               "projectPath": "\\\\Mac\\Home\\Documents\\Projects\\Pollux\\BackEnd\\pollux-backend\\Pollux.Common\\Pollux.Common.csproj"
             },

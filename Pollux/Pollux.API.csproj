@@ -26,6 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Pollux.Application\Pollux.Application.csproj" />
 		<ProjectReference Include="..\Pollux.Common\Pollux.Common.csproj" />
 		<ProjectReference Include="..\Pollux.Persistence\Pollux.Persistence.csproj" />
 	</ItemGroup>

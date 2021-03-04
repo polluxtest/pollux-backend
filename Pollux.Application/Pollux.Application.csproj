@@ -11,4 +11,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Pollux.Common\Pollux.Common.csproj" />
+    <ProjectReference Include="..\Pollux.Persistence\Pollux.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>

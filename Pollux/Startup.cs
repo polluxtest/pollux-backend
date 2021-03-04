@@ -6,6 +6,7 @@ namespace Pollux
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Pollux.API;
     using Pollux.Persistence;
 
     /// <summary>
@@ -38,6 +39,8 @@ namespace Pollux
             services.AddSwaggerGen();
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddCors();
+            services.AddDIRepositories();
+            services.AddDIServices();
         }
 
         /// <summary>
