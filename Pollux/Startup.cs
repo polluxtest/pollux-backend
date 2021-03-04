@@ -33,7 +33,7 @@ namespace Pollux
         /// <param name="services">The services<see cref="IServiceCollection"/>.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:SQLConnectionString"];
+            var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
             services.AddControllers();
             services.AddSwaggerGen();
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
@@ -56,6 +56,7 @@ namespace Pollux
             app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseRouting();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseAuthentication();
         }
 
         /// <summary>

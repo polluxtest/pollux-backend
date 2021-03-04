@@ -2,6 +2,10 @@
 {
     using Microsoft.AspNet.Identity.EntityFramework;
 
+    /// <summary>
+    /// User Entity.
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNet.Identity.EntityFramework.IdentityUser" />
     public class User : IdentityUser
     {
         /// <summary>
