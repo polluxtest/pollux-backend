@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Folder Include="ExtensionMethods\" />
+    <Folder Include="Models\Response\" />
   </ItemGroup>
 
 </Project>
