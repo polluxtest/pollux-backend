@@ -5,5 +5,7 @@
         public const string DefaultRoute = "api/pollux/[controller]";
 
         public const string LogIn = "LogIn";
+
+        public const string SignUp = "SignUp";
     }
 }

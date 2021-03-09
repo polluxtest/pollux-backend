@@ -1,15 +1,26 @@
 ﻿namespace Pollux.Application
 {
     using System.Threading.Tasks;
+    using AutoMapper;
     using Microsoft.AspNetCore.Identity;
     using Pollux.Common.Application.Models.Request;
-    using Pollux.Common.Models.Request;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
 
     public interface IUsersService
     {
-        void LogIn(LogInModel logInModel);
+        /// <summary>
+        /// Signs up the User.
+        /// </summary>
+        /// <param name="signUpModel">The create user model.</param>
+        void SignUp(SignUpModel signUpModel);
+
+        /// <summary>
+        /// Logs In the User.
+        /// </summary>
+        /// <param name="logInModel">The log in model.</param>
+        /// <returns>Task.</returns>
+        Task LogInAsync(LogInModel logInModel);
     }
 
     public class UsersService : IUsersService
@@ -29,38 +40,51 @@
         /// </summary>
         private readonly SignInManager<User> userIdentitySignManager;
 
+        private readonly IMapper mapper;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UsersService"/> class.
         /// </summary>
         /// <param name="usersRepository">The users repository.</param>
         /// <param name="userManager">The user manager.</param>
         /// <param name="userSignInManager">The user sign in manager.</param>
+        /// <param name="mapper">The Auto mapper instance.</param>
         public UsersService(
             IUsersRepository usersRepository,
             UserManager<User> userManager,
-            SignInManager<User> userSignInManager)
+            SignInManager<User> userSignInManager,
+            IMapper mapper)
         {
             this.usersRepository = usersRepository;
             this.userIdentityManager = userManager;
             this.userIdentitySignManager = userSignInManager;
+            this.mapper = mapper;
         }
 
         /// <summary>
-        /// Signs up.
+        /// Signs up a user.
         /// </summary>
-        /// <param name="createUserModel">The create user model.</param>
-        public async void SignUp(CreateUserModel createUserModel)
+        /// <param name="signUpModel">The create user model.</param>
+        public async void SignUp(SignUpModel signUpModel)
         {
-            var identityResult = await this.userIdentityManager.CreateAsync(new User(), "abc123");
+            var newUser = new User();
+            this.mapper.Map(signUpModel, newUser);
+
+            var identityResult = await this.userIdentityManager.CreateAsync(newUser).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Logs the in.
+        /// Logs In the User.
         /// </summary>
-        /// <param name="loginModel">The login model.</param>
-        public async void LogIn(LogInModel loginModel)
+        /// <param name="logInModel">The log in model.</param>
+        /// <returns>
+        /// Task.
+        /// </returns>
+        public Task LogInAsync(LogInModel logInModel)
         {
-            await this.userIdentitySignManager.SignInAsync(new User(), true);
+            var user = new User();
+            this.mapper.Map(logInModel, user);
+            return this.userIdentitySignManager.SignInAsync(user, true);
         }
     }
 }

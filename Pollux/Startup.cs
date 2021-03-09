@@ -6,6 +6,7 @@ namespace Pollux.API
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Pollux.Application.Mappers;
     using Pollux.Persistence;
 
     /// <summary>
@@ -40,13 +41,14 @@ namespace Pollux.API
             services.AddCors();
             services.AddDIRepositories();
             services.AddDIServices();
+            services.AddAutoMapper(AssemblyApplication.Assembly);
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        /// <param name="app">The app<see cref="IApplicationBuilder"/>.</param>
-        /// <param name="env">The env<see cref="IWebHostEnvironment"/>.</param>
         /// </summary>
+        /// <param name="app">The application.</param>
+        /// <param name="env">The env.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRouting();
