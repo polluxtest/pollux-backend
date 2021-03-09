@@ -12,6 +12,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="IdentityServer4" Version="4.1.1" />
+		<PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.3">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,6 +30,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Pollux.Application\Pollux.Application.csproj" />
+		<ProjectReference Include="..\Pollux.Common.Application\Pollux.Common.Application.csproj" />
 		<ProjectReference Include="..\Pollux.Common\Pollux.Common.csproj" />
 		<ProjectReference Include="..\Pollux.Persistence\Pollux.Persistence.csproj" />
 	</ItemGroup>

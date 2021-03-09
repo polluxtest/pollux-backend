@@ -13,6 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Pollux.Common.Application\Pollux.Common.Application.csproj" />
 		<ProjectReference Include="..\Pollux.Common\Pollux.Common.csproj" />
 		<ProjectReference Include="..\Pollux.Persistence\Pollux.Persistence.csproj" />
 	</ItemGroup>

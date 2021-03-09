@@ -3,6 +3,8 @@ namespace Pollux
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
 
+    using Pollux.API;
+
     /// <summary>
     /// Defines the <see cref="Program" />.
     /// </summary>

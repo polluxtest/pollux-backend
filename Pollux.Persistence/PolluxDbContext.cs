@@ -49,8 +49,8 @@
         /// <param name="modelBuilder">The model builder.</param>
         private void IgnoreTables(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<Microsoft.AspNet.Identity.EntityFramework.IdentityUserLogin>();
-            modelBuilder.Ignore<Microsoft.AspNet.Identity.EntityFramework.IdentityUserClaim>();
+            modelBuilder.Ignore<Microsoft.AspNetCore.Identity.IdentityUserLogin<string>>();
+            modelBuilder.Ignore<Microsoft.AspNetCore.Identity.IdentityUserClaim<string>>();
         }
 
         /// <summary>
@@ -59,7 +59,7 @@
         /// <param name="modelBuilder">The model builder.</param>
         private void RenameTables(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Microsoft.AspNet.Identity.EntityFramework.IdentityUserRole>(
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<string>>(
                p =>
                {
                    p.ToTable("UserRoles");

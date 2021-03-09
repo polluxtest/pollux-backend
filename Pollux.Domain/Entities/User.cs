@@ -1,12 +1,12 @@
 ﻿namespace Pollux.Domain.Entities
 {
-    using Microsoft.AspNet.Identity.EntityFramework;
+    using Microsoft.AspNetCore.Identity;
 
     /// <summary>
     /// User Entity.
     /// </summary>
-    /// <seealso cref="Microsoft.AspNet.Identity.EntityFramework.IdentityUser" />
-    public class User : IdentityUser
+    /// <seealso cref="Microsoft.AspNet.Identity.IdentityUser" />
+    public class User : IdentityUser<string>
     {
         /// <summary>
         /// Gets or sets the name.
