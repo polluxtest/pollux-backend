@@ -19,10 +19,19 @@
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Id).ValueGeneratedOnAdd();
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
-            builder.Property(p => p.LastName).IsRequired().HasMaxLength(100);
+            builder.Property(p => p.EmailConfirmed).HasDefaultValue(false);
+            builder.Property(p => p.PhoneNumber).IsRequired(false);
+            builder.Property(p => p.UserName).IsRequired(false);
+
+            builder.Ignore(p => p.PhoneNumberConfirmed);
+            builder.Ignore(p => p.AccessFailedCount);
             builder.Ignore(p => p.LockoutEnabled);
             builder.Ignore(p => p.SecurityStamp);
             builder.Ignore(p => p.TwoFactorEnabled);
+            builder.Ignore(p => p.ConcurrencyStamp);
+            builder.Ignore(p => p.LockoutEnd);
+            builder.Ignore(p => p.NormalizedEmail);
+
             builder.HasIndex(p => p.Id);
         }
     }

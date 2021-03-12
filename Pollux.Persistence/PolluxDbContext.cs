@@ -1,5 +1,7 @@
 ﻿namespace Pollux.Persistence
 {
+    using System.Reflection;
+
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using Pollux.Domain.Entities;
@@ -25,6 +27,11 @@
         public new DbSet<User> Users { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> of roles.
+        /// </summary>
+        public new DbSet<Role> Roles { get; set; }
+
+        /// <summary>
         /// Override this method to further configure the model that was discovered by convention from the entity types
         /// exposed in <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> properties on your derived context. The resulting model may be cached
         /// and re-used for subsequent instances of your derived context.
@@ -39,6 +46,7 @@
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(AssemblyPersistence.Assembly);
             this.IgnoreTables(modelBuilder);
             this.RenameTables(modelBuilder);
         }

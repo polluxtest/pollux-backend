@@ -8,7 +8,7 @@
     /// Defines the Base Controllers attributes for the core domain <see cref="BaseController" />.
     /// </summary>
     [Route(ApiConstants.DefaultRoute)]
-    // [Authorize]
+    [Authorize]
     [ApiController]
     public class BaseController : ControllerBase
     {
