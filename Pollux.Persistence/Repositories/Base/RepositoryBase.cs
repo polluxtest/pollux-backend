@@ -187,7 +187,7 @@
         /// </returns>
         public Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> where)
         {
-            return this.dbSet.Where(where).SingleOrDefaultAsync();
+            return this.dbSet.Where(where).AsNoTracking().SingleOrDefaultAsync();
         }
 
         /// <summary>

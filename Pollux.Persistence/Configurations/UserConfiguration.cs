@@ -26,7 +26,7 @@
             builder.Ignore(p => p.PhoneNumberConfirmed);
             builder.Ignore(p => p.AccessFailedCount);
             builder.Ignore(p => p.LockoutEnabled);
-            builder.Ignore(p => p.SecurityStamp);
+
             builder.Ignore(p => p.TwoFactorEnabled);
             builder.Ignore(p => p.ConcurrencyStamp);
             builder.Ignore(p => p.LockoutEnd);

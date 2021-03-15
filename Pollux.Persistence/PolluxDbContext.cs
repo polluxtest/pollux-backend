@@ -31,6 +31,8 @@
         /// </summary>
         public new DbSet<Role> Roles { get; set; }
 
+        //////////// public new DbSet<UserClaim> UserClaims { get; set; }
+
         /// <summary>
         /// Override this method to further configure the model that was discovered by convention from the entity types
         /// exposed in <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> properties on your derived context. The resulting model may be cached
@@ -57,8 +59,7 @@
         /// <param name="modelBuilder">The model builder.</param>
         private void IgnoreTables(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<Microsoft.AspNetCore.Identity.IdentityUserLogin<string>>();
-            modelBuilder.Ignore<Microsoft.AspNetCore.Identity.IdentityUserClaim<string>>();
+            modelBuilder.Ignore<Microsoft.AspNetCore.Identity.IdentityUserLogin<int>>();
         }
 
         /// <summary>
@@ -67,12 +68,15 @@
         /// <param name="modelBuilder">The model builder.</param>
         private void RenameTables(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<string>>(
+            modelBuilder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<int>>(
                p =>
                {
                    p.ToTable("UserRoles");
                    p.HasKey(y => new { y.UserId, y.RoleId });
                });
+
+
+
         }
     }
 }

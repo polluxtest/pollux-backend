@@ -47,25 +47,60 @@ namespace Pollux.API
         {
             var connectionString =
                 this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
-            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
-            this.SetUpAuthentication(services);
+            //  JwtSecurityTokenHandler.DefaultMapInboundClaims = false
 
+            services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
 
+            services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
+
+            services.AddIdentityServer(
+                    options =>
+                        {
+                            options.Events.RaiseErrorEvents = true;
+                            options.Events.RaiseInformationEvents = true;
+                            options.Events.RaiseFailureEvents = true;
+                            options.Events.RaiseSuccessEvents = true;
+                            options.EmitStaticAudienceClaim = true;
+                        })
+                .AddInMemoryIdentityResources(Config.IdentityResources)
+                .AddInMemoryApiScopes(Config.ApiScopes)
+                .AddInMemoryClients(Config.Clients)
+                .AddAspNetIdentity<User>();
 
             services.Configure<IdentityOptions>(options =>
-                {
-                    options.Password.RequireDigit = false;
-                    options.Password.RequiredLength = 8;
-                    options.Password.RequireLowercase = false;
-                    options.Password.RequireUppercase = false;
-                    options.Password.RequireNonAlphanumeric = false;
-                });
+                    {
+                        options.Password.RequireDigit = false;
+                        options.Password.RequiredLength = 8;
+                        options.Password.RequireLowercase = false;
+                        options.Password.RequireUppercase = false;
+                        options.Password.RequireNonAlphanumeric = false;
+                    });
             this.SetUpIdentityServer(services);
-            this.SetUpAuthentication(services);
+
+            services.AddAuthentication(options =>
+                    {
+                        options.DefaultScheme = "Cookies";
+                        options.DefaultChallengeScheme = "oidc";
+                    })
+                .AddCookie("Cookies")
+                .AddOpenIdConnect("oidc", options =>
+                    {
+                        options.Authority = "https://localhost:5001";
+
+                        options.ClientId = "mvc";
+                        options.ClientSecret = "secret";
+                        options.ResponseType = "code";
+
+                        options.SaveTokens = true;
+
+                        options.Scope.Add("api1");
+                        options.Scope.Add("offline_access");
+                    });
+
+
             services.AddControllers();
             services.AddSwaggerGen();
             ////this.SetUpSwagger(services);
-            services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddCors();
             services.AddDIRepositories();
             services.AddDIServices();
@@ -155,20 +190,10 @@ namespace Pollux.API
         /// <param name="services">The services.</param>
         private void SetUpIdentityServer(IServiceCollection services)
         {
-            var builder = services.AddIdentityServer(
-                    options =>
-                        {
-                            options.Events.RaiseErrorEvents = true;
-                            options.Events.RaiseInformationEvents = true;
-                            options.Events.RaiseFailureEvents = true;
-                            options.Events.RaiseSuccessEvents = true;
-                            // see https://identityserver4.readthedocs.io/en/latest/topics/resources.html
-                            options.EmitStaticAudienceClaim = true;
-                        }).AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddInMemoryClients(Config.Clients);
+            //var builder = 
         }
 
-        /// <summary>
+        /// <summary
         /// Sets up authentication.
         /// </summary>
         /// <param name="services">The services.</param>

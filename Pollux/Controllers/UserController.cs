@@ -1,7 +1,12 @@
 ﻿namespace Pollux.API.Controllers
 {
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Pollux.Application;
@@ -29,10 +34,14 @@
         [Route(ApiConstants.LogIn)]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult> LogIn([FromBody] LogInModel loginModel)
+        public async Task<ActionResult<IEnumerable<Claim>>> LogIn([FromBody] LogInModel loginModel)
         {
+
             await this.userService.LogInAsync(loginModel);
-            return this.Created(string.Empty, new object());
+            var token = await HttpContext.GetTokenAsync("access_token");
+            var refresh = await HttpContext.GetTokenAsync("refresh_token");
+            var cookie = HttpContext.Response.Cookies;
+            return this.Created(string.Empty, this.HttpContext.Session.Keys);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿namespace Pollux.Application
 {
     using System;
+    using System.Security.Claims;
     using System.Security.Policy;
     using System.Threading;
     using System.Threading.Tasks;
@@ -12,6 +13,8 @@
 
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+
     using Pollux.Common.Application.Models.Request;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
@@ -65,6 +68,8 @@
         private readonly IAuthenticationSchemeProvider schemeProvider;
         private readonly IEventService events;
 
+        private readonly IPasswordHasher<User> passwordHasher;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UsersService"/> class.
@@ -81,7 +86,8 @@
             IIdentityServerInteractionService iIdentityServerInteractionService,
             IClientStore clientStore,
             IAuthenticationSchemeProvider authenticationSchemeProvider,
-            IEventService events)
+            IEventService events,
+            IPasswordHasher<User> passwordHasher)
         {
             this.usersRepository = usersRepository;
             this.userIdentityManager = userManager;
@@ -90,6 +96,7 @@
             this.interaction = iIdentityServerInteractionService;
             this.clientStore = clientStore;
             this.events = events;
+            this.passwordHasher = passwordHasher;
 
         }
 
@@ -115,33 +122,54 @@
         /// <returns>
         /// Task.
         /// </returns>
-        public async Task LogInAsync(LogInModel logInModel)
+        public async Task LogInAsync(LogInModel model)
         {
-            var context = await this.interaction.GetAuthorizationContextAsync(logInModel.ReturnUrl);
+            var context = await this.interaction.GetAuthorizationContextAsync(model.ReturnUrl);
+            // await this.userIdentityManager.AddClaimAsync(new User() { SecurityStamp = "holaputp" }, new Claim(ClaimTypes.Email, model.Email));
 
-
-
-            var result = await userIdentitySignManager.PasswordSignInAsync(logInModel.Email, logInModel.Password, true, lockoutOnFailure: false);
-
+            var result = await this.userIdentitySignManager.PasswordSignInAsync(model.Email, model.Password, true, lockoutOnFailure: true);
             if (result.Succeeded)
             {
-                var user = await this.usersRepository.GetAsync(p => p.Email.Equals(logInModel.Email));
-                await this.events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, "username", clientId: context?.Client.ClientId));
+                var user = await this.usersRepository.GetAsync(p => p.Email.Equals(model.Email));
+                await this.events.RaiseAsync(
+                    new UserLoginSuccessEvent(
+                        user.UserName,
+                        user.Id,
+                        user.UserName,
+                        clientId: context?.Client.ClientId));
 
-                if (context != null)
-                {
-                    //if (context.IsNativeClient())
-                    //{
-                    //    // The client is native, so this change in how to
-                    //    // return the response is for better UX for the end user.
-                    //    return this.LoadingPage("Redirect", model.ReturnUrl);
-                    //}
 
-                    // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                }
+                //await this.userIdentityManager.AddClaimAsync(logInUser, new Claim(ClaimTypes.Name, u.UserName));
+                //var result = await userIdentitySignManager.PasswordSignInAsync(logInModel.Email, logInModel.Password, true, lockoutOnFailure: false);
+
+                //await this.userIdentitySignManager.SignInAsync(logInUser,
+                // new AuthenticationProperties() { ExpiresUtc = DateTimeOffset.Now.AddHours(1) });
+
+                await this.events.RaiseAsync(
+                    new UserLoginSuccessEvent(
+                        model.Email,
+                        "LogIn succesfull",
+                        "username",
+                        clientId: context?.Client.ClientId));
             }
+            //{
+            //    var user = await this.usersRepository.GetAsync(p => p.Email.Equals(logInModel.Email));
+            //    await this.events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, "username", clientId: context?.Client.ClientId));
 
-            await events.RaiseAsync(new UserLoginFailureEvent(logInModel.Email, "invalid credentials", clientId: context?.Client.ClientId));
+            //    if (context != null)
+            //    {
+            //        //if (context.IsNativeClient())
+            //        //{
+            //        //    // The client is native, so this change in how to
+            //        //    // return the response is for better UX for the end user.
+            //        //    return this.LoadingPage("Redirect", model.ReturnUrl);
+            //        //}
+
+            //        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+            //    }
+            //}
+
+            //await events.RaiseAsync(new UserLoginFailureEvent(logInModel.Email, "invalid credentials", clientId: context?.Client.ClientId));
 
             // something went wrong
             //await this.userIdentitySignManager.SignInAsync(user, true);
