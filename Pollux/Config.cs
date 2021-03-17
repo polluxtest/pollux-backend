@@ -33,10 +33,10 @@ namespace Pollux.API
                         {
                             ClientId = "client",
                             ClientSecrets = { new Secret("secret".Sha256()) },
-
+                            AllowOfflineAccess = true,
                             AllowedGrantTypes = GrantTypes.ClientCredentials,
                             // scopes that client has access to
-                            AllowedScopes = new List<string>(){ "api","api/pollux"}
+                            AllowedScopes = new List<string>(){ "api","api/pollux",""}
                         },
                 
                     // interactive ASP.NET Core MVC client

@@ -13,6 +13,8 @@ namespace Pollux.API
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.IdentityModel.Logging;
+    using Microsoft.IdentityModel.Protocols.OpenIdConnect;
     using Microsoft.IdentityModel.Tokens;
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json.Linq;
@@ -53,6 +55,7 @@ namespace Pollux.API
 
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
 
+            IdentityModelEventSource.ShowPII = true; //Add this line
             services.AddIdentityServer(
                     options =>
                         {
@@ -61,11 +64,8 @@ namespace Pollux.API
                             options.Events.RaiseFailureEvents = true;
                             options.Events.RaiseSuccessEvents = true;
                             options.EmitStaticAudienceClaim = true;
-                        })
-                .AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryClients(Config.Clients)
-                .AddAspNetIdentity<User>();
+                        }).AddInMemoryIdentityResources(Config.IdentityResources).AddInMemoryApiScopes(Config.ApiScopes)
+                .AddInMemoryClients(Config.Clients).AddAspNetIdentity<User>().AddDeveloperSigningCredential();
 
             services.Configure<IdentityOptions>(options =>
                     {
@@ -75,7 +75,7 @@ namespace Pollux.API
                         options.Password.RequireUppercase = false;
                         options.Password.RequireNonAlphanumeric = false;
                     });
-            this.SetUpIdentityServer(services);
+
 
             services.AddAuthentication(options =>
                     {
@@ -85,18 +85,16 @@ namespace Pollux.API
                 .AddCookie("Cookies")
                 .AddOpenIdConnect("oidc", options =>
                     {
-                        options.Authority = "https://localhost:5001";
-
-                        options.ClientId = "mvc";
+                        options.Authority = "http://localhost:5000/connect/token";
+                        options.ClientId = "default";
                         options.ClientSecret = "secret";
-                        options.ResponseType = "code";
-
+                        //options.ResponseType = "code";
                         options.SaveTokens = true;
-
-                        options.Scope.Add("api1");
+                        options.Configuration = new OpenIdConnectConfiguration() { };
+                        options.Scope.Add("api");
                         options.Scope.Add("offline_access");
                     });
-
+            services.AddAccessTokenManagement();
 
             services.AddControllers();
             services.AddSwaggerGen();

@@ -4,6 +4,7 @@ namespace Pollux.API
     using System.Threading.Tasks;
 
     using IdentityServer4.Models;
+    using IdentityServer4.Services;
     using IdentityServer4.Stores;
 
     using Microsoft.AspNetCore.Identity;
@@ -47,25 +48,51 @@ namespace Pollux.API
             service.AddScoped<IUsersService, UsersService>();
 
             service.AddScoped<IdentityServer4.Stores.IResourceStore, ResourceStore>();
+            service.AddTransient<IClientStore, ClientStore>();
+            service.AddTransient<ICorsPolicyService, CorsPolicyService>();
 
+        }
+    }
+
+    public class CorsPolicyService : ICorsPolicyService
+    {
+        public async Task<bool> IsOriginAllowedAsync(string origin)
+        {
+            return true;
+        }
+    }
+
+    public class ClientStore : IClientStore
+    {
+        public async Task<Client> FindClientByIdAsync(string clientId)
+        {
+            return new Client()
+            {
+                ClientId = "client",
+                ClientSecrets = { new Secret("secret".Sha256()) },
+                AllowOfflineAccess = true,
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                // scopes that client has access to
+                AllowedScopes = new List<string>() { "api", "api/pollux", "" }
+            };
         }
     }
 
     public class ResourceStore : IResourceStore
     {
-        public Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
-            throw new System.NotImplementedException();
+            return new List<IdentityResource>();
         }
 
-        public Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
         {
-            throw new System.NotImplementedException();
+            return new List<ApiScope>() { new ApiScope() { Name = "api" }, new ApiScope() { Name = "api/pollux" } };
         }
 
-        public Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
-            throw new System.NotImplementedException();
+            return new List<ApiResource>();
         }
 
         public Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)

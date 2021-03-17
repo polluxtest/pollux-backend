@@ -38,10 +38,11 @@
         {
 
             await this.userService.LogInAsync(loginModel);
-            var token = await HttpContext.GetTokenAsync("access_token");
-            var refresh = await HttpContext.GetTokenAsync("refresh_token");
-            var cookie = HttpContext.Response.Cookies;
-            return this.Created(string.Empty, this.HttpContext.Session.Keys);
+            //var token = await HttpContext.GetTokenAsync("access_token");
+            //var refresh = await HttpContext.GetTokenAsync("refresh_token");
+            //var cookie = HttpContext.Response.Cookies;
+            var token = await this.userService.SetAuth(this.User);
+            return this.Created(string.Empty, token);
         }
 
         /// <summary>

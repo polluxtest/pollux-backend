@@ -7,6 +7,9 @@
     using System.Threading.Tasks;
     using AutoMapper;
 
+    using IdentityModel.AspNetCore.AccessTokenManagement;
+    using IdentityModel.Client;
+
     using IdentityServer4.Events;
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
@@ -15,9 +18,11 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
 
+    using Pollux.API.OAuth.Interfaces;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
+
 
     public interface IUsersService
     {
@@ -39,6 +44,8 @@
         /// </summary>
         /// <returns>Task.</returns>
         void LogOutAsync();
+
+        Task<TokenResponse> SetAuth(ClaimsPrincipal user);
     }
 
     public class UsersService : IUsersService
@@ -64,11 +71,10 @@
         private readonly IMapper mapper;
 
         private readonly IIdentityServerInteractionService interaction;
-        private readonly IClientStore clientStore;
-        private readonly IAuthenticationSchemeProvider schemeProvider;
         private readonly IEventService events;
+        private readonly IUserAccessTokenManagementService userAccessTokenManagementService;
 
-        private readonly IPasswordHasher<User> passwordHasher;
+        private readonly ITokenEndpointService tokenServiceEndpoint;
 
 
         /// <summary>
@@ -87,16 +93,18 @@
             IClientStore clientStore,
             IAuthenticationSchemeProvider authenticationSchemeProvider,
             IEventService events,
-            IPasswordHasher<User> passwordHasher)
+            IUserAccessTokenManagementService userAccessTokenManagementService,
+
+            ITokenEndpointService tokenServiceEndpoint)
         {
             this.usersRepository = usersRepository;
             this.userIdentityManager = userManager;
             this.userIdentitySignManager = userSignInManager;
             this.mapper = mapper;
             this.interaction = iIdentityServerInteractionService;
-            this.clientStore = clientStore;
             this.events = events;
-            this.passwordHasher = passwordHasher;
+            this.userAccessTokenManagementService = userAccessTokenManagementService;
+            this.tokenServiceEndpoint = tokenServiceEndpoint;
 
         }
 
@@ -125,56 +133,27 @@
         public async Task LogInAsync(LogInModel model)
         {
             var context = await this.interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-            // await this.userIdentityManager.AddClaimAsync(new User() { SecurityStamp = "holaputp" }, new Claim(ClaimTypes.Email, model.Email));
-
             var result = await this.userIdentitySignManager.PasswordSignInAsync(model.Email, model.Password, true, lockoutOnFailure: true);
+
             if (result.Succeeded)
             {
                 var user = await this.usersRepository.GetAsync(p => p.Email.Equals(model.Email));
-                await this.events.RaiseAsync(
-                    new UserLoginSuccessEvent(
-                        user.UserName,
-                        user.Id,
-                        user.UserName,
-                        clientId: context?.Client.ClientId));
+                await this.events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: context?.Client.ClientId));
 
-
-                //await this.userIdentityManager.AddClaimAsync(logInUser, new Claim(ClaimTypes.Name, u.UserName));
-                //var result = await userIdentitySignManager.PasswordSignInAsync(logInModel.Email, logInModel.Password, true, lockoutOnFailure: false);
-
-                //await this.userIdentitySignManager.SignInAsync(logInUser,
-                // new AuthenticationProperties() { ExpiresUtc = DateTimeOffset.Now.AddHours(1) });
-
-                await this.events.RaiseAsync(
-                    new UserLoginSuccessEvent(
-                        model.Email,
-                        "LogIn succesfull",
-                        "username",
-                        clientId: context?.Client.ClientId));
             }
-            //{
-            //    var user = await this.usersRepository.GetAsync(p => p.Email.Equals(logInModel.Email));
-            //    await this.events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, "username", clientId: context?.Client.ClientId));
+            else
+            {
+                await events.RaiseAsync(new UserLoginFailureEvent(model.Email, "invalid credentials", clientId: context?.Client.ClientId));
+            }
+        }
 
-            //    if (context != null)
-            //    {
-            //        //if (context.IsNativeClient())
-            //        //{
-            //        //    // The client is native, so this change in how to
-            //        //    // return the response is for better UX for the end user.
-            //        //    return this.LoadingPage("Redirect", model.ReturnUrl);
-            //        //}
-
-            //        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-            //    }
-            //}
-
-            //await events.RaiseAsync(new UserLoginFailureEvent(logInModel.Email, "invalid credentials", clientId: context?.Client.ClientId));
-
-            // something went wrong
-            //await this.userIdentitySignManager.SignInAsync(user, true);
-
-
+        public async Task<TokenResponse> SetAuth(ClaimsPrincipal user)
+        {
+            //var token = await this.userAccessTokenManagementService.GetUserAccessTokenAsync(user);
+            var atparams = new ClientAccessTokenParameters();
+            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("default");
+            var at = token.AccessToken;
+            return token;
         }
 
         /// <summary>
