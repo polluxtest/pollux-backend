@@ -70,7 +70,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                         Method = HttpMethod.Post,
                         ClientId = options.ClientId,
                         ClientSecret = options.ClientSecret,
-                        GrantType = GrantTypes.ClientCredentials.First()
+                        GrantType = GrantTypes.CodeAndClientCredentials.First()
                     };
 
                     if (!string.IsNullOrWhiteSpace(_accessTokenManagementOptions.Client.Scope))

@@ -10,6 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace IdentityModel.AspNetCore.AccessTokenManagement
 {
+    using System.Linq;
+
+    using AutoMapper.Internal;
+
+    using IdentityServer4;
+    using IdentityServer4.Models;
+
+    using Pollux.Application.OAuth.Models;
+
     /// <summary>
     /// Implements token endpoint operations using IdentityModel
     /// </summary>
@@ -49,28 +58,44 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
 
 
 
-            var requestDetails = await _configService.GetClientCredentialsRequestAsync(clientName, tokenParameters
-);
+            var requestDetails = await _configService.GetClientCredentialsRequestAsync(clientName, tokenParameters);
+
+
+
 
 #if NET5_0
             requestDetails.Options.TryAdd(AccessTokenManagementDefaults.AccessTokenParametersOptionsName, parameters);
 #elif NETCOREAPP3_1
-            requestDetails.Properties[AccessTokenManagementDefaults.AccessTokenParametersOptionsName] = tokenParameters
-;
+            //requestDetails.Properties[AccessTokenManagementDefaults.AccessTokenParametersOptionsName] = tokenParameters
+            ;
 #endif
 
-            if (!string.IsNullOrWhiteSpace(tokenParameters
-.Resource))
+            //            if (!string.IsNullOrWhiteSpace(tokenParameters
+            //.Resource))
+            //            {
+            //                requestDetails.Resource.Add(tokenParameters
+            //.Resource);
+            //            }
+
+
+            //            requestDetails.Scope += "api api/pollux " + IdentityServerConstants.StandardScopes.OpenId;
+            //            requestDetails.GrantType = GrantTypes.ResourceOwnerPassword.First();
+
+            var clientCredentials = new IdentityModel.Client.PasswordTokenRequest()
             {
-                requestDetails.Resource.Add(tokenParameters
-.Resource);
-            }
-
-
-            requestDetails.Scope += "api api/pollux";
+                Method = HttpMethod.Post,
+                Address = "http://localhost:5000/connect/token",
+                ClientId = "client",
+                ClientSecret = "secret",
+                GrantType = GrantTypes.ResourceOwnerPassword.First(),
+                Scope = "api api/pollux offline_access",
+                UserName = "octa@gmail.com",
+                Password = "apolo100"
+            };
 
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
-            return await httpClient.RequestClientCredentialsTokenAsync(requestDetails, cancellationToken);
+            return await httpClient.RequestPasswordTokenAsync(clientCredentials);
+
         }
 
         /// <inheritdoc/>

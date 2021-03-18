@@ -1,10 +1,15 @@
 namespace Pollux.API
 {
     using System;
+    using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
     using System.Net.Http;
     using IdentityModel.Client;
+
+    using IdentityServer4.Models;
+    using IdentityServer4.Test;
+
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -19,6 +24,7 @@ namespace Pollux.API
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json.Linq;
     using Pollux.Application.Mappers;
+    using Pollux.Application.OAuth;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
 
@@ -64,8 +70,13 @@ namespace Pollux.API
                             options.Events.RaiseFailureEvents = true;
                             options.Events.RaiseSuccessEvents = true;
                             options.EmitStaticAudienceClaim = true;
-                        }).AddInMemoryIdentityResources(Config.IdentityResources).AddInMemoryApiScopes(Config.ApiScopes)
-                .AddInMemoryClients(Config.Clients).AddAspNetIdentity<User>().AddDeveloperSigningCredential();
+                        }).AddInMemoryIdentityResources(Config.IdentityResources)
+                .AddTestUsers(
+                    new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" } })
+                .AddInMemoryApiScopes(Config.ApiScopes).AddInMemoryClients(Config.Clients).AddAspNetIdentity<User>()
+                .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
+                .AddCustomTokenRequestValidator<TokenValidator>().AddProfileService<ProfileService>();
+
 
             services.Configure<IdentityOptions>(options =>
                     {
@@ -86,8 +97,9 @@ namespace Pollux.API
                 .AddOpenIdConnect("oidc", options =>
                     {
                         options.Authority = "http://localhost:5000/connect/token";
-                        options.ClientId = "default";
-                        options.ClientSecret = "secret";
+                        options.ClientId = "client";
+                        options.ClientSecret = "secret".Sha256();
+
                         //options.ResponseType = "code";
                         options.SaveTokens = true;
                         options.Configuration = new OpenIdConnectConfiguration() { };

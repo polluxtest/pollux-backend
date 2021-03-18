@@ -3,6 +3,7 @@ namespace Pollux.API
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using IdentityServer4;
     using IdentityServer4.Models;
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
@@ -50,6 +51,8 @@ namespace Pollux.API
             service.AddScoped<IdentityServer4.Stores.IResourceStore, ResourceStore>();
             service.AddTransient<IClientStore, ClientStore>();
             service.AddTransient<ICorsPolicyService, CorsPolicyService>();
+            service.AddTransient<IProfileService, ProfileService>();
+
 
         }
     }
@@ -71,10 +74,24 @@ namespace Pollux.API
                 ClientId = "client",
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowOfflineAccess = true,
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
-                // scopes that client has access to
-                AllowedScopes = new List<string>() { "api", "api/pollux", "" }
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" }
             };
+        }
+    }
+
+    public class ProfileService : IProfileService
+    {
+        public Task GetProfileDataAsync(ProfileDataRequestContext context)
+        {
+            return Task.CompletedTask;
+
+        }
+
+        public Task IsActiveAsync(IsActiveContext context)
+        {
+            context.IsActive = true;
+            return Task.CompletedTask;
         }
     }
 
@@ -87,7 +104,8 @@ namespace Pollux.API
 
         public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
         {
-            return new List<ApiScope>() { new ApiScope() { Name = "api" }, new ApiScope() { Name = "api/pollux" } };
+            return new List<ApiScope>() { new ApiScope() { Name = "api" }, new ApiScope() { Name = "api/pollux" } , new ApiScope() { Name =                 IdentityServerConstants.StandardScopes.OfflineAccess
+                                            } };
         }
 
         public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)

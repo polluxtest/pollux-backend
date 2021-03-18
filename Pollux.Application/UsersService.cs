@@ -75,6 +75,7 @@
         private readonly IUserAccessTokenManagementService userAccessTokenManagementService;
 
         private readonly ITokenEndpointService tokenServiceEndpoint;
+        private readonly IUserTokenStore userTokeStore;
 
 
         /// <summary>
@@ -94,7 +95,7 @@
             IAuthenticationSchemeProvider authenticationSchemeProvider,
             IEventService events,
             IUserAccessTokenManagementService userAccessTokenManagementService,
-
+            IUserTokenStore userTokeStore,
             ITokenEndpointService tokenServiceEndpoint)
         {
             this.usersRepository = usersRepository;
@@ -105,6 +106,7 @@
             this.events = events;
             this.userAccessTokenManagementService = userAccessTokenManagementService;
             this.tokenServiceEndpoint = tokenServiceEndpoint;
+            this.userTokeStore = userTokeStore;
 
         }
 
@@ -151,8 +153,7 @@
         {
             //var token = await this.userAccessTokenManagementService.GetUserAccessTokenAsync(user);
             var atparams = new ClientAccessTokenParameters();
-            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("default");
-            var at = token.AccessToken;
+            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client");
             return token;
         }
 

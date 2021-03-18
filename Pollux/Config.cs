@@ -22,7 +22,8 @@ namespace Pollux.API
             new List<ApiScope>
                 {
                     new ApiScope("api", "My API"),
-                    new ApiScope("api/pollux", "My API")
+                    new ApiScope("api/pollux", "My API"),
+                    new ApiScope("offline_access", "offline_access")
                 };
 
         public static IEnumerable<Client> Clients =>
@@ -34,9 +35,10 @@ namespace Pollux.API
                             ClientId = "client",
                             ClientSecrets = { new Secret("secret".Sha256()) },
                             AllowOfflineAccess = true,
-                            AllowedGrantTypes = GrantTypes.ClientCredentials,
+                            AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                            
                             // scopes that client has access to
-                            AllowedScopes = new List<string>(){ "api","api/pollux",""}
+                            AllowedScopes = new List<string>(){ "api","api/pollux","offline_access"}
                         },
                 
                     // interactive ASP.NET Core MVC client
