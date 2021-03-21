@@ -152,7 +152,7 @@
         public async Task<TokenResponse> SetAuth(ClaimsPrincipal user)
         {
             //var token = await this.userAccessTokenManagementService.GetUserAccessTokenAsync(user);
-            var atparams = new ClientAccessTokenParameters();
+            //var atparams = new ClientAccessTokenParameters();
             var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client");
             return token;
         }

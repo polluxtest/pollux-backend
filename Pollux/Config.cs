@@ -36,7 +36,9 @@ namespace Pollux.API
                             ClientSecrets = { new Secret("secret".Sha256()) },
                             AllowOfflineAccess = true,
                             AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                            
+                            RefreshTokenExpiration = TokenExpiration.Absolute,
+                            AbsoluteRefreshTokenLifetime = 5,
+                            SlidingRefreshTokenLifetime = 5,
                             // scopes that client has access to
                             AllowedScopes = new List<string>(){ "api","api/pollux","offline_access"}
                         },

@@ -75,7 +75,12 @@ namespace Pollux.API
                 ClientSecrets = { new Secret("secret".Sha256()) },
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" }
+                AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
+                AccessTokenLifetime = 50,
+                RefreshTokenExpiration = TokenExpiration.Absolute,
+                IdentityTokenLifetime = 50,
+                AbsoluteRefreshTokenLifetime = 5,
+                SlidingRefreshTokenLifetime = 5,
             };
         }
     }

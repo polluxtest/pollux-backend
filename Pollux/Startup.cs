@@ -5,6 +5,8 @@ namespace Pollux.API
     using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
     using System.Net.Http;
+    using System.Threading.Tasks;
+
     using IdentityModel.Client;
 
     using IdentityServer4.Models;
@@ -23,10 +25,15 @@ namespace Pollux.API
     using Microsoft.IdentityModel.Tokens;
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json.Linq;
+    using Newtonsoft.Json.Serialization;
+
     using Pollux.Application.Mappers;
     using Pollux.Application.OAuth;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
+
+
+
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -55,13 +62,14 @@ namespace Pollux.API
         {
             var connectionString =
                 this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
-            //  JwtSecurityTokenHandler.DefaultMapInboundClaims = false
+
 
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
 
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
 
-            IdentityModelEventSource.ShowPII = true; //Add this line
+            IdentityModelEventSource.ShowPII = true;
+
             services.AddIdentityServer(
                     options =>
                         {
@@ -70,10 +78,11 @@ namespace Pollux.API
                             options.Events.RaiseFailureEvents = true;
                             options.Events.RaiseSuccessEvents = true;
                             options.EmitStaticAudienceClaim = true;
-                        }).AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddTestUsers(
-                    new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" } })
-                .AddInMemoryApiScopes(Config.ApiScopes).AddInMemoryClients(Config.Clients).AddAspNetIdentity<User>()
+                        })
+                .AddInMemoryIdentityResources(Config.IdentityResources)
+                .AddTestUsers(new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" } })
+                .AddInMemoryApiScopes(Config.ApiScopes)
+                .AddAspNetIdentity<User>()
                 .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
                 .AddCustomTokenRequestValidator<TokenValidator>().AddProfileService<ProfileService>();
 
@@ -86,32 +95,51 @@ namespace Pollux.API
                         options.Password.RequireUppercase = false;
                         options.Password.RequireNonAlphanumeric = false;
                     });
+            var tokenValidationParameters = new TokenValidationParameters()
+            {
 
+                // Clock skew compensates for server time drift.
+                ClockSkew = TimeSpan.FromMinutes(5),
+                // Specify the key used to sign the token:
+                RequireSignedTokens = true,
+                // Ensure the token hasn't expired:
+                RequireExpirationTime = true,
+                ValidateLifetime = true,
+                // Ensure the token audience matches our audience value (default true):
+                ValidateAudience = true,
+                ValidAudience = "api://default",
+                // Ensure the token was issued by a trusted authorization server (default true):
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = false
+            };
+            services.AddCors();
 
-            services.AddAuthentication(options =>
+            services.AddAuthentication(
+                options =>
                     {
                         options.DefaultScheme = "Cookies";
                         options.DefaultChallengeScheme = "oidc";
-                    })
-                .AddCookie("Cookies")
-                .AddOpenIdConnect("oidc", options =>
+                    }).AddCookie("Cookies").AddOpenIdConnect(
+                "oidc",
+                options =>
                     {
                         options.Authority = "http://localhost:5000/connect/token";
                         options.ClientId = "client";
                         options.ClientSecret = "secret".Sha256();
-
-                        //options.ResponseType = "code";
                         options.SaveTokens = true;
                         options.Configuration = new OpenIdConnectConfiguration() { };
                         options.Scope.Add("api");
                         options.Scope.Add("offline_access");
+                        options.TokenValidationParameters = tokenValidationParameters;
                     });
-            services.AddAccessTokenManagement();
 
+            services.AddAuthorization();
+            services.AddMvc();
+            services.AddAccessTokenManagement();
             services.AddControllers();
+
             services.AddSwaggerGen();
-            ////this.SetUpSwagger(services);
-            services.AddCors();
+            this.SetUpSwagger(services);
             services.AddDIRepositories();
             services.AddDIServices();
             services.AddAutoMapper(AssemblyApplication.Assembly);
@@ -127,18 +155,18 @@ namespace Pollux.API
         /// <param name="env">The env.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseRouting();
-            app.UseIdentityServer();
-            app.UseAuthorization();
-            this.AddSwagger(app);
-
-            app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); }); // add require auth
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            this.AddSwagger(app);
+            app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseRouting();
+            app.UseHttpsRedirection();
+            app.UseIdentityServer();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); }); // add require auth
         }
 
         /// <summary>
@@ -153,45 +181,40 @@ namespace Pollux.API
 
         private void SetUpSwagger(IServiceCollection services)
         {
-            services.AddSwaggerGen(
-                c =>
-                    {
-                        // configure SwaggerDoc and others
+            services.AddSwaggerGen(c =>
+                {
 
-                        // add JWT Authentication
-                        var securityScheme = new OpenApiSecurityScheme
+                    c.AddSecurityDefinition(
+                        "Bearer",
+                        new OpenApiSecurityScheme
                         {
-                            Name = "JWT Authentication",
-                            Description = "Enter JWT Bearer token **_only_**",
+                            Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+                      Enter 'Bearer' [space] and then your token in the text input below.
+                      \r\n\r\nExample: 'Bearer 12345abcdef'",
+                            Name = "Authorization",
                             In = ParameterLocation.Header,
-                            Type = SecuritySchemeType.Http,
-                            Scheme = "bearer", // must be lower case
-                            BearerFormat = "JWT",
-                            Reference = new OpenApiReference
-                            {
-                                Id = JwtBearerDefaults.AuthenticationScheme,
-                                Type = ReferenceType.SecurityScheme
-                            }
-                        };
-                        c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
-                        c.AddSecurityRequirement(
-                            new OpenApiSecurityRequirement { { securityScheme, new string[] { } } });
+                            Type = SecuritySchemeType.ApiKey,
+                            Scheme = "Bearer"
+                        });
 
-                        // add Basic Authentication
-                        var basicSecurityScheme = new OpenApiSecurityScheme
-                        {
-                            Type = SecuritySchemeType.Http,
-                            Scheme = "basic",
-                            Reference = new OpenApiReference
+                    c.AddSecurityRequirement(
+                        new OpenApiSecurityRequirement()
                             {
-                                Id = "BasicAuth",
-                                Type = ReferenceType.SecurityScheme
-                            }
-                        };
-                        c.AddSecurityDefinition(basicSecurityScheme.Reference.Id, basicSecurityScheme);
-                        c.AddSecurityRequirement(
-                            new OpenApiSecurityRequirement { { basicSecurityScheme, new string[] { } } });
-                    });
+                                {
+                                    new OpenApiSecurityScheme
+                                        {
+                                            Reference = new OpenApiReference
+                                                            {
+                                                                Type = ReferenceType.SecurityScheme, Id = "Bearer"
+                                                            },
+                                            Scheme = "oauth2",
+                                            Name = "Bearer",
+                                            In = ParameterLocation.Header,
+                                        },
+                                    new List<string>()
+                                }
+                            });
+                });
         }
 
         /// <summary>

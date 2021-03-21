@@ -90,7 +90,8 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                 GrantType = GrantTypes.ResourceOwnerPassword.First(),
                 Scope = "api api/pollux offline_access",
                 UserName = "octa@gmail.com",
-                Password = "apolo100"
+                Password = "apolo100",
+
             };
 
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
