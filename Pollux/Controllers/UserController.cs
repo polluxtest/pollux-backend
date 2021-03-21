@@ -19,7 +19,6 @@
 
     [Route(ApiConstants.DefaultRoute)]
     [ApiController]
-    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUsersService userService;
@@ -98,7 +97,24 @@
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return this.Content("authorizedr");
+            return this.Content("authorized");
         }
+
+        [Authorize]
+        [HttpPatch]
+        public async Task<IActionResult> Patch()
+        {
+            return this.Content("authorized patch");
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("Denied")]
+        public async Task<IActionResult> Denied()
+        {
+            return this.Content("Denied");
+        }
+
+
     }
 }

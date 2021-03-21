@@ -11,10 +11,10 @@ namespace Pollux.API
 
     using IdentityServer4.Models;
     using IdentityServer4.Test;
-
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -68,7 +68,38 @@ namespace Pollux.API
 
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
 
+
             IdentityModelEventSource.ShowPII = true;
+
+
+
+
+            services.Configure<IdentityOptions>(options =>
+                    {
+                        options.Password.RequireDigit = false;
+                        options.Password.RequiredLength = 8;
+                        options.Password.RequireLowercase = false;
+                        options.Password.RequireUppercase = false;
+                        options.Password.RequireNonAlphanumeric = false;
+                    });
+            //////var tokenValidationParameters = new TokenValidationParameters()
+            //////{
+
+            //////    // Clock skew compensates for server time drift.
+            //////    ClockSkew = TimeSpan.FromMinutes(5),
+            //////    // Specify the key used to sign the token:
+            //////    RequireSignedTokens = true,
+            //////    // Ensure the token hasn't expired:
+            //////    RequireExpirationTime = true,
+            //////    ValidateLifetime = true,
+            //////    // Ensure the token audience matches our audience value (default true):
+            //////    ValidateAudience = true,
+            //////    ValidAudience = "api://default",
+            //////    // Ensure the token was issued by a trusted authorization server (default true):
+            //////    ValidateIssuer = false,
+            //////    ValidateIssuerSigningKey = false
+            //////};
+            services.AddCors();
 
             services.AddIdentityServer(
                     options =>
@@ -85,41 +116,14 @@ namespace Pollux.API
                 .AddAspNetIdentity<User>()
                 .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
                 .AddCustomTokenRequestValidator<TokenValidator>().AddProfileService<ProfileService>();
-
-
-            services.Configure<IdentityOptions>(options =>
-                    {
-                        options.Password.RequireDigit = false;
-                        options.Password.RequiredLength = 8;
-                        options.Password.RequireLowercase = false;
-                        options.Password.RequireUppercase = false;
-                        options.Password.RequireNonAlphanumeric = false;
-                    });
-            var tokenValidationParameters = new TokenValidationParameters()
-            {
-
-                // Clock skew compensates for server time drift.
-                ClockSkew = TimeSpan.FromMinutes(5),
-                // Specify the key used to sign the token:
-                RequireSignedTokens = true,
-                // Ensure the token hasn't expired:
-                RequireExpirationTime = true,
-                ValidateLifetime = true,
-                // Ensure the token audience matches our audience value (default true):
-                ValidateAudience = true,
-                ValidAudience = "api://default",
-                // Ensure the token was issued by a trusted authorization server (default true):
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = false
-            };
-            services.AddCors();
-
             services.AddAuthentication(
                 options =>
                     {
-                        options.DefaultScheme = "Cookies";
-                        options.DefaultChallengeScheme = "oidc";
-                    }).AddCookie("Cookies").AddOpenIdConnect(
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                    }).AddOpenIdConnect(
                 "oidc",
                 options =>
                     {
@@ -130,11 +134,14 @@ namespace Pollux.API
                         options.Configuration = new OpenIdConnectConfiguration() { };
                         options.Scope.Add("api");
                         options.Scope.Add("offline_access");
-                        options.TokenValidationParameters = tokenValidationParameters;
+                        //options.TokenValidationParameters = tokenValidationParameters;
                     });
 
-            services.AddAuthorization();
+
+
             services.AddMvc();
+            services.AddAuthorization();
+
             services.AddAccessTokenManagement();
             services.AddControllers();
 
@@ -146,6 +153,23 @@ namespace Pollux.API
 
 
 
+            services.ConfigureApplicationCookie(options =>
+                {
+                    options.Cookie.Name = "auth_cookie";
+                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.LoginPath = new PathString("/api/pollux/User/SignUp/");
+                    options.AccessDeniedPath = new PathString("/api/pollux/User/Denied/");
+
+                    // Not creating a new object since ASP.NET Identity has created
+                    // one already and hooked to the OnValidatePrincipal event.
+                    // See https://github.com/aspnet/AspNetCore/blob/5a64688d8e192cacffda9440e8725c1ed41a30cf/src/Identity/src/Identity/IdentityServiceCollectionExtensions.cs#L56
+                    options.Events.OnRedirectToLogin = context =>
+                        {
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return Task.CompletedTask;
+                        };
+
+                });
         }
 
         /// <summary>
@@ -162,11 +186,16 @@ namespace Pollux.API
             this.AddSwagger(app);
             app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseRouting();
-            app.UseHttpsRedirection();
-            app.UseIdentityServer();
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseIdentityServer();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); }); // add require auth
+            app.UseEndpoints(
+                endpoints =>
+                    {
+                        endpoints.MapControllers();
+                        endpoints.MapControllerRoute("default", "{controller}/{action}/{id}");
+                    }); // add require auth
         }
 
         /// <summary>
