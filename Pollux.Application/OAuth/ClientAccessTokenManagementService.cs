@@ -62,7 +62,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                 {
                     return new Lazy<Task<string>>(async () =>
                     {
-                        var response = await _tokenEndpointService.RequestClientAccessToken(clientName, tokenParameters, cancellationToken);
+                        var response = await _tokenEndpointService.RequestClientAccessToken(clientName, null, tokenParameters, cancellationToken);
 
                         if (response.IsError)
                         {

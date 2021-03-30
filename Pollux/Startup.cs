@@ -71,9 +71,6 @@ namespace Pollux.API
 
             IdentityModelEventSource.ShowPII = true;
 
-
-
-
             services.Configure<IdentityOptions>(options =>
                     {
                         options.Password.RequireDigit = false;
@@ -82,23 +79,7 @@ namespace Pollux.API
                         options.Password.RequireUppercase = false;
                         options.Password.RequireNonAlphanumeric = false;
                     });
-            //////var tokenValidationParameters = new TokenValidationParameters()
-            //////{
 
-            //////    // Clock skew compensates for server time drift.
-            //////    ClockSkew = TimeSpan.FromMinutes(5),
-            //////    // Specify the key used to sign the token:
-            //////    RequireSignedTokens = true,
-            //////    // Ensure the token hasn't expired:
-            //////    RequireExpirationTime = true,
-            //////    ValidateLifetime = true,
-            //////    // Ensure the token audience matches our audience value (default true):
-            //////    ValidateAudience = true,
-            //////    ValidAudience = "api://default",
-            //////    // Ensure the token was issued by a trusted authorization server (default true):
-            //////    ValidateIssuer = false,
-            //////    ValidateIssuerSigningKey = false
-            //////};
             services.AddCors();
 
             services.AddIdentityServer(
@@ -111,7 +92,8 @@ namespace Pollux.API
                             options.EmitStaticAudienceClaim = true;
                         })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddTestUsers(new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" } })
+                .AddTestUsers(new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" },
+                new TestUser() { Username = "octavio.diaz@gmail.com", Password = "apolo100" }})
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddAspNetIdentity<User>()
                 .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
@@ -120,8 +102,6 @@ namespace Pollux.API
                 options =>
                     {
                         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
                     }).AddOpenIdConnect(
                 "oidc",
@@ -165,10 +145,34 @@ namespace Pollux.API
                     // See https://github.com/aspnet/AspNetCore/blob/5a64688d8e192cacffda9440e8725c1ed41a30cf/src/Identity/src/Identity/IdentityServiceCollectionExtensions.cs#L56
                     options.Events.OnRedirectToLogin = context =>
                         {
+                            if (context.HttpContext.User.Identity.IsAuthenticated)
+                            {
+                                return Task.CompletedTask;
+
+                            };
+
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             return Task.CompletedTask;
                         };
 
+                    options.Events.OnValidatePrincipal = context =>
+                    {
+                        if (context.Request.Path.Equals("/api/pollux/User/LogIn"))
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        context.Request.Headers.TryGetValue("Authorization", out var authValues);
+                        context.Request.Headers.TryGetValue("HeaderAuthorization", out var authValues2);
+
+                        if (string.IsNullOrEmpty(authValues) || !context.Principal.Identity.IsAuthenticated)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            context.RejectPrincipal();
+                        }
+
+                        return Task.CompletedTask;
+                    };
                 });
         }
 

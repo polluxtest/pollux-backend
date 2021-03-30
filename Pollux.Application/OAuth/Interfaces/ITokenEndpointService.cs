@@ -28,7 +28,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <param name="parameters"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<TokenResponse> RequestClientAccessToken(string clientName = null, ClientAccessTokenParameters parameters = null, CancellationToken cancellationToken = default);
+        Task<TokenResponse> RequestClientAccessToken(string clientName = null, Pollux.Common.Application.Models.Request.LogInModel user = null, ClientAccessTokenParameters parameters = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Revokes a refresh token.

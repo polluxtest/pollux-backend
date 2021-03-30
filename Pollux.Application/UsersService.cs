@@ -45,7 +45,7 @@
         /// <returns>Task.</returns>
         void LogOutAsync();
 
-        Task<TokenResponse> SetAuth(ClaimsPrincipal user);
+        Task<TokenResponse> SetAuth(LogInModel user);
     }
 
     public class UsersService : IUsersService
@@ -149,11 +149,11 @@
             }
         }
 
-        public async Task<TokenResponse> SetAuth(ClaimsPrincipal user)
+        public async Task<TokenResponse> SetAuth(LogInModel user)
         {
             //var token = await this.userAccessTokenManagementService.GetUserAccessTokenAsync(user);
             //var atparams = new ClientAccessTokenParameters();
-            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client");
+            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", user);
             return token;
         }
 

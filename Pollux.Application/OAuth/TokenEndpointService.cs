@@ -18,6 +18,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
     using IdentityServer4.Models;
 
     using Pollux.Application.OAuth.Models;
+    using Pollux.Common.Application.Models.Request;
 
     /// <summary>
     /// Implements token endpoint operations using IdentityModel
@@ -48,6 +49,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <inheritdoc/>
         public async Task<TokenResponse> RequestClientAccessToken(
             string clientName = AccessTokenManagementDefaults.DefaultTokenClientName,
+            LogInModel loginModel = null,
             ClientAccessTokenParameters parameters = null,
             CancellationToken cancellationToken = default)
         {
@@ -89,8 +91,8 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                 ClientSecret = "secret",
                 GrantType = GrantTypes.ResourceOwnerPassword.First(),
                 Scope = "api api/pollux offline_access",
-                UserName = "octa@gmail.com",
-                Password = "apolo100",
+                UserName = loginModel.Email,
+                Password = loginModel.Password,
 
             };
 

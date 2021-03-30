@@ -7,7 +7,7 @@
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
-
+    using System.Linq;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -49,7 +49,7 @@
             //var token = await HttpContext.GetTokenAsync("access_token");
             //var refresh = await HttpContext.GetTokenAsync("refresh_token");
             //var cookie = HttpContext.Response.Cookies;
-            var token = await this.userService.SetAuth(this.User);
+            var token = await this.userService.SetAuth(loginModel);
             Console.WriteLine(token.ExpiresIn);
             try
             {
@@ -84,6 +84,7 @@
         /// <param name="signUpModel">The sign up model.</param>
         /// <returns>201.</returns>
         [HttpPost]
+        [AllowAnonymous]
         [Route(ApiConstants.SignUp)]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
@@ -108,11 +109,11 @@
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpPost]
         [Route("Denied")]
         public async Task<IActionResult> Denied()
         {
-            return this.Content("Denied");
+            return this.Content(this.User.Claims.First(p => p.Type.Equals("email")).Value);
         }
 
 

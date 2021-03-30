@@ -29,7 +29,8 @@ namespace Pollux.Application.OAuth
         public UserValidator()
         {
             this.users = new Dictionary<string, string>() {
-                                                                  { "octa@gmail.com", "apolo100" }
+                                                                  { "octa@gmail.com", "apolo100" },
+                                                   { "octavio.diaz@gmail.com", "apolo100" }
                                                               };
         }
 
