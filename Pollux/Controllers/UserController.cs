@@ -47,15 +47,9 @@
                 ValidateIssuerSigningKey = false
             };
             await this.userService.LogInAsync(loginModel);
-            //var token = await HttpContext.GetTokenAsync("access_token");
-            //var refresh = await HttpContext.GetTokenAsync("refresh_token");
-            //var cookie = HttpContext.Response.Cookies;
             var isAuth = this.User.Identity.IsAuthenticated;
 
-            var claims = new[] { new Claim(ClaimTypes.Email, loginModel.Email) };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-            var token = await this.userService.SetAuth(loginModel, principal);
+            var token = await this.userService.SetAuth(loginModel);
             var isAuth3 = this.User.Identity.IsAuthenticated;
 
 

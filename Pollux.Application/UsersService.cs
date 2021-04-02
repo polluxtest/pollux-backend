@@ -45,7 +45,7 @@
         /// <returns>Task.</returns>
         void LogOutAsync();
 
-        Task<TokenResponse> SetAuth(LogInModel loginModel, ClaimsPrincipal user);
+        Task<TokenResponse> SetAuth(LogInModel loginModel);
     }
 
     public class UsersService : IUsersService
@@ -151,7 +151,7 @@
             }
         }
 
-        public async Task<TokenResponse> SetAuth(LogInModel loginModel, ClaimsPrincipal user)
+        public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
             var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", loginModel); // todo client?
             var expirationDate = DateTime.UtcNow.AddSeconds(token.ExpiresIn);

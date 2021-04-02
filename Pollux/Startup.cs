@@ -169,7 +169,12 @@ namespace Pollux.API
 
                         var tokenCache = await redisCacheService.GetKeyAsync(context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value);
                         var token = tokenCache.DecodeToken();
-
+                        //check if the token is valid
+                        //compare authorization header with saved token.
+                        //check access token expiration in UTC
+                        //check refresh token expiration in UTC
+                        //implement refresh token functionallity
+                        // implement cookie authorization with tokens
                         context.Request.Headers.TryGetValue("Authorization", out var authValues);
                         context.Request.Headers.TryGetValue("HeaderAuthorization", out var authValues2);
 
