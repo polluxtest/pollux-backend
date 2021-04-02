@@ -36,7 +36,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         public async Task<ClientAccessToken> GetAsync(string clientName, ClientAccessTokenParameters parameters, CancellationToken cancellationToken = default)
         {
             if (clientName is null) throw new ArgumentNullException(nameof(clientName));
-            
+
             var cacheKey = GenerateCacheKey(_options, clientName, parameters);
             var entry = await _cache.GetStringAsync(cacheKey, token: cancellationToken);
 
@@ -66,24 +66,24 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         }
 
         /// <inheritdoc/>
-        public async Task SetAsync(string clientName, string accessToken, int expiresIn, ClientAccessTokenParameters parameters, CancellationToken cancellationToken = default)
+        public async Task SetAsync(string userName, string accessToken, string refreshToken, int expiresIn, ClientAccessTokenParameters parameters, CancellationToken cancellationToken = default)
         {
-            if (clientName is null) throw new ArgumentNullException(nameof(clientName));
+            if (userName is null) throw new ArgumentNullException(nameof(userName));
 
             var expiration = DateTimeOffset.UtcNow.AddSeconds(expiresIn);
             var expirationEpoch = expiration.ToUnixTimeSeconds();
             var cacheExpiration = expiration.AddSeconds(-_options.Client.CacheLifetimeBuffer);
 
-            var data = $"{accessToken}___{expirationEpoch.ToString()}";
+            var data = $"{accessToken}__{refreshToken}__{expirationEpoch.ToString()}";
 
             var entryOptions = new DistributedCacheEntryOptions
             {
                 AbsoluteExpiration = cacheExpiration
             };
 
-            _logger.LogDebug("Caching access token for client: {clientName}. Expiration: {expiration}", clientName, cacheExpiration);
-            
-            var cacheKey = GenerateCacheKey(_options, clientName, parameters);
+            _logger.LogDebug("Caching access token for client: {clientName}. Expiration: {expiration}", userName, cacheExpiration);
+
+            var cacheKey = GenerateCacheKey(_options, userName, parameters);
             await _cache.SetStringAsync(cacheKey, data, entryOptions, token: cancellationToken);
         }
 

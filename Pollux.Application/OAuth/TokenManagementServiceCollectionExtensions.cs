@@ -52,6 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure(options);
             }
 
+            services.AddMemoryCache();
             services.AddDistributedMemoryCache();
             services.TryAddSingleton<ISystemClock, SystemClock>();
             services.TryAddSingleton<IAuthenticationSchemeProvider, AuthenticationSchemeProvider>();

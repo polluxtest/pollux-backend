@@ -13,7 +13,7 @@
     using IdentityServer4.Events;
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
-
+    using Pitcher;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
@@ -22,7 +22,7 @@
     using Pollux.Common.Application.Models.Request;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
-
+    using Pollux.Persistence.Services.Cache;
 
     public interface IUsersService
     {
@@ -45,7 +45,7 @@
         /// <returns>Task.</returns>
         void LogOutAsync();
 
-        Task<TokenResponse> SetAuth(LogInModel user);
+        Task<TokenResponse> SetAuth(LogInModel loginModel, ClaimsPrincipal user);
     }
 
     public class UsersService : IUsersService
@@ -73,9 +73,9 @@
         private readonly IIdentityServerInteractionService interaction;
         private readonly IEventService events;
         private readonly IUserAccessTokenManagementService userAccessTokenManagementService;
-
+        private readonly IRedisCacheService redisCacheService;
         private readonly ITokenEndpointService tokenServiceEndpoint;
-        private readonly IUserTokenStore userTokeStore;
+        private readonly IClientAccessTokenCache userTokenCache;
 
 
         /// <summary>
@@ -95,8 +95,9 @@
             IAuthenticationSchemeProvider authenticationSchemeProvider,
             IEventService events,
             IUserAccessTokenManagementService userAccessTokenManagementService,
-            IUserTokenStore userTokeStore,
-            ITokenEndpointService tokenServiceEndpoint)
+            IClientAccessTokenCache userTokenCache,
+            ITokenEndpointService tokenServiceEndpoint,
+            IRedisCacheService redisCacheService)
         {
             this.usersRepository = usersRepository;
             this.userIdentityManager = userManager;
@@ -106,7 +107,8 @@
             this.events = events;
             this.userAccessTokenManagementService = userAccessTokenManagementService;
             this.tokenServiceEndpoint = tokenServiceEndpoint;
-            this.userTokeStore = userTokeStore;
+            this.userTokenCache = userTokenCache;
+            this.redisCacheService = redisCacheService;
 
         }
 
@@ -149,12 +151,18 @@
             }
         }
 
-        public async Task<TokenResponse> SetAuth(LogInModel user)
+        public async Task<TokenResponse> SetAuth(LogInModel loginModel, ClaimsPrincipal user)
         {
-            //var token = await this.userAccessTokenManagementService.GetUserAccessTokenAsync(user);
-            //var atparams = new ClientAccessTokenParameters();
-            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", user);
-            return token;
+            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", loginModel); // todo client?
+            var expirationDate = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
+            var valueCache = $"acccess_token:{token.AccessToken},refresh_token:{token.RefreshToken},expiration:{expirationDate.ToString("MM/dd/yyyy HH:mm:ss")}";
+            var success = await this.redisCacheService.SetKeyAsync(loginModel.Email, valueCache, TimeSpan.FromHours(1)); // this must match expiration of token ??
+            if (success)
+            {
+                return token;
+            }
+
+            throw new InvalidOperationException("Could Store key in redis data base");
         }
 
         /// <summary>

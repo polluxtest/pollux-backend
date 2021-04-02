@@ -16,6 +16,7 @@
     using Pollux.Application;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings.Api;
+    using Microsoft.AspNetCore.Authentication.Cookies;
 
     [Route(ApiConstants.DefaultRoute)]
     [ApiController]
@@ -49,31 +50,16 @@
             //var token = await HttpContext.GetTokenAsync("access_token");
             //var refresh = await HttpContext.GetTokenAsync("refresh_token");
             //var cookie = HttpContext.Response.Cookies;
-            var token = await this.userService.SetAuth(loginModel);
-            Console.WriteLine(token.ExpiresIn);
-            try
-            {
-                var claimsPrincipal = new JwtSecurityTokenHandler().ValidateToken(
-                    token.AccessToken,
-                    validationParameters,
-                    out SecurityToken validtedToken);
+            var isAuth = this.User.Identity.IsAuthenticated;
 
-                // Or, you can return the ClaimsPrincipal
-                // (which has the JWT properties automatically mapped to .NET claims)
-            }
-            catch (SecurityTokenValidationException stvex)
-            {
-                // The token failed validation!
-                // TODO: Log it or display an error.
-            }
-            catch (ArgumentException argex)
-            {
-                // The token was not well-formed or was invalid for some other reason.
-                // TODO: Log it or display an error.
-            }
-            catch (Exception e)
-            {
-            }
+            var claims = new[] { new Claim(ClaimTypes.Email, loginModel.Email) };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            var token = await this.userService.SetAuth(loginModel, principal);
+            var isAuth3 = this.User.Identity.IsAuthenticated;
+
+
+
 
             return this.Created(string.Empty, token);
         }

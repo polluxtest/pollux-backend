@@ -37,8 +37,8 @@ namespace Pollux.API
                             AllowOfflineAccess = true,
                             AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                             RefreshTokenExpiration = TokenExpiration.Absolute,
-                            AbsoluteRefreshTokenLifetime = 5,
-                            SlidingRefreshTokenLifetime = 5,
+                            AbsoluteRefreshTokenLifetime = 60,
+                            SlidingRefreshTokenLifetime = 60,
                             // scopes that client has access to
                             AllowedScopes = new List<string>(){ "api","api/pollux","offline_access"}
                         },

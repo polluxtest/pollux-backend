@@ -6,11 +6,12 @@ namespace Pollux.API
     using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
-
+    using Pollux.Common.ExtensionMethods;
     using IdentityModel.Client;
 
     using IdentityServer4.Models;
     using IdentityServer4.Test;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -26,11 +27,16 @@ namespace Pollux.API
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json.Linq;
     using Newtonsoft.Json.Serialization;
-
+    using Microsoft.Extensions.DependencyInjection;
     using Pollux.Application.Mappers;
     using Pollux.Application.OAuth;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
+    using IdentityModel.AspNetCore.AccessTokenManagement;
+    using System.Security.Claims;
+    using StackExchange.Redis;
+    using Pollux.Persistence.Services;
+    using Pollux.Persistence.Services.Cache;
 
 
 
@@ -60,14 +66,11 @@ namespace Pollux.API
         /// <param name="services">The services<see cref="IServiceCollection"/>.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString =
-                this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
-
+            var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
 
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
 
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
-
 
             IdentityModelEventSource.ShowPII = true;
 
@@ -93,11 +96,12 @@ namespace Pollux.API
                         })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddTestUsers(new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" },
-                new TestUser() { Username = "octavio.diaz@gmail.com", Password = "apolo100" }})
+                                new TestUser() { Username = "octavio.diaz@gmail.com", Password = "apolo100" },})
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddAspNetIdentity<User>()
                 .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
                 .AddCustomTokenRequestValidator<TokenValidator>().AddProfileService<ProfileService>();
+
             services.AddAuthentication(
                 options =>
                     {
@@ -121,23 +125,20 @@ namespace Pollux.API
 
             services.AddMvc();
             services.AddAuthorization();
-
             services.AddAccessTokenManagement();
             services.AddControllers();
-
             services.AddSwaggerGen();
             this.SetUpSwagger(services);
             services.AddDIRepositories();
             services.AddDIServices();
             services.AddAutoMapper(AssemblyApplication.Assembly);
-
-
+            this.AddRedisCacheService(services);
 
             services.ConfigureApplicationCookie(options =>
                 {
                     options.Cookie.Name = "auth_cookie";
                     options.Cookie.SameSite = SameSiteMode.None;
-                    options.LoginPath = new PathString("/api/pollux/User/SignUp/");
+                    options.LoginPath = new PathString("/api/pollux/User/LogIn/");
                     options.AccessDeniedPath = new PathString("/api/pollux/User/Denied/");
 
                     // Not creating a new object since ASP.NET Identity has created
@@ -148,19 +149,26 @@ namespace Pollux.API
                             if (context.HttpContext.User.Identity.IsAuthenticated)
                             {
                                 return Task.CompletedTask;
-
-                            };
+                            }
 
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             return Task.CompletedTask;
                         };
 
-                    options.Events.OnValidatePrincipal = context =>
+                    options.Events.OnValidatePrincipal = async context =>
                     {
                         if (context.Request.Path.Equals("/api/pollux/User/LogIn"))
                         {
-                            return Task.CompletedTask;
+                            return;
                         }
+
+                        var cookie = context.Request.Cookies.FirstOrDefault(p => p.Key.Equals("auth_cookie"));
+
+                        var serviceProvider = services.BuildServiceProvider();
+                        var redisCacheService = serviceProvider.GetService<IRedisCacheService>();
+
+                        var tokenCache = await redisCacheService.GetKeyAsync(context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value);
+                        var token = tokenCache.DecodeToken();
 
                         context.Request.Headers.TryGetValue("Authorization", out var authValues);
                         context.Request.Headers.TryGetValue("HeaderAuthorization", out var authValues2);
@@ -171,7 +179,7 @@ namespace Pollux.API
                             context.RejectPrincipal();
                         }
 
-                        return Task.CompletedTask;
+                        return;
                     };
                 });
         }
@@ -187,13 +195,13 @@ namespace Pollux.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
             this.AddSwagger(app);
             app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseIdentityServer();
-
             app.UseEndpoints(
                 endpoints =>
                     {
@@ -250,22 +258,15 @@ namespace Pollux.API
                 });
         }
 
-        /// <summary>
-        /// Sets up identity server.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        private void SetUpIdentityServer(IServiceCollection services)
-        {
-            //var builder = 
-        }
+
 
         /// <summary
         /// Sets up authentication.
         /// </summary>
         /// <param name="services">The services.</param>
-        private void SetUpAuthentication(IServiceCollection services)
+        private void AddRedisCacheService(IServiceCollection services)
         {
-            services.AddAuthentication();
+            services.AddScoped<IRedisCacheService, RedisCacheService>();
         }
     }
 }

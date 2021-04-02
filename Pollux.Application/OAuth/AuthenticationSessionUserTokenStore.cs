@@ -13,8 +13,9 @@ using System.Threading.Tasks;
 namespace IdentityModel.AspNetCore.AccessTokenManagement
 {
     using IdentityServer4;
-
+    using Microsoft.AspNetCore.Authentication.Cookies;
     using Pollux.API.OAuth.Interfaces;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Token store using the ASP.NET Core authentication session
@@ -95,32 +96,36 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
             parameters ??= new UserAccessTokenParameters();
             var result = await _contextAccessor.HttpContext.AuthenticateAsync(parameters.SignInScheme);
 
-            if (!result.Succeeded)
-            {
-                throw new Exception("Can't store tokens. User is anonymous");
-            }
+            //if (!result.Succeeded)
+            //{
+            //    throw new Exception("Can't store tokens. User is anonymous");
+            //}
 
             var tokenName = OpenIdConnectParameterNames.AccessToken;
-            if (!string.IsNullOrEmpty(parameters.Resource))
-            {
-                tokenName += $"::{parameters.Resource}";
-            }
+            //if (!string.IsNullOrEmpty(parameters.Resource))
+            //{
+            //    tokenName += $"::{parameters.Resource}";
+            //}
 
             var expiresName = "expires_at";
-            if (!string.IsNullOrEmpty(parameters.Resource))
-            {
-                expiresName += $"::{parameters.Resource}";
-            }
+            //if (!string.IsNullOrEmpty(parameters.Resource))
+            //{
+            //    expiresName += $"::{parameters.Resource}";
+            //}
 
-            result.Properties.Items[$".Token.{tokenName}"] = accessToken;
-            result.Properties.Items[$".Token.{expiresName}"] = expiration.ToString("o", CultureInfo.InvariantCulture);
+            //result.Properties.Items[$".Token.{tokenName}"] = accessToken;
+            //result.Properties.Items[$".Token.{expiresName}"] = expiration.ToString("o", CultureInfo.InvariantCulture);
 
-            if (refreshToken != null)
-            {
-                result.Properties.UpdateTokenValue(OpenIdConnectParameterNames.RefreshToken, refreshToken);
-            }
+            //if (refreshToken != null)
+            //{
+            //    result.Properties.UpdateTokenValue(OpenIdConnectParameterNames.RefreshToken, refreshToken);
+            //}
 
-            await _contextAccessor.HttpContext.SignInAsync(parameters.SignInScheme, result.Principal, result.Properties);
+            // await _contextAccessor.HttpContext.SignInAsync(parameters.SignInScheme, result.Principal, result.Properties);
+
+            //this._contextAccessor.HttpContext.Items = new Dictionary<object, object>() { { "access_token", accessToken }, { "expires_at", expiration.ToString() } };
+
+
         }
 
         /// <inheritdoc/>

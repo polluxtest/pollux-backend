@@ -70,7 +70,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                             return null;
                         }
 
-                        await _clientAccessTokenCache.SetAsync(clientName, response.AccessToken, response.ExpiresIn, tokenParameters, cancellationToken);
+                        await _clientAccessTokenCache.SetAsync(clientName, response.AccessToken, response.RefreshToken, response.ExpiresIn, tokenParameters, cancellationToken);
                         return response.AccessToken;
                     });
                 }).Value;
