@@ -166,22 +166,29 @@ namespace Pollux.API
 
                         var serviceProvider = services.BuildServiceProvider();
                         var redisCacheService = serviceProvider.GetService<IRedisCacheService>();
-
+                        var tokenEndpointServie = serviceProvider.GetService<ITokenEndpointService>();
                         var tokenCache = await redisCacheService.GetKeyAsync(context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value);
                         var token = tokenCache.DecodeToken();
-                        //check if the token is valid
-                        //compare authorization header with saved token.
+
                         //check access token expiration in UTC
                         //check refresh token expiration in UTC
                         //implement refresh token functionallity
                         // implement cookie authorization with tokens
                         context.Request.Headers.TryGetValue("Authorization", out var authValues);
-                        context.Request.Headers.TryGetValue("HeaderAuthorization", out var authValues2);
+                        var authotizationToken = authValues.First();
 
-                        if (string.IsNullOrEmpty(authValues) || !context.Principal.Identity.IsAuthenticated)
+                        if (!token.AccessToken.Equals(authotizationToken) ||
+                                !context.Principal.Identity.IsAuthenticated ||
+                                string.IsNullOrEmpty(token.AccessToken))
                         {
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             context.RejectPrincipal();
+                        }
+
+                        if (DateTime.UtcNow > token.ExpirationDate)
+                        {
+                            var newAccesstokenResponse = await tokenEndpointServie.RefreshUserAccessTokenAsync(token.RefreshToken);
+
                         }
 
                         return;

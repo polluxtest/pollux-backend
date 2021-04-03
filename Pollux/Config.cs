@@ -46,25 +46,16 @@ namespace Pollux.API
                     // interactive ASP.NET Core MVC client
                     new Client
                         {
-                            ClientId = "mvc",
+                            ClientId = "client",
                             ClientSecrets = { new Secret("secret".Sha256()) },
 
-                            AllowedGrantTypes = GrantTypes.Code,
-                    
-                            // where to redirect to after login
-                            RedirectUris = { "https://localhost:5002/signin-oidc" },
+                            AllowedGrantTypes =  new List<string>() { "refresh_token" },
 
-                            // where to redirect to after logout
-                            PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
+                            RefreshTokenExpiration = TokenExpiration.Absolute,
+                            AbsoluteRefreshTokenLifetime = 60,
+                            SlidingRefreshTokenLifetime = 60,
 
-                            AllowedScopes = new List<string>
-                                                {
-                                                    IdentityServerConstants.StandardScopes.OpenId,
-                                                    IdentityServerConstants.StandardScopes.Profile,
-                                                    "api",
-                                                    "api/pollux"
-
-                                                }
+                            AllowedScopes = new List<string>(){ "api","api/pollux"}
                         }
                 };
 

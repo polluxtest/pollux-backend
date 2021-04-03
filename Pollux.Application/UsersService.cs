@@ -155,7 +155,7 @@
         {
             var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", loginModel); // todo client?
             var expirationDate = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
-            var valueCache = $"acccess_token:{token.AccessToken},refresh_token:{token.RefreshToken},expiration:{expirationDate.ToString("MM/dd/yyyy HH:mm:ss")}";
+            var valueCache = $"acccess_token:Bearer {token.AccessToken},refresh_token:{token.RefreshToken},expiration:{expirationDate.ToString("MM/dd/yyyy HH:mm:ss")}";
             var success = await this.redisCacheService.SetKeyAsync(loginModel.Email, valueCache, TimeSpan.FromHours(1)); // this must match expiration of token ??
             if (success)
             {

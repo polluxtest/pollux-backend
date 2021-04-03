@@ -69,19 +69,37 @@ namespace Pollux.API
     {
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
-            return new Client()
-            {
-                ClientId = "client",
-                ClientSecrets = { new Secret("secret".Sha256()) },
-                AllowOfflineAccess = true,
-                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
-                AccessTokenLifetime = 50,
-                RefreshTokenExpiration = TokenExpiration.Absolute,
-                IdentityTokenLifetime = 50,
-                AbsoluteRefreshTokenLifetime = 50,
-                SlidingRefreshTokenLifetime = 50,
-            };
+            if (clientId == "client")
+
+                return new Client()
+                {
+                    ClientId = "client",
+                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    AllowOfflineAccess = true,
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                    AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
+                    AccessTokenLifetime = 5,
+                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    IdentityTokenLifetime = 50,
+                    AbsoluteRefreshTokenLifetime = 50,
+                    SlidingRefreshTokenLifetime = 50,
+                };
+
+            if (clientId == "x")
+                return new Client()
+                {
+                    ClientId = "client",
+                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    AllowedGrantTypes = new List<string>() { "refresh_token" },
+                    AllowedScopes = new List<string>() { "api", "api/pollux" },
+                    AccessTokenLifetime = 5,
+                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    IdentityTokenLifetime = 50,
+                    AbsoluteRefreshTokenLifetime = 50,
+                    SlidingRefreshTokenLifetime = 50,
+                };
+
+            return null;
         }
     }
 

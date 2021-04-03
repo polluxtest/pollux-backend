@@ -55,34 +55,6 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         {
             _logger.LogDebug("Requesting client access token for client: {client}", clientName);
 
-            var tokenParameters
-                = new ClientAccessTokenParameters();
-
-
-
-            var requestDetails = await _configService.GetClientCredentialsRequestAsync(clientName, tokenParameters);
-
-
-
-
-#if NET5_0
-            requestDetails.Options.TryAdd(AccessTokenManagementDefaults.AccessTokenParametersOptionsName, parameters);
-#elif NETCOREAPP3_1
-            //requestDetails.Properties[AccessTokenManagementDefaults.AccessTokenParametersOptionsName] = tokenParameters
-            ;
-#endif
-
-            //            if (!string.IsNullOrWhiteSpace(tokenParameters
-            //.Resource))
-            //            {
-            //                requestDetails.Resource.Add(tokenParameters
-            //.Resource);
-            //            }
-
-
-            //            requestDetails.Scope += "api api/pollux " + IdentityServerConstants.StandardScopes.OpenId;
-            //            requestDetails.GrantType = GrantTypes.ResourceOwnerPassword.First();
-
             var clientCredentials = new IdentityModel.Client.PasswordTokenRequest()
             {
                 Method = HttpMethod.Post,
@@ -93,12 +65,10 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                 Scope = "api api/pollux offline_access",
                 UserName = loginModel.Email,
                 Password = loginModel.Password,
-
             };
 
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
             return await httpClient.RequestPasswordTokenAsync(clientCredentials);
-
         }
 
         /// <inheritdoc/>
@@ -109,24 +79,23 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         {
             _logger.LogDebug("Refreshing refresh token: {token}", refreshToken);
 
-            parameters ??= new UserAccessTokenParameters();
-
-            var requestDetails = await _configService.GetRefreshTokenRequestAsync(parameters);
-            requestDetails.RefreshToken = refreshToken;
-
-#if NET5_0
-            requestDetails.Options.TryAdd(AccessTokenManagementDefaults.AccessTokenParametersOptionsName, parameters);
-#elif NETCOREAPP3_1
-            requestDetails.Properties[AccessTokenManagementDefaults.AccessTokenParametersOptionsName] = parameters;
-#endif
-
-            if (!string.IsNullOrEmpty(parameters.Resource))
+            var refreshTokenRequest = new RefreshTokenRequest()
             {
-                requestDetails.Resource.Add(parameters.Resource);
-            }
+                Method = HttpMethod.Post,
+                Address = "http://localhost:5000/connect/token",
+                ClientId = "client",
+                ClientSecret = "secret",
+                GrantType = "refresh_token",
+                RefreshToken = refreshToken
+            };
 
+            //var requestDetails = await _configService.GetRefreshTokenRequestAsync(parameters);
+            // requestDetails.RefreshToken = refreshToken;
+
+            var s = _httpClientFactory.CreateClient("hola");
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
-            return await httpClient.RequestRefreshTokenAsync(requestDetails, cancellationToken);
+            var response = await httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
+            return response;
         }
 
         /// <inheritdoc/>
