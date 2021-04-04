@@ -119,10 +119,7 @@ namespace Pollux.API
                         options.Configuration = new OpenIdConnectConfiguration() { };
                         options.Scope.Add("api");
                         options.Scope.Add("offline_access");
-                        //options.TokenValidationParameters = tokenValidationParameters;
                     });
-
-
 
             services.AddMvc();
             services.AddAuthorization();
@@ -132,10 +129,11 @@ namespace Pollux.API
             this.SetUpSwagger(services);
             services.AddDIRepositories();
             services.AddDIServices();
+            services.AddIdentityServerServices();
             services.AddAutoMapper(AssemblyApplication.Assembly);
             this.AddRedisCacheService(services);
 
-            _ = services.ConfigureApplicationCookie(options =>
+            services.ConfigureApplicationCookie(options =>
                   {
                       options.Cookie.Name = "auth_cookie";
                       options.Cookie.SameSite = SameSiteMode.None;
@@ -180,7 +178,6 @@ namespace Pollux.API
                                   DateTime.UtcNow > token.RefreshTokenExpirationDate)
                           {
                               context.RejectPrincipal();
-                              // thorow redirec login
                           }
 
                           if (DateTime.UtcNow > token.AccessTokenExpirationDate)
