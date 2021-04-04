@@ -26,6 +26,10 @@ namespace Pollux.API
                     new ApiScope("offline_access", "offline_access")
                 };
 
+        // scopes that client has access to
+
+
+
         public static IEnumerable<Client> Clients =>
             new List<Client>
                 {
@@ -58,8 +62,5 @@ namespace Pollux.API
                             AllowedScopes = new List<string>(){ "api","api/pollux"}
                         }
                 };
-
-
-
     }
 }

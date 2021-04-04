@@ -2163,6 +2163,7 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "5.0.3",
           "Microsoft.EntityFrameworkCore": "5.0.3",
           "Microsoft.EntityFrameworkCore.SqlServer": "5.0.3",
+          "Pollux.Common.Application": "1.0.0",
           "Pollux.Domain": "1.0.0",
           "System.Linq.Dynamic.Core": "1.2.8"
         },

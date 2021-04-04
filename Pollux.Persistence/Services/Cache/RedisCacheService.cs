@@ -1,6 +1,7 @@
 ﻿namespace Pollux.Persistence.Services.Cache
 {
     using System;
+    using System.Text.Json;
     using System.Threading.Tasks;
     using StackExchange.Redis;
 
@@ -28,7 +29,7 @@
         {
             if (expiration == null)
             {
-                expiration = TimeSpan.FromHours(1);
+                expiration = TimeSpan.FromDays(3); // todo check expiration
             }
 
             return this.redisDatabase.StringSetAsync(key, value, expiration);
@@ -72,6 +73,31 @@
         public Task<bool> DeleteKeyAsync(string key)
         {
             return this.redisDatabase.KeyDeleteAsync(key);
+        }
+
+        /// <summary>
+        /// Sets the object asynchronous.
+        /// </summary>
+        /// <typeparam name="T">Generic Type object to Serialize</typeparam>
+        /// <param name="key">The key string</param>
+        /// <param name="data">The data.</param>
+        /// <returns>Model Serialized.</returns>
+        public async Task<bool> SetObjectAsync<T>(string key, T data, TimeSpan? expiration = null)
+        {
+            var dataStr = JsonSerializer.Serialize<T>(data);
+            return await this.SetKeyAsync(key, dataStr);
+        }
+
+        /// <summary>
+        /// Gets the object asynchronous.
+        /// </summary>
+        /// <typeparam name="T">Data object.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <returns>Model Serialized.</returns>
+        public async Task<T> GetObjectAsync<T>(string key)
+        {
+            var data = await this.GetKeyAsync(key);
+            return JsonSerializer.Deserialize<T>(data);
         }
     }
 }

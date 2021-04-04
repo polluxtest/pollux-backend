@@ -28,6 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Pollux.Common.Application\Pollux.Common.Application.csproj" />
 		<ProjectReference Include="..\Pollux.Domain\Pollux.Domain.csproj" />
 	</ItemGroup>
 

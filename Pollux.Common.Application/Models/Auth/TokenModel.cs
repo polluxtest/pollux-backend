@@ -25,6 +25,14 @@
         /// <value>
         /// The expires in.
         /// </value>
-        public DateTime ExpirationDate { get; set; }
+        public DateTime AccessTokenExpirationDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the refresh token expiration date.
+        /// </summary>
+        /// <value>
+        /// The refresh token expiration date.
+        /// </value>
+        public DateTime RefreshTokenExpirationDate { get; set; }
     }
 }

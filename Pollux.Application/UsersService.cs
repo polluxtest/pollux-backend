@@ -23,6 +23,7 @@
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
     using Pollux.Persistence.Services.Cache;
+    using Pollux.Common.Application.Models.Auth;
 
     public interface IUsersService
     {
@@ -153,10 +154,20 @@
 
         public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
-            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", loginModel); // todo client?
-            var expirationDate = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
-            var valueCache = $"acccess_token:Bearer {token.AccessToken},refresh_token:{token.RefreshToken},expiration:{expirationDate.ToString("MM/dd/yyyy HH:mm:ss")}";
-            var success = await this.redisCacheService.SetKeyAsync(loginModel.Email, valueCache, TimeSpan.FromHours(1)); // this must match expiration of token ??
+            var token = await this.tokenServiceEndpoint.RequestClientAccessToken("client", loginModel); // todo client;
+            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
+            var refreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
+
+            var tokenCache = new TokenModel()
+            {
+                AccessToken = $"Bearer {token.AccessToken}",
+                RefreshToken = token.RefreshToken,
+                AccessTokenExpirationDate = accessTokenExpirationDate,
+                RefreshTokenExpirationDate = refreshTokenExpirationDate,
+            };
+
+            var success = await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.Email, tokenCache, TimeSpan.FromHours(1)); // this must match expiration of token ??
+
             if (success)
             {
                 return token;

@@ -16,7 +16,6 @@
     using Pollux.Application;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings.Api;
-    using Microsoft.AspNetCore.Authentication.Cookies;
 
     [Route(ApiConstants.DefaultRoute)]
     [ApiController]

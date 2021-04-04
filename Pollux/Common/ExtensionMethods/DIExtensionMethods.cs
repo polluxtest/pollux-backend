@@ -102,7 +102,6 @@ namespace Pollux.API
                 };
 
             return null;
-
         }
 
         public class ProfileService : IProfileService

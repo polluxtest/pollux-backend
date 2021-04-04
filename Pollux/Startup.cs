@@ -37,6 +37,7 @@ namespace Pollux.API
     using StackExchange.Redis;
     using Pollux.Persistence.Services;
     using Pollux.Persistence.Services.Cache;
+    using Pollux.Common.Application.Models.Auth;
 
 
 
@@ -134,66 +135,69 @@ namespace Pollux.API
             services.AddAutoMapper(AssemblyApplication.Assembly);
             this.AddRedisCacheService(services);
 
-            services.ConfigureApplicationCookie(options =>
-                {
-                    options.Cookie.Name = "auth_cookie";
-                    options.Cookie.SameSite = SameSiteMode.None;
-                    options.LoginPath = new PathString("/api/pollux/User/LogIn/");
-                    options.AccessDeniedPath = new PathString("/api/pollux/User/Denied/");
+            _ = services.ConfigureApplicationCookie(options =>
+                  {
+                      options.Cookie.Name = "auth_cookie";
+                      options.Cookie.SameSite = SameSiteMode.None;
+                      options.LoginPath = new PathString("/api/pollux/User/LogIn/");
+                      options.AccessDeniedPath = new PathString("/api/pollux/User/Denied/");
 
-                    // Not creating a new object since ASP.NET Identity has created
-                    // one already and hooked to the OnValidatePrincipal event.
-                    // See https://github.com/aspnet/AspNetCore/blob/5a64688d8e192cacffda9440e8725c1ed41a30cf/src/Identity/src/Identity/IdentityServiceCollectionExtensions.cs#L56
-                    options.Events.OnRedirectToLogin = context =>
-                        {
-                            if (context.HttpContext.User.Identity.IsAuthenticated)
+                      // Not creating a new object since ASP.NET Identity has created
+                      // one already and hooked to the OnValidatePrincipal event.
+                      // See https://github.com/aspnet/AspNetCore/blob/5a64688d8e192cacffda9440e8725c1ed41a30cf/src/Identity/src/Identity/IdentityServiceCollectionExtensions.cs#L56
+                      options.Events.OnRedirectToLogin = context =>
                             {
+                                if (context.HttpContext.User.Identity.IsAuthenticated)
+                                {
+                                    return Task.CompletedTask;
+                                }
+
+                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                 return Task.CompletedTask;
-                            }
+                            };
 
-                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            return Task.CompletedTask;
-                        };
+                      options.Events.OnValidatePrincipal = async context =>
+                      {
+                          if (context.Request.Path.Equals("/api/pollux/User/LogIn"))
+                          {
+                              return;
+                          }
 
-                    options.Events.OnValidatePrincipal = async context =>
-                    {
-                        if (context.Request.Path.Equals("/api/pollux/User/LogIn"))
-                        {
-                            return;
-                        }
+                          var cookie = context.Request.Cookies.FirstOrDefault(p => p.Key.Equals("auth_cookie"));
 
-                        var cookie = context.Request.Cookies.FirstOrDefault(p => p.Key.Equals("auth_cookie"));
+                          ServiceProvider serviceProvider = services.BuildServiceProvider();
+                          var redisCacheService = serviceProvider.GetService<IRedisCacheService>();
+                          var tokenEndpointServie = serviceProvider.GetService<ITokenEndpointService>();
+                          var loggedUserEmail = context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value;
+                          var token = await redisCacheService.GetObjectAsync<TokenModel>(loggedUserEmail);
 
-                        var serviceProvider = services.BuildServiceProvider();
-                        var redisCacheService = serviceProvider.GetService<IRedisCacheService>();
-                        var tokenEndpointServie = serviceProvider.GetService<ITokenEndpointService>();
-                        var tokenCache = await redisCacheService.GetKeyAsync(context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value);
-                        var token = tokenCache.DecodeToken();
+                          context.Request.Headers.TryGetValue("Authorization", out var authValues);
+                          var authotizationToken = authValues.First();
 
-                        //check access token expiration in UTC
-                        //check refresh token expiration in UTC
-                        //implement refresh token functionallity
-                        // implement cookie authorization with tokens
-                        context.Request.Headers.TryGetValue("Authorization", out var authValues);
-                        var authotizationToken = authValues.First();
+                          if (!token.AccessToken.Equals(authotizationToken) ||
+                                  !context.Principal.Identity.IsAuthenticated ||
+                                  string.IsNullOrEmpty(token.AccessToken) ||
+                                  DateTime.UtcNow > token.RefreshTokenExpirationDate)
+                          {
+                              context.RejectPrincipal();
+                              // thorow redirec login
+                          }
 
-                        if (!token.AccessToken.Equals(authotizationToken) ||
-                                !context.Principal.Identity.IsAuthenticated ||
-                                string.IsNullOrEmpty(token.AccessToken))
-                        {
-                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            context.RejectPrincipal();
-                        }
+                          if (DateTime.UtcNow > token.AccessTokenExpirationDate)
+                          {
+                              var newAccesstokenResponse = await tokenEndpointServie.RefreshUserAccessTokenAsync(token.RefreshToken);
+                              token.AccessToken = newAccesstokenResponse.AccessToken;
+                              token.AccessTokenExpirationDate = DateTime.UtcNow.AddSeconds(5); // todo definw expiration and join code
+                              var success = await redisCacheService.SetObjectAsync<TokenModel>(loggedUserEmail, token, TimeSpan.FromDays(7));
+                              if (success)
+                              {
 
-                        if (DateTime.UtcNow > token.ExpirationDate)
-                        {
-                            var newAccesstokenResponse = await tokenEndpointServie.RefreshUserAccessTokenAsync(token.RefreshToken);
+                              }
+                          }
 
-                        }
-
-                        return;
-                    };
-                });
+                          return;
+                      };
+                  });
         }
 
         /// <summary>
@@ -278,7 +282,7 @@ namespace Pollux.API
         /// <param name="services">The services.</param>
         private void AddRedisCacheService(IServiceCollection services)
         {
-            services.AddScoped<IRedisCacheService, RedisCacheService>();
+            services.AddTransient<IRedisCacheService, RedisCacheService>();
         }
     }
 }
