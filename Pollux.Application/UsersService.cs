@@ -17,8 +17,6 @@
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
-
-    using Pollux.API.OAuth.Interfaces;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
@@ -75,10 +73,8 @@
 
         private readonly IIdentityServerInteractionService interaction;
         private readonly IEventService events;
-        private readonly IUserAccessTokenManagementService userAccessTokenManagementService;
         private readonly IRedisCacheService redisCacheService;
         private readonly ITokenEndpointService tokenServiceEndpoint;
-        private readonly IClientAccessTokenCache userTokenCache;
 
 
         /// <summary>
@@ -94,11 +90,7 @@
             SignInManager<User> userSignInManager,
             IMapper mapper,
             IIdentityServerInteractionService iIdentityServerInteractionService,
-            IClientStore clientStore,
-            IAuthenticationSchemeProvider authenticationSchemeProvider,
             IEventService events,
-            IUserAccessTokenManagementService userAccessTokenManagementService,
-            IClientAccessTokenCache userTokenCache,
             ITokenEndpointService tokenServiceEndpoint,
             IRedisCacheService redisCacheService)
         {
@@ -108,9 +100,7 @@
             this.mapper = mapper;
             this.interaction = iIdentityServerInteractionService;
             this.events = events;
-            this.userAccessTokenManagementService = userAccessTokenManagementService;
             this.tokenServiceEndpoint = tokenServiceEndpoint;
-            this.userTokenCache = userTokenCache;
             this.redisCacheService = redisCacheService;
 
         }

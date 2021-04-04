@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using IdentityServer4.Models;
 
-    public class Config
+    public class IdentityServerConfig
     {
         /// <summary>
         /// Gets the identity resources.

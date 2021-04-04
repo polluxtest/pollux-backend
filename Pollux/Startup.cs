@@ -2,16 +2,11 @@ namespace Pollux.API
 {
     using System;
     using System.Collections.Generic;
-    using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
-    using System.Net.Http;
+    using System.Security.Claims;
     using System.Threading.Tasks;
-    using Pollux.Common.ExtensionMethods;
-    using IdentityModel.Client;
-
+    using IdentityModel.AspNetCore.AccessTokenManagement;
     using IdentityServer4.Models;
-    using IdentityServer4.Test;
-    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -23,24 +18,13 @@ namespace Pollux.API
     using Microsoft.Extensions.Hosting;
     using Microsoft.IdentityModel.Logging;
     using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-    using Microsoft.IdentityModel.Tokens;
     using Microsoft.OpenApi.Models;
-    using Newtonsoft.Json.Linq;
-    using Newtonsoft.Json.Serialization;
-    using Microsoft.Extensions.DependencyInjection;
     using Pollux.Application.Mappers;
     using Pollux.Application.OAuth;
+    using Pollux.Common.Application.Models.Auth;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
-    using IdentityModel.AspNetCore.AccessTokenManagement;
-    using System.Security.Claims;
-    using StackExchange.Redis;
-    using Pollux.Persistence.Services;
     using Pollux.Persistence.Services.Cache;
-    using Pollux.Common.Application.Models.Auth;
-
-
-
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -76,48 +60,47 @@ namespace Pollux.API
             IdentityModelEventSource.ShowPII = true;
 
             services.Configure<IdentityOptions>(options =>
-                    {
-                        options.Password.RequireDigit = false;
-                        options.Password.RequiredLength = 8;
-                        options.Password.RequireLowercase = false;
-                        options.Password.RequireUppercase = false;
-                        options.Password.RequireNonAlphanumeric = false;
-                    });
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            });
 
             services.AddCors();
 
             services.AddIdentityServer(
-                    options =>
-                        {
-                            options.Events.RaiseErrorEvents = true;
-                            options.Events.RaiseInformationEvents = true;
-                            options.Events.RaiseFailureEvents = true;
-                            options.Events.RaiseSuccessEvents = true;
-                            options.EmitStaticAudienceClaim = true;
-                        })
-                .AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddInMemoryApiScopes(Config.ApiScopes)
+            options =>
+                {
+                    options.Events.RaiseErrorEvents = true;
+                    options.Events.RaiseInformationEvents = true;
+                    options.Events.RaiseFailureEvents = true;
+                    options.Events.RaiseSuccessEvents = true;
+                    options.EmitStaticAudienceClaim = true;
+                })
+                .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
+                .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
                 .AddAspNetIdentity<User>()
                 .AddDeveloperSigningCredential()
                 .AddResourceOwnerValidator<UserValidator>();
 
             services.AddAuthentication(
-                options =>
-                    {
-                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-
-                    }).AddOpenIdConnect(
+            options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddOpenIdConnect(
                 "oidc",
                 options =>
-                    {
-                        options.Authority = "http://localhost:5000/connect/token";
-                        options.ClientId = "client";
-                        options.ClientSecret = "secret".Sha256();
-                        options.SaveTokens = true;
-                        options.Configuration = new OpenIdConnectConfiguration() { };
-                        options.Scope.Add("api");
-                        options.Scope.Add("offline_access");
-                    });
+                {
+                    options.Authority = "http://localhost:5000/connect/token";
+                    options.ClientId = "client";
+                    options.ClientSecret = "secret".Sha256();
+                    options.SaveTokens = true;
+                    options.Configuration = new OpenIdConnectConfiguration() { };
+                    options.Scope.Add("api");
+                    options.Scope.Add("offline_access");
+                });
 
             services.AddMvc();
             services.AddAuthorization();
@@ -218,7 +201,7 @@ namespace Pollux.API
                     {
                         endpoints.MapControllers();
                         endpoints.MapControllerRoute("default", "{controller}/{action}/{id}");
-                    }); // add require auth
+                    });
         }
 
         /// <summary>
@@ -231,45 +214,41 @@ namespace Pollux.API
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
         }
 
+        /// <summary>
+        /// Sets up swagger.
+        /// </summary>
+        /// <param name="services">The services.</param>
         private void SetUpSwagger(IServiceCollection services)
         {
-            services.AddSwaggerGen(c =>
-                {
+            services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition(
+                    "Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        Description = @"Bearer {access token}",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer",
+                    });
 
-                    c.AddSecurityDefinition(
-                        "Bearer",
-                        new OpenApiSecurityScheme
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement()
                         {
-                            Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
-                      Enter 'Bearer' [space] and then your token in the text input below.
-                      \r\n\r\nExample: 'Bearer 12345abcdef'",
-                            Name = "Authorization",
-                            In = ParameterLocation.Header,
-                            Type = SecuritySchemeType.ApiKey,
-                            Scheme = "Bearer"
-                        });
-
-                    c.AddSecurityRequirement(
-                        new OpenApiSecurityRequirement()
                             {
-                                {
-                                    new OpenApiSecurityScheme
-                                        {
-                                            Reference = new OpenApiReference
-                                                            {
-                                                                Type = ReferenceType.SecurityScheme, Id = "Bearer"
-                                                            },
-                                            Scheme = "oauth2",
-                                            Name = "Bearer",
-                                            In = ParameterLocation.Header,
-                                        },
-                                    new List<string>()
-                                }
-                            });
-                });
+                                new OpenApiSecurityScheme
+                                    {
+                                        Reference = new OpenApiReference{ Type = ReferenceType.SecurityScheme, Id = "Bearer"},
+                                        Scheme = "oauth2",
+                                        Name = "Bearer",
+                                        In = ParameterLocation.Header,
+                                    },
+                                new List<string>()
+                            },
+                        });
+            });
         }
-
-
 
         /// <summary
         /// Sets up authentication.

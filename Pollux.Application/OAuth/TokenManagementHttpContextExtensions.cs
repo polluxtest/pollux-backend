@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Authentication
 {
-    using Pollux.API.OAuth.Interfaces;
+
 
     /// <summary>
     /// Extensions methods for HttpContext for token management
@@ -39,14 +39,14 @@ namespace Microsoft.AspNetCore.Authentication
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns></returns>
         public static async Task<string> GetClientAccessTokenAsync(
-            this HttpContext httpContext, 
-            string clientName = AccessTokenManagementDefaults.DefaultTokenClientName, 
+            this HttpContext httpContext,
+            string clientName = AccessTokenManagementDefaults.DefaultTokenClientName,
             ClientAccessTokenParameters parameters = null,
             CancellationToken cancellationToken = default)
         {
-            var service = httpContext.RequestServices.GetRequiredService<IClientAccessTokenManagementService>();
 
-            return await service.GetClientAccessTokenAsync(clientName, parameters, cancellationToken);
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -57,15 +57,12 @@ namespace Microsoft.AspNetCore.Authentication
         /// <param name="cancellationToken">A cancellation token to cancel operation.</param>
         /// <returns></returns>
         public static async Task RevokeUserRefreshTokenAsync(
-            this HttpContext httpContext, 
-            UserAccessTokenParameters parameters = null, 
+            this HttpContext httpContext,
+            UserAccessTokenParameters parameters = null,
             CancellationToken cancellationToken = default)
         {
             var service = httpContext.RequestServices.GetRequiredService<IUserAccessTokenManagementService>();
-            var store = httpContext.RequestServices.GetRequiredService<IUserTokenStore>();
-
             await service.RevokeRefreshTokenAsync(httpContext.User, parameters, cancellationToken);
-            await store.ClearTokenAsync(httpContext.User);
         }
     }
 }
