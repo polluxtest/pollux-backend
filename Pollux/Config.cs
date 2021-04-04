@@ -31,8 +31,8 @@ namespace Pollux.API
 
 
         public static IEnumerable<Client> Clients =>
-            new List<Client>
-                {
+             new List<Client>
+                 {
                     // machine to machine client
                     new Client
                         {
@@ -61,6 +61,7 @@ namespace Pollux.API
 
                             AllowedScopes = new List<string>(){ "api","api/pollux"}
                         }
-                };
+                 };
+
     }
 }

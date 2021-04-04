@@ -73,10 +73,12 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
 
         /// <inheritdoc/>
         /// <inheritdoc/>
+        /// <inheritdoc/>
+        /// <inheritdoc/>
         public async Task<TokenResponse> RefreshUserAccessTokenAsync(
-        string refreshToken,
-        UserAccessTokenParameters parameters = null,
-        CancellationToken cancellationToken = default)
+            string refreshToken,
+            UserAccessTokenParameters parameters = null,
+            CancellationToken cancellationToken = default)
         {
             _logger.LogDebug("Refreshing refresh token: {token}", refreshToken);
 
@@ -98,6 +100,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
             var response = await httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
             return response;
         }
+
 
 
 

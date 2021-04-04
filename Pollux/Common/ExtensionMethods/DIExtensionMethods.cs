@@ -71,6 +71,8 @@ namespace Pollux.API
 
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
+
+
             if (clientId == "client")
 
                 return new Client()
@@ -102,6 +104,7 @@ namespace Pollux.API
                 };
 
             return null;
+
         }
 
         public class ProfileService : IProfileService
