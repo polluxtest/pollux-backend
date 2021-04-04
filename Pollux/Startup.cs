@@ -100,7 +100,7 @@ namespace Pollux.API
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddAspNetIdentity<User>()
                 .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
-                .AddCustomTokenRequestValidator<TokenValidator>().AddProfileService<ProfileService>();
+                .AddCustomTokenRequestValidator<TokenValidator>();
 
             services.AddAuthentication(
                 options =>

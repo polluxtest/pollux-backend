@@ -17,6 +17,7 @@ namespace Pollux.API
     using Pollux.Domain;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
+    using static Pollux.API.ClientStore;
 
     /// <summary>
     /// Extension Methods for DI.
@@ -67,6 +68,7 @@ namespace Pollux.API
 
     public class ClientStore : IClientStore
     {
+
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
             if (clientId == "client")
@@ -100,50 +102,51 @@ namespace Pollux.API
                 };
 
             return null;
-        }
-    }
-
-    public class ProfileService : IProfileService
-    {
-        public Task GetProfileDataAsync(ProfileDataRequestContext context)
-        {
-            return Task.CompletedTask;
 
         }
 
-        public Task IsActiveAsync(IsActiveContext context)
+        public class ProfileService : IProfileService
         {
-            context.IsActive = true;
-            return Task.CompletedTask;
-        }
-    }
+            public Task GetProfileDataAsync(ProfileDataRequestContext context)
+            {
+                return Task.CompletedTask;
 
-    public class ResourceStore : IResourceStore
-    {
-        public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
-        {
-            return new List<IdentityResource>();
+            }
+
+            public Task IsActiveAsync(IsActiveContext context)
+            {
+                context.IsActive = true;
+                return Task.CompletedTask;
+            }
         }
 
-        public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
+        public class ResourceStore : IResourceStore
         {
-            return new List<ApiScope>() { new ApiScope() { Name = "api" }, new ApiScope() { Name = "api/pollux" } , new ApiScope() { Name =                 IdentityServerConstants.StandardScopes.OfflineAccess
+            public async Task<IEnumerable<IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+            {
+                return new List<IdentityResource>();
+            }
+
+            public async Task<IEnumerable<ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
+            {
+                return new List<ApiScope>() { new ApiScope() { Name = "api" }, new ApiScope() { Name = "api/pollux" } , new ApiScope() { Name =                 IdentityServerConstants.StandardScopes.OfflineAccess
                                             } };
-        }
+            }
 
-        public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
-        {
-            return new List<ApiResource>();
-        }
+            public async Task<IEnumerable<ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+            {
+                return new List<ApiResource>();
+            }
 
-        public Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
-        {
-            throw new System.NotImplementedException();
-        }
+            public Task<IEnumerable<ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
+            {
+                throw new System.NotImplementedException();
+            }
 
-        public Task<Resources> GetAllResourcesAsync()
-        {
-            throw new System.NotImplementedException();
+            public Task<Resources> GetAllResourcesAsync()
+            {
+                throw new System.NotImplementedException();
+            }
         }
     }
 }

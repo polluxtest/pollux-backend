@@ -72,6 +72,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         }
 
         /// <inheritdoc/>
+        /// <inheritdoc/>
         public async Task<TokenResponse> RefreshUserAccessTokenAsync(
             string refreshToken,
             UserAccessTokenParameters parameters = null,
@@ -97,6 +98,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
             var response = await httpClient.RequestRefreshTokenAsync(refreshTokenRequest);
             return response;
         }
+
 
         /// <inheritdoc/>
         public async Task<TokenRevocationResponse> RevokeRefreshTokenAsync(
