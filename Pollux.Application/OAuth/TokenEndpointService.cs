@@ -25,7 +25,6 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
     /// </summary>
     public class TokenEndpointService : ITokenEndpointService
     {
-        private readonly ITokenClientConfigurationService _configService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<TokenEndpointService> _logger;
 
@@ -37,11 +36,9 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <param name="httpClientFactory"></param>
         /// <param name="logger"></param>
         public TokenEndpointService(
-            ITokenClientConfigurationService configService,
             IHttpClientFactory httpClientFactory,
             ILogger<TokenEndpointService> logger)
         {
-            _configService = configService;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
@@ -114,18 +111,10 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
 
             parameters ??= new UserAccessTokenParameters();
 
-            var requestDetails = await _configService.GetTokenRevocationRequestAsync(parameters);
-            requestDetails.Token = refreshToken;
-            requestDetails.TokenTypeHint = OidcConstants.TokenTypes.RefreshToken;
-
-#if NET5_0
-            requestDetails.Options.TryAdd(AccessTokenManagementDefaults.AccessTokenParametersOptionsName, parameters);
-#elif NETCOREAPP3_1
-            requestDetails.Properties[AccessTokenManagementDefaults.AccessTokenParametersOptionsName] = parameters;
-#endif
-
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
-            return await httpClient.RevokeTokenAsync(requestDetails, cancellationToken);
+            //return await httpClient.RevokeTokenAsync(requestDetails, cancellationToken);
+
+            return new TokenRevocationResponse();
         }
     }
 }
