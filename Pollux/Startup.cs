@@ -3,9 +3,7 @@ namespace Pollux.API
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
-    using IdentityModel.AspNetCore.AccessTokenManagement;
     using IdentityServer4.Models;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
@@ -21,10 +19,12 @@ namespace Pollux.API
     using Microsoft.OpenApi.Models;
     using Pollux.Application.Mappers;
     using Pollux.Application.OAuth;
-    using Pollux.Common.Application.Models.Auth;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
+    using IdentityModel.AspNetCore.AccessTokenManagement;
+    using System.Security.Claims;
     using Pollux.Persistence.Services.Cache;
+    using Pollux.Common.Application.Models.Auth;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -104,7 +104,7 @@ namespace Pollux.API
 
             services.AddMvc();
             services.AddAuthorization();
-            services.AddAccessTokenManagement();
+            services.AddClientAccessTokenManagement();
             services.AddControllers();
             services.AddSwaggerGen();
             this.SetUpSwagger(services);

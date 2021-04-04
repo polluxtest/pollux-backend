@@ -17,7 +17,6 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
     using IdentityServer4;
     using IdentityServer4.Models;
 
-    using Pollux.Application.OAuth.Models;
     using Pollux.Common.Application.Models.Request;
 
     /// <summary>
@@ -74,7 +73,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <inheritdoc/>
         public async Task<TokenResponse> RefreshUserAccessTokenAsync(
             string refreshToken,
-            UserAccessTokenParameters parameters = null,
+
             CancellationToken cancellationToken = default)
         {
             _logger.LogDebug("Refreshing refresh token: {token}", refreshToken);
@@ -89,8 +88,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                 RefreshToken = refreshToken
             };
 
-            //var requestDetails = await _configService.GetRefreshTokenRequestAsync(parameters);
-            // requestDetails.RefreshToken = refreshToken;
+
 
             var s = _httpClientFactory.CreateClient("hola");
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
@@ -104,12 +102,10 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <inheritdoc/>
         public async Task<TokenRevocationResponse> RevokeRefreshTokenAsync(
             string refreshToken,
-            UserAccessTokenParameters parameters = null,
             CancellationToken cancellationToken = default)
         {
             _logger.LogDebug("Revoking refresh token: {token}", refreshToken);
 
-            parameters ??= new UserAccessTokenParameters();
 
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
             //return await httpClient.RevokeTokenAsync(requestDetails, cancellationToken);

@@ -19,7 +19,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <param name="parameters"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<TokenResponse> RefreshUserAccessTokenAsync(string refreshToken, UserAccessTokenParameters parameters = null, CancellationToken cancellationToken = default);
+        Task<TokenResponse> RefreshUserAccessTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Requests a client access token.
@@ -37,6 +37,6 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <param name="parameters"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<TokenRevocationResponse> RevokeRefreshTokenAsync(string refreshToken, UserAccessTokenParameters parameters = null, CancellationToken cancellationToken = default);
+        Task<TokenRevocationResponse> RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
     }
 }
