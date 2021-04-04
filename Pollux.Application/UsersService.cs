@@ -47,6 +47,8 @@
         void LogOutAsync();
 
         Task<TokenResponse> SetAuth(LogInModel loginModel);
+
+        Task<bool> ExistUser(string username);
     }
 
     public class UsersService : IUsersService
@@ -192,6 +194,17 @@
             //    await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             //}
             //return this.userIdentitySignManager.SignOutAsync();
+        }
+
+        /// <summary>
+        /// Exists the user.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>True if Exists.</returns>
+        public Task<bool> ExistUser(string username)
+        {
+            return this.usersRepository.AnyAsync(p => p.UserName == username);
         }
     }
 }

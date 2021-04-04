@@ -54,9 +54,9 @@
         /// <returns>
         /// True/False
         /// </returns>
-        public virtual bool Any(Expression<Func<TEntity, bool>> where)
+        public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where)
         {
-            return this.dbSet.Any(where);
+            return this.dbSet.AnyAsync(where);
         }
 
         /// <summary>

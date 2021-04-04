@@ -96,12 +96,10 @@ namespace Pollux.API
                             options.EmitStaticAudienceClaim = true;
                         })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
-                .AddTestUsers(new List<TestUser>() { new TestUser() { Username = "octa@gmail.com", Password = "apolo100" },
-                                new TestUser() { Username = "octavio.diaz@gmail.com", Password = "apolo100" },})
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddAspNetIdentity<User>()
-                .AddDeveloperSigningCredential().AddResourceOwnerValidator<UserValidator>()
-                .AddCustomTokenRequestValidator<TokenValidator>();
+                .AddDeveloperSigningCredential()
+                .AddResourceOwnerValidator<UserValidator>();
 
             services.AddAuthentication(
                 options =>

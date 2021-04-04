@@ -25,7 +25,7 @@
         /// </summary>
         /// <param name="where">The where.</param>
         /// <returns>True/False</returns>
-        bool Any(Expression<Func<TEntity, bool>> where);
+        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> where);
 
         /// <summary>
         /// Attaches the specified entity.

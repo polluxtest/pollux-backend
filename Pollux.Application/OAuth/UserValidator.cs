@@ -1,60 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-
-namespace Pollux.Application.OAuth
+﻿namespace Pollux.Application.OAuth
 {
-    using System.Collections.Specialized;
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
-
     using IdentityServer4.Models;
     using IdentityServer4.Validation;
 
-
-    public class TokenValidator : ICustomTokenRequestValidator
-    {
-        public Task ValidateAsync(CustomTokenRequestValidationContext context)
-        {
-            return Task.CompletedTask;
-        }
-    }
-
     public class UserValidator : IResourceOwnerPasswordValidator
     {
-        private readonly Dictionary<string, string> users;
+        private readonly IUsersService userService;
 
-
-        public UserValidator()
+        public UserValidator(IUsersService userService)
         {
-            this.users = new Dictionary<string, string>() {
-                                                                  { "octa@gmail.com", "apolo100" },
-                                                   { "octavio.diaz@gmail.com", "apolo100" }
-                                                              };
+            this.userService = userService;
         }
 
-        public Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
+        public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
             var username = context.UserName;
-            var password = context.Password;
 
-            if (this.users.Any(x => x.Key == username && x.Value == password))
+            if (await this.userService.ExistUser(username))
             {
-                // context set to success
                 context.Result = new GrantValidationResult(
-                    subject: context.UserName,
-                    authenticationMethod: "user_credentials",
-                    claims: new Claim[] { new Claim(ClaimTypes.Email, username) });
-
-                return Task.FromResult(0);
+                   subject: context.UserName,
+                   authenticationMethod: "user_credentials",
+                   claims: new Claim[] { new Claim(ClaimTypes.Email, username) });
             }
-
-            // context set to Failure        
-            context.Result = new GrantValidationResult(
-                TokenRequestErrors.UnauthorizedClient, "Invalid Crdentials");
-
-            return Task.FromResult(0);
+            else
+            {
+                context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Invalid Crdentials");
+            }
         }
     }
 }
