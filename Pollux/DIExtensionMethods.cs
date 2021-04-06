@@ -15,6 +15,7 @@ namespace Pollux.API
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
     using Pollux.Persistence.Repositories;
+    using Pollux.Persistence.Services.Cache;
 
     /// <summary>
     /// Extension Methods for DI.
@@ -47,6 +48,7 @@ namespace Pollux.API
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddTransient<ITokenIdentityService, TokenIdentityService>();
+            services.AddTransient<IRedisCacheService, RedisCacheService>();
         }
 
         /// <summary>

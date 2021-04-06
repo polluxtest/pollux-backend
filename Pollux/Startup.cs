@@ -1,12 +1,7 @@
 namespace Pollux.API
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
-    using IdentityModel.AspNetCore.AccessTokenManagement;
-    using IdentityServer4.Models;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -21,12 +16,10 @@ namespace Pollux.API
     using Microsoft.OpenApi.Models;
     using Pollux.Application.Mappers;
     using Pollux.Application.OAuth;
-    using Pollux.Common.Application.Models.Auth;
     using Pollux.Common.Application.Models.Settings;
     using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
-    using Pollux.Persistence.Services.Cache;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -53,61 +46,17 @@ namespace Pollux.API
         /// <param name="services">The services<see cref="IServiceCollection"/>.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-
+            IdentityModelEventSource.ShowPII = true;
             var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
             var identityServerSettings = new IdentityServerSettings();
             this.Configuration.Bind("IdentityServerSettings", identityServerSettings);
             services.AddSingleton(identityServerSettings);
-
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
-
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
-
-            IdentityModelEventSource.ShowPII = true;
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 8;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-            });
-
+            this.SetUpPasswordIdentity(services);
             services.AddCors();
-
-            services.AddIdentityServer(
-            options =>
-                {
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
-                    options.EmitStaticAudienceClaim = true;
-                })
-                .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
-                .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
-                .AddAspNetIdentity<User>()
-                .AddDeveloperSigningCredential()
-                .AddResourceOwnerValidator<UserValidator>();
-
-            services.AddAuthentication(
-            options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddOpenIdConnect(
-                "oidc",
-                options =>
-                {
-                    options.Authority = identityServerSettings.HostUrl;
-                    options.ClientId = IdentityServerConstants.ClientName;
-                    options.ClientSecret = IdentityServerConstants.ClientSecret;
-                    options.SaveTokens = true;
-                    options.Configuration = new OpenIdConnectConfiguration() { };
-                    options.Scope.Add(IdentityServerConstants.Scope);
-                    options.Scope.Add(IdentityServerConstants.RequestRefreshToken);
-                });
-
+            this.SetUpIdentityServer(services);
+            this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc();
             services.AddAuthorization();
             services.AddClientAccessTokenManagement();
@@ -118,31 +67,7 @@ namespace Pollux.API
             services.AddDIServices();
             services.AddIdentityServerServices();
             services.AddAutoMapper(AssemblyApplication.Assembly);
-            this.AddRedisCacheService(services);
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.Name = "auth_cookie";
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.LoginPath = new PathString("/api/pollux/User/LogIn/");
-                options.AccessDeniedPath = new PathString("/api/pollux/User/Denied/");
-
-                options.Events.OnRedirectToLogin = context =>
-                {
-                    if (context.HttpContext.User.Identity.IsAuthenticated)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return Task.CompletedTask;
-                };
-
-                options.Events.OnValidatePrincipal = async context =>
-                {
-                    await new AuthEventHandler(services).Handle(context);
-                };
-            });
+            this.SetUpCookieAndHandler(services);
         }
 
         /// <summary>
@@ -217,13 +142,92 @@ namespace Pollux.API
             });
         }
 
-        /// <summary
-        /// Sets up authentication.
+        /// <summary>
+        /// Sets up cookie and handler.
         /// </summary>
         /// <param name="services">The services.</param>
-        private void AddRedisCacheService(IServiceCollection services)
+        private void SetUpCookieAndHandler(IServiceCollection services)
         {
-            services.AddTransient<IRedisCacheService, RedisCacheService>();
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = CookiesConstants.CookieSessionName;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    if (context.HttpContext.User.Identity.IsAuthenticated)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                };
+
+                options.Events.OnValidatePrincipal = async context =>
+                {
+                    await new AuthEventHandler(services).Handle(context);
+                };
+            });
+        }
+
+        private void SetUpAuthentication(IServiceCollection services, string identityServerUrl)
+        {
+            services.AddAuthentication(
+               options =>
+               {
+                   options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+               })
+                .AddOpenIdConnect(
+                   OpenIdConstants.SchemaName,
+                   options =>
+                   {
+                       options.Authority = identityServerUrl;
+                       options.ClientId = IdentityServerConstants.ClientName;
+                       options.ClientSecret = IdentityServerConstants.ClientSecret;
+                       options.SaveTokens = true;
+                       options.Configuration = new OpenIdConnectConfiguration() { };
+                       options.Scope.Add(IdentityServerConstants.Scope);
+                       options.Scope.Add(IdentityServerConstants.RequestRefreshToken);
+                   });
+        }
+
+        /// <summary>
+        /// Sets up identity server.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        private void SetUpIdentityServer(IServiceCollection services)
+        {
+            services.AddIdentityServer(
+                options =>
+                {
+                    options.Events.RaiseErrorEvents = true;
+                    options.Events.RaiseInformationEvents = true;
+                    options.Events.RaiseFailureEvents = true;
+                    options.Events.RaiseSuccessEvents = true;
+                    options.EmitStaticAudienceClaim = true;
+                })
+             .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
+             .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
+             .AddAspNetIdentity<User>()
+             .AddDeveloperSigningCredential()
+             .AddResourceOwnerValidator<UserValidator>();
+        }
+
+        /// <summary>
+        /// Sets up password identity.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        private void SetUpPasswordIdentity(IServiceCollection services)
+        {
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            });
         }
     }
+
 }
