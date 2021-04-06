@@ -7,6 +7,7 @@
     using Pollux.Common.Application.Models.Auth;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants;
+    using Pollux.Common.Constants.Strings;
     using Pollux.Persistence.Services.Cache;
 
     public interface IAuthService

@@ -22,6 +22,8 @@ namespace Pollux.API
     using Pollux.Application.Mappers;
     using Pollux.Application.OAuth;
     using Pollux.Common.Application.Models.Auth;
+    using Pollux.Common.Application.Models.Settings;
+    using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
     using Pollux.Persistence.Services.Cache;
@@ -51,7 +53,11 @@ namespace Pollux.API
         /// <param name="services">The services<see cref="IServiceCollection"/>.</param>
         public void ConfigureServices(IServiceCollection services)
         {
+
             var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
+            var identityServerSettings = new IdentityServerSettings();
+            this.Configuration.Bind("IdentityServerSettings", identityServerSettings);
+            services.AddSingleton(identityServerSettings);
 
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
 
@@ -93,13 +99,13 @@ namespace Pollux.API
                 "oidc",
                 options =>
                 {
-                    options.Authority = "http://localhost:5000/connect/token";
-                    options.ClientId = "client";
-                    options.ClientSecret = "secret".Sha256();
+                    options.Authority = identityServerSettings.HostUrl;
+                    options.ClientId = IdentityServerConstants.ClientName;
+                    options.ClientSecret = IdentityServerConstants.ClientSecret;
                     options.SaveTokens = true;
                     options.Configuration = new OpenIdConnectConfiguration() { };
-                    options.Scope.Add("api");
-                    options.Scope.Add("offline_access");
+                    options.Scope.Add(IdentityServerConstants.Scope);
+                    options.Scope.Add(IdentityServerConstants.RequestRefreshToken);
                 });
 
             services.AddMvc();
@@ -134,49 +140,7 @@ namespace Pollux.API
 
                 options.Events.OnValidatePrincipal = async context =>
                 {
-                    if (context.Request.Path.Equals("/api/pollux/User/LogIn"))
-                    {
-                        return;
-                    }
-
-                    if (!context.Principal.Identity.IsAuthenticated)
-                    {
-                        context.RejectPrincipal();
-                        return;
-                    }
-
-                    var cookie = context.Request.Cookies.FirstOrDefault(p => p.Key.Equals("auth_cookie"));
-
-                    ServiceProvider serviceProvider = services.BuildServiceProvider();
-                    var redisCacheService = serviceProvider.GetService<IRedisCacheService>();
-                    var tokenEndpointServie = serviceProvider.GetService<ITokenIdentityService>();
-                    var loggedUserEmail = context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value;
-                    var token = await redisCacheService.GetObjectAsync<TokenModel>(loggedUserEmail);
-
-                    context.Request.Headers.TryGetValue("Authorization", out var authValues);
-                    var authotizationToken = authValues.First();
-
-                    if (!token.AccessToken.Equals(authotizationToken) ||
-                            !context.Principal.Identity.IsAuthenticated ||
-                            string.IsNullOrEmpty(token.AccessToken) ||
-                            DateTime.UtcNow > token.RefreshTokenExpirationDate)
-                    {
-                        context.RejectPrincipal();
-                    }
-
-                    if (DateTime.UtcNow > token.AccessTokenExpirationDate)
-                    {
-                        var newAccesstokenResponse = await tokenEndpointServie.RefreshUserAccessTokenAsync(token.RefreshToken);
-                        token.AccessToken = newAccesstokenResponse.AccessToken;
-                        token.AccessTokenExpirationDate = DateTime.UtcNow.AddSeconds(5); // todo definw expiration and join code
-                        var success = await redisCacheService.SetObjectAsync<TokenModel>(loggedUserEmail, token, TimeSpan.FromDays(7));
-                        if (success)
-                        {
-
-                        }
-                    }
-
-                    return;
+                    await new AuthEventHandler(services).Handle(context);
                 };
             });
         }
@@ -200,11 +164,11 @@ namespace Pollux.API
             app.UseAuthorization();
             app.UseIdentityServer();
             app.UseEndpoints(
-                endpoints =>
-                    {
-                        endpoints.MapControllers();
-                        endpoints.MapControllerRoute("default", "{controller}/{action}/{id}");
-                    });
+            endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute("default", "{controller}/{action}/{id}");
+            });
         }
 
         /// <summary>

@@ -1,13 +1,17 @@
 namespace Pollux.API
 {
+    using IdentityModel.AspNetCore.AccessTokenManagement;
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Pollux.API.AuthIdentityServer;
     using Pollux.Application;
+    using Pollux.Common.Constants;
+    using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
     using Pollux.Persistence.Repositories;
@@ -42,6 +46,7 @@ namespace Pollux.API
             services.AddScoped<IUserStore<User>, UserStore<User>>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddTransient<ITokenIdentityService, TokenIdentityService>();
         }
 
         /// <summary>
@@ -54,6 +59,21 @@ namespace Pollux.API
             services.AddTransient<IClientStore, ClientStore>();
             services.AddTransient<ICorsPolicyService, CorsPolicyService>();
             services.AddTransient<IProfileService, ProfileService>();
+        }
+
+        /// <summary>
+        /// Adds the client access token management.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        public static void AddClientAccessTokenManagement(this IServiceCollection services)
+        {
+            services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
+            services.AddSingleton<IAuthenticationSchemeProvider, AuthenticationSchemeProvider>();
+            services.AddTransient<ITokenIdentityService, TokenIdentityService>();
+            services.AddHttpClient(AccessTokenManagementConstants.BackChannelHttpClientName);
+            services.AddHttpContextAccessor();
+            services.AddAuthentication();
         }
     }
 }

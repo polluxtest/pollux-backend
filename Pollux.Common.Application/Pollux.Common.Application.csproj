@@ -10,4 +10,8 @@
     <None Remove="Models\Response\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Settings\" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace Pollux.Common.Constants
+﻿namespace Pollux.Common.Constants.Strings
 {
     public class ExpirationsContants
     {

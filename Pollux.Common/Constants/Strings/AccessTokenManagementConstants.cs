@@ -1,14 +1,10 @@
-﻿namespace Pollux.Common.Constants
+﻿namespace Pollux.Common.Constants.Strings
 {
     /// <summary>
-    /// Default values
+    /// Default values for token identity server
     /// </summary>
-    public static class AccessTokenManagementDefaults
+    public static class AccessTokenManagementConstants
     {
-        /// <summary>
-        /// Name of the default client access token configuration
-        /// </summary>
-        public const string DefaultTokenClientName = "client";
 
         /// <summary>
         /// Name of the back-channel HTTP client

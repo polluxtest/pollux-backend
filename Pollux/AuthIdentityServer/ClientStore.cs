@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using IdentityServer4.Models;
     using IdentityServer4.Stores;
+    using Pollux.Common.Constants.Strings;
 
     public class ClientStore : IClientStore
     {
@@ -12,18 +13,18 @@
         /// </summary>
         /// <param name="clientId">The client id</param>
         /// <returns>
-        /// The client
+        /// The client.
         /// </returns>
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
-            if (clientId == "client")
-
+            if (clientId == IdentityServerConstants.ClientName)
+            {
                 return new Client()
                 {
-                    ClientId = "client",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    ClientId = IdentityServerConstants.ClientName,
+                    ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
                     AllowOfflineAccess = true,
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                    AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
                     AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
                     AccessTokenLifetime = 5,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
@@ -31,8 +32,10 @@
                     AbsoluteRefreshTokenLifetime = 50,
                     SlidingRefreshTokenLifetime = 50,
                 };
+            }
 
-            if (clientId == "x")
+            if (clientId == IdentityServerConstants.ClientNameRefreshToken)
+            {
                 return new Client()
                 {
                     ClientId = "client",
@@ -45,6 +48,7 @@
                     AbsoluteRefreshTokenLifetime = 50,
                     SlidingRefreshTokenLifetime = 50,
                 };
+            }
 
             return null;
         }

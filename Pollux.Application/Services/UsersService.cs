@@ -126,16 +126,15 @@
         /// </returns>
         public async Task LogInAsync(LogInModel loginModel)
         {
-            var context = await this.interaction.GetAuthorizationContextAsync(loginModel.ReturnUrl);
-            var result = await this.userIdentitySignManager.PasswordSignInAsync(loginModel.Email, loginModel.Password, true, lockoutOnFailure: true);
+            var signInResult = await this.userIdentitySignManager.PasswordSignInAsync(loginModel.Email, loginModel.Password, true, lockoutOnFailure: true);
 
-            if (result.Succeeded)
+            if (signInResult.Succeeded)
             {
-                await this.events.RaiseAsync(new UserLoginSuccessEvent(loginModel.Email, string.Empty, loginModel.Email, clientId: context?.Client.ClientId));
+                await this.events.RaiseAsync(new UserLoginSuccessEvent(loginModel.Email, string.Empty, loginModel.Email));
             }
             else
             {
-                await this.events.RaiseAsync(new UserLoginFailureEvent(loginModel.Email, "invalid credentials", clientId: context?.Client.ClientId));
+                await this.events.RaiseAsync(new UserLoginFailureEvent(loginModel.Email, "invalid credentials"));
             }
         }
 

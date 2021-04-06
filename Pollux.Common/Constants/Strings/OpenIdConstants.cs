@@ -1,4 +1,4 @@
-﻿namespace Pollux.Common.Constants.Strings.Api
+﻿namespace Pollux.Common.Constants.Strings
 {
     public static class OpenIdConstants
     {
