@@ -8,6 +8,6 @@
 
         public const string SignUp = "SignUp/";
 
-        public const string LogOut = "LogOut";
+        public const string LogOut = "LogOut/";
     }
 }

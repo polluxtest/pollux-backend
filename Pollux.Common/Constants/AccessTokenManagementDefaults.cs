@@ -1,4 +1,4 @@
-﻿namespace IdentityModel.AspNetCore.AccessTokenManagement
+﻿namespace Pollux.Common.Constants
 {
     /// <summary>
     /// Default values

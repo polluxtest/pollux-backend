@@ -1,6 +1,4 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
+﻿
 using System.Collections.Generic;
 using IdentityModel.Client;
 using System.Net.Http;
@@ -18,14 +16,45 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
     using IdentityServer4.Models;
 
     using Pollux.Common.Application.Models.Request;
+    using Pollux.Common.Constants;
+
+    public interface ITokenIdentityService
+    {
+        /// <summary>
+        /// Refreshes a user access token.
+        /// </summary>
+        /// <param name="refreshToken"></param>
+        /// <param name="parameters"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<TokenResponse> RefreshUserAccessTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Requests a client access token.
+        /// </summary>
+        /// <param name="clientName"></param>
+        /// <param name="parameters"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<TokenResponse> RequestClientAccessToken(string clientName = null, LogInModel loginModel, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Revokes a refresh token.
+        /// </summary>
+        /// <param name="refreshToken"></param>
+        /// <param name="parameters"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<TokenRevocationResponse> RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default);
+    }
 
     /// <summary>
     /// Implements token endpoint operations using IdentityModel
     /// </summary>
-    public class TokenEndpointService : ITokenEndpointService
+    public class TokenIdentityService : ITokenIdentityService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<TokenEndpointService> _logger;
+        private readonly ILogger<TokenIdentityService> _logger;
 
 
         /// <summary>
@@ -34,9 +63,9 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <param name="configService"></param>
         /// <param name="httpClientFactory"></param>
         /// <param name="logger"></param>
-        public TokenEndpointService(
+        public TokenIdentityService(
             IHttpClientFactory httpClientFactory,
-            ILogger<TokenEndpointService> logger)
+            ILogger<TokenIdentityService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
@@ -46,7 +75,6 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         public async Task<TokenResponse> RequestClientAccessToken(
             string clientName = AccessTokenManagementDefaults.DefaultTokenClientName,
             LogInModel loginModel = null,
-            ClientAccessTokenParameters parameters = null,
             CancellationToken cancellationToken = default)
         {
             _logger.LogDebug("Requesting client access token for client: {client}", clientName);
@@ -73,7 +101,6 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         /// <inheritdoc/>
         public async Task<TokenResponse> RefreshUserAccessTokenAsync(
             string refreshToken,
-
             CancellationToken cancellationToken = default)
         {
             _logger.LogDebug("Refreshing refresh token: {token}", refreshToken);
@@ -88,7 +115,8 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
                 RefreshToken = refreshToken
             };
 
-
+            //var requestDetails = await _configService.GetRefreshTokenRequestAsync(parameters);
+            // requestDetails.RefreshToken = refreshToken;
 
             var s = _httpClientFactory.CreateClient("hola");
             var httpClient = _httpClientFactory.CreateClient(AccessTokenManagementDefaults.BackChannelHttpClientName);

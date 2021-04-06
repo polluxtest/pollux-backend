@@ -5,6 +5,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="OAuth\**" />
+	  <EmbeddedResource Remove="OAuth\**" />
+	  <None Remove="OAuth\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="10.1.1" />
 		<PackageReference Include="IdentityModel" Version="5.0.1" />
 		<PackageReference Include="IdentityServer4" Version="4.1.1" />

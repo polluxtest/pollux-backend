@@ -1,60 +1,26 @@
 ﻿namespace Pollux.API.Controllers
 {
-    using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IdentityModel.Tokens.Jwt;
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Linq;
-    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.IdentityModel.Tokens;
-
     using Pollux.Application;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings.Api;
 
-    [Route(ApiConstants.DefaultRoute)]
-    [ApiController]
-    public class UserController : ControllerBase
+    [Authorize]
+    public class UserController : BaseController
     {
         private readonly IUsersService userService;
+        private readonly IAuthService authService;
 
-        public UserController(IUsersService userService)
+        public UserController(IUsersService userService, IAuthService authService)
         {
             this.userService = userService;
-        }
-
-        /// <summary>
-        /// Logs the in.
-        /// </summary>
-        /// <param name="loginModel">The login model.</param>
-        /// <returns>201.</returns>
-        [HttpPost]
-        [AllowAnonymous]
-        [Route(ApiConstants.LogIn)]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult<IEnumerable<Claim>>> LogIn([FromBody] LogInModel loginModel)
-        {
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = false
-            };
-            await this.userService.LogInAsync(loginModel);
-            var isAuth = this.User.Identity.IsAuthenticated;
-
-            var token = await this.userService.SetAuth(loginModel);
-            var isAuth3 = this.User.Identity.IsAuthenticated;
-
-
-
-
-            return this.Created(string.Empty, token);
+            this.authService = authService;
         }
 
         /// <summary>
@@ -69,32 +35,49 @@
         [ProducesResponseType(400)]
         public async Task<ActionResult> SignUp([FromBody] SignUpModel signUpModel, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var r = await this.userService.SignUp(signUpModel, cancellationToken).ConfigureAwait(false);
-            return this.Created(string.Empty, r);
+            var identityResponse = await this.userService.SignUp(signUpModel, cancellationToken);
+            return this.Created(string.Empty, identityResponse);
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            return this.Content("authorized");
-        }
-
-        [Authorize]
-        [HttpPatch]
-        public async Task<IActionResult> Patch()
-        {
-            return this.Content("authorized patch");
-        }
-
-        [Authorize]
+        /// <summary>
+        /// Logs the in.
+        /// </summary>
+        /// <param name="loginModel">The login model.</param>
+        /// <returns>201.</returns>
         [HttpPost]
-        [Route("Denied")]
-        public async Task<IActionResult> Denied()
+        [AllowAnonymous]
+        [Route(ApiConstants.LogIn)]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<IEnumerable<Claim>>> LogIn([FromBody] LogInModel loginModel)
+        {
+            await this.userService.LogInAsync(loginModel);
+            var token = await this.authService.SetAuth(loginModel);
+            return this.Created(string.Empty, token);
+        }
+
+        /// <summary>
+        /// Logs the out.
+        /// </summary>
+        /// <returns>No Content (204).</returns>
+        [HttpPost]
+        [AllowAnonymous]
+        [Route(ApiConstants.LogOut)]
+        [ProducesResponseType(204)]
+        public async Task<IActionResult> LogOut()
+        {
+            var username = this.User.Claims.First(p => p.Type.Equals(ClaimTypes.Email)).Value;
+            await this.userService.LogOutAsync();
+            await this.authService.RemoveAuth(username);
+
+            return this.NoContent();
+        }
+
+        [HttpPost]
+        [Route("Test")]
+        public async Task<IActionResult> Test()
         {
             return this.Content(this.User.Claims.First(p => p.Type.Equals("email")).Value);
         }
-
-
     }
 }

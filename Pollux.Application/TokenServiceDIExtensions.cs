@@ -4,11 +4,12 @@
     using global::IdentityModel.AspNetCore.AccessTokenManagement;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.Extensions.DependencyInjection.Extensions;
+    using Pollux.Common.Constants;
 
     /// <summary>
     /// Extension methods for IServiceCollection to register the token management services
     /// </summary>
-    public static class TokenManagementServiceCollectionExtensions
+    public static class TokenServiceDIExtensions
     {
         /// <summary>
         /// Adds the access token management.
@@ -32,11 +33,11 @@
             services.AddDistributedMemoryCache();
             services.TryAddSingleton<ISystemClock, SystemClock>();
             services.TryAddSingleton<IAuthenticationSchemeProvider, AuthenticationSchemeProvider>();
-            services.TryAddTransient<ITokenEndpointService, TokenEndpointService>();
+            services.TryAddTransient<ITokenIdentityService, TokenIdentityService>();
             services.AddHttpClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
             services.AddHttpContextAccessor();
             services.AddAuthentication();
-            services.TryAddTransient<ITokenEndpointService, TokenEndpointService>();
+            services.TryAddTransient<ITokenIdentityService, TokenIdentityService>();
 
             services.AddHttpClient(AccessTokenManagementDefaults.BackChannelHttpClientName);
         }

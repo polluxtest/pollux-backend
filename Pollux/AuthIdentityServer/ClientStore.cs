@@ -17,7 +17,7 @@
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
             if (clientId == "client")
-            {
+
                 return new Client()
                 {
                     ClientId = "client",
@@ -31,10 +31,8 @@
                     AbsoluteRefreshTokenLifetime = 50,
                     SlidingRefreshTokenLifetime = 50,
                 };
-            }
 
             if (clientId == "x")
-            {
                 return new Client()
                 {
                     ClientId = "client",
@@ -47,10 +45,8 @@
                     AbsoluteRefreshTokenLifetime = 50,
                     SlidingRefreshTokenLifetime = 50,
                 };
-            }
 
             return null;
-
         }
     }
 }

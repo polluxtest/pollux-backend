@@ -41,6 +41,7 @@ namespace Pollux.API
             services.AddScoped<IRoleStore<Role>, RoleStore<Role>>();
             services.AddScoped<IUserStore<User>, UserStore<User>>();
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
 
         /// <summary>

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Pollux.Common.Application.Models.Auth;
 
     public interface IRedisCacheService
     {
@@ -52,6 +51,5 @@
         /// <returns>True if success.</returns>
         public Task<bool> DeleteKeyAsync(string key);
 
-        /// <returns>Model Serialized.</returns>
     }
 }
