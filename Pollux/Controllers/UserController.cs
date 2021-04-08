@@ -1,14 +1,13 @@
 ﻿namespace Pollux.API.Controllers
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Pollux.Application;
     using Pollux.Common.Application.Models.Request;
+    using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
 
     [Authorize]
@@ -33,9 +32,9 @@
         [Route(ApiConstants.SignUp)]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult> SignUp([FromBody] SignUpModel signUpModel, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ActionResult> SignUp([FromBody] SignUpModel signUpModel)
         {
-            var identityResponse = await this.userService.SignUp(signUpModel, cancellationToken);
+            var identityResponse = await this.userService.SignUp(signUpModel);
             return this.Created(string.Empty, identityResponse);
         }
 
@@ -47,13 +46,14 @@
         [HttpPost]
         [AllowAnonymous]
         [Route(ApiConstants.LogIn)]
-        [ProducesResponseType(201)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<IEnumerable<Claim>>> LogIn([FromBody] LogInModel loginModel)
+        public async Task<IActionResult> LogIn([FromBody] LogInModel loginModel)
         {
             await this.userService.LogInAsync(loginModel);
             var token = await this.authService.SetAuth(loginModel);
-            return this.Created(string.Empty, token);
+            this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieTokenName, token.AccessToken);
+            return this.Ok(token);
         }
 
         /// <summary>

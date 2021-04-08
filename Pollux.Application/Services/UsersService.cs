@@ -16,9 +16,8 @@
         /// Signs up.
         /// </summary>
         /// <param name="signUpModel">The sign up model.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>IdentityResult.</returns>
-        Task<IdentityResult> SignUp(SignUpModel signUpModel, CancellationToken cancellationToken);
+        Task<IdentityResult> SignUp(SignUpModel signUpModel);
 
         /// <summary>
         /// Logs In the User.
@@ -103,11 +102,10 @@
         /// Signs up.
         /// </summary>
         /// <param name="signUpModel">The sign up model.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// IdentityResult.
         /// </returns>
-        public async Task<IdentityResult> SignUp(SignUpModel signUpModel, CancellationToken cancellationToken)
+        public async Task<IdentityResult> SignUp(SignUpModel signUpModel)
         {
             var newUser = new User();
             this.mapper.Map(signUpModel, newUser);
