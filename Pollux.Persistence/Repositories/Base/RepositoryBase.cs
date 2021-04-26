@@ -347,5 +347,13 @@
         {
             return this.dbContext.Entry(entity);
         }
+
+        /// <summary>
+        /// Saves this instance.
+        /// </summary>
+        public void Save()
+        {
+            this.dbContext.SaveChanges(); // todo research why and async throws an exception
+        }
     }
 }

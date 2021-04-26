@@ -15,6 +15,11 @@
         where TEntity : class
     {
         /// <summary>
+        /// Saves this instance.
+        /// </summary>
+        void Save();
+
+        /// <summary>
         /// Adds the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>

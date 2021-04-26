@@ -1,5 +1,6 @@
 ﻿namespace Pollux.API.Controllers
 {
+    using System;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
@@ -86,10 +87,16 @@
         [ProducesResponseType(204)]
         public async Task<IActionResult> ResetPassword([FromRoute] string token, [FromBody] string newPassword)
         {
-            var email = TokenFactory.DecodeToken(token);
-            await this.userService.ResetPassword(email, newPassword);
-
-            return this.NoContent();
+            try
+            {
+                var email = TokenFactory.DecodeToken(token);
+                await this.userService.ResetPassword(email, newPassword);
+                return this.Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return this.BadRequest();
+            }
         }
 
         /// <summary>

@@ -81,6 +81,11 @@
         /// </summary>
         private readonly IEventService events;
 
+        /// <summary>
+        /// The password hasher
+        /// </summary>
+        private readonly IPasswordHasher<User> passwordHasher;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UsersService"/> class.
@@ -91,13 +96,16 @@
         /// <param name="mapper">The mapper.</param>
         /// <param name="iIdentityServerInteractionService">The i identity server interaction service.</param>
         /// <param name="eventsService">The events.</param>
+        /// <param name="passwordHasher">The Password hasher.</param>
+
         public UsersService(
             IUsersRepository usersRepository,
             UserManager<User> userManager,
             SignInManager<User> userSignInManager,
             IMapper mapper,
             IIdentityServerInteractionService iIdentityServerInteractionService,
-            IEventService eventsService)
+            IEventService eventsService,
+            IPasswordHasher<User> passwordHasher)
         {
             this.usersRepository = usersRepository;
             this.userIdentityManager = userManager;
@@ -105,6 +113,7 @@
             this.mapper = mapper;
             this.interaction = iIdentityServerInteractionService;
             this.events = eventsService;
+            this.passwordHasher = passwordHasher;
         }
 
         /// <summary>
@@ -181,7 +190,11 @@
         public async Task ResetPassword(string email, string newPassword)
         {
             var user = await this.usersRepository.GetAsync(p => p.Email == email);
-            var result = await this.userIdentityManager.ChangePasswordAsync(user, user.PasswordHash, newPassword);
+            var hashedPassword = this.passwordHasher.HashPassword(user, newPassword);
+            //var result = await this.userIdentityManager.ChangePasswordAsync(user, user.PasswordHash, hashedPassword);
+            user.PasswordHash = hashedPassword;
+            this.usersRepository.Update(user);
+            this.usersRepository.Save();
         }
     }
 }

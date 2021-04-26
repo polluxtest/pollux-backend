@@ -19,16 +19,17 @@
         public static string DecodeToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jsonToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
-            if (jsonToken == null)
+            try
+            {
+                var jsonToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                var email = ((List<Claim>)jsonToken.Claims)[0].Value;
+                return email;
+            }
+            catch
             {
                 throw new ArgumentException("The token is invalid", nameof(token));
             }
-
-            var email = ((List<Claim>)jsonToken.Claims).Find(p => p.Type == ClaimTypes.Email).Value;
-
-            return email;
         }
     }
 }
