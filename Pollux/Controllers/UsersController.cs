@@ -80,7 +80,7 @@
         /// <param name="token">The token.</param>
         /// <param name="newPassword">The new password.</param>
         /// <returns>No Content (204).</returns>
-        [HttpPut]
+        [HttpPost]
         [AllowAnonymous]
         [Route(ApiConstants.ResetPassword)]
         [ProducesResponseType(204)]
