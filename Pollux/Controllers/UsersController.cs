@@ -9,6 +9,7 @@
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
+    using Pollux.Common.Factories;
 
     [Authorize]
     public class UsersController : BaseController
@@ -69,6 +70,24 @@
             var username = this.User.Claims.First(p => p.Type.Equals(ClaimTypes.Email)).Value;
             await this.userService.LogOutAsync();
             await this.authService.RemoveAuth(username);
+
+            return this.NoContent();
+        }
+
+        /// <summary>
+        /// Resets the password.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <param name="newPassword">The new password.</param>
+        /// <returns>No Content (204).</returns>
+        [HttpPut]
+        [AllowAnonymous]
+        [Route(ApiConstants.ResetPassword)]
+        [ProducesResponseType(204)]
+        public async Task<IActionResult> ResetPassword([FromRoute] string token, [FromBody] string newPassword)
+        {
+            var email = TokenFactory.DecodeToken(token);
+            await this.userService.ResetPassword(email, newPassword);
 
             return this.NoContent();
         }

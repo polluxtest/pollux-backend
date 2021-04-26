@@ -1,6 +1,6 @@
 ﻿namespace Pollux.Application
 {
-    using System.Threading;
+    using System;
     using System.Threading.Tasks;
     using AutoMapper;
     using IdentityServer4.Events;
@@ -38,6 +38,14 @@
         /// <param name="username">The username.</param>
         /// <returns>True if exists.</returns>
         Task<bool> ExistUser(string username);
+
+        /// <summary>
+        /// Resets the password.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <param name="newPassword">The new password.</param>
+        /// <returns>Task.</returns>
+        Task ResetPassword(string email, string newPassword);
 
     }
 
@@ -108,6 +116,12 @@
         /// </returns>
         public async Task<IdentityResult> SignUp(SignUpModel signUpModel)
         {
+            var existsUser = await this.ExistUser(signUpModel.Email);
+            if (existsUser)
+            {
+                throw new ArgumentException("user already exists", signUpModel.Email);
+            }
+
             var newUser = new User();
             this.mapper.Map(signUpModel, newUser);
             newUser.UserName = newUser.Email;
@@ -154,6 +168,20 @@
         public Task<bool> ExistUser(string username)
         {
             return this.usersRepository.AnyAsync(p => p.UserName == username);
+        }
+
+        /// <summary>
+        /// Resets the password.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <param name="newPassword">The new password.</param>
+        /// <returns>
+        /// Task.
+        /// </returns>
+        public async Task ResetPassword(string email, string newPassword)
+        {
+            var user = await this.usersRepository.GetAsync(p => p.Email == email);
+            var result = await this.userIdentityManager.ChangePasswordAsync(user, user.PasswordHash, newPassword);
         }
     }
 }

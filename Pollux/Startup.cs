@@ -59,13 +59,14 @@ namespace Pollux.API
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc();
             services.AddAuthorization();
-            services.AddClientAccessTokenManagement();
+            services.AddDIClientAccessTokenManagement();
+            services.AddDIMiscelaneus();
             services.AddControllers();
             services.AddSwaggerGen();
             this.SetUpSwagger(services);
             services.AddDIRepositories();
             services.AddDIServices();
-            services.AddIdentityServerServices();
+            services.AddDIIdentityServerServices();
             services.AddAutoMapper(AssemblyApplication.Assembly);
             this.SetUpCookieAndHandler(services);
         }

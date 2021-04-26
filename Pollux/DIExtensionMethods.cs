@@ -16,6 +16,7 @@ namespace Pollux.API
     using Pollux.Persistence;
     using Pollux.Persistence.Repositories;
     using Pollux.Persistence.Services.Cache;
+    using System.Net.Http;
 
     /// <summary>
     /// Extension Methods for DI.
@@ -55,7 +56,7 @@ namespace Pollux.API
         /// Adds the identity server services.
         /// </summary>
         /// <param name="services">The services.</param>
-        public static void AddIdentityServerServices(this IServiceCollection services)
+        public static void AddDIIdentityServerServices(this IServiceCollection services)
         {
             services.AddScoped<IResourceStore, ResourceStore>();
             services.AddTransient<IClientStore, ClientStore>();
@@ -67,7 +68,7 @@ namespace Pollux.API
         /// Adds the client access token management.
         /// </summary>
         /// <param name="services">The services.</param>
-        public static void AddClientAccessTokenManagement(this IServiceCollection services)
+        public static void AddDIClientAccessTokenManagement(this IServiceCollection services)
         {
             services.AddMemoryCache();
             services.AddDistributedMemoryCache();
@@ -76,6 +77,11 @@ namespace Pollux.API
             services.AddHttpClient(AccessTokenManagementConstants.BackChannelHttpClientName);
             services.AddHttpContextAccessor();
             services.AddAuthentication();
+        }
+
+        public static void AddDIMiscelaneus(this IServiceCollection services)
+        {
+            services.AddSingleton<HttpClient, HttpClient>();
         }
     }
 }

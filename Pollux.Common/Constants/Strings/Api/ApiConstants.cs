@@ -11,5 +11,7 @@
         public const string LogOut = "LogOut/";
 
         public const string Exist = "Exist/";
+
+        public const string ResetPassword = "ResetPassword/{token}";
     }
 }
