@@ -11,12 +11,12 @@
     using Pollux.Common.Constants.Strings.Api;
 
     [Authorize]
-    public class UserController : BaseController
+    public class UsersController : BaseController
     {
         private readonly IUsersService userService;
         private readonly IAuthService authService;
 
-        public UserController(IUsersService userService, IAuthService authService)
+        public UsersController(IUsersService userService, IAuthService authService)
         {
             this.userService = userService;
             this.authService = authService;
@@ -73,11 +73,19 @@
             return this.NoContent();
         }
 
-        [HttpPost]
-        [Route("Test")]
-        public async Task<IActionResult> Test()
+        /// <summary>
+        /// Check if the user Exists.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>Redirect to correct path.</returns>
+        [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
+        [AllowAnonymous]
+        [HttpGet]
+        [Route(ApiConstants.Exist)]
+        public async Task<IActionResult> Exist([FromQuery] string email)
         {
-            return this.Content(this.User.Claims.First(p => p.Type.Equals("email")).Value);
+            var exists = await this.userService.ExistUser(email);
+            return this.Ok(exists);
         }
     }
 }

@@ -38,6 +38,7 @@
         /// <param name="username">The username.</param>
         /// <returns>True if exists.</returns>
         Task<bool> ExistUser(string username);
+
     }
 
     public class UsersService : IUsersService
@@ -112,7 +113,7 @@
             newUser.UserName = newUser.Email;
             newUser.NormalizedUserName = newUser.Email;
 
-            return await this.userIdentityManager.CreateAsync(newUser, signUpModel.PassWord);
+            return await this.userIdentityManager.CreateAsync(newUser, signUpModel.Password);
         }
 
         /// <summary>

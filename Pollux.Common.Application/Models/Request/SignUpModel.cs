@@ -24,6 +24,6 @@
         /// <value>
         /// The pass word.
         /// </value>
-        public string PassWord { get; set; }
+        public string Password { get; set; }
     }
 }
