@@ -1,33 +1,27 @@
 ﻿namespace Pollux.API.Controllers
 {
-    using System;
-    using System.Net.Http;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Pollux.Application.Serverless;
     using Pollux.Common.Application.Models.Request;
-    using Pollux.Common.Constants.Strings.ServerLess;
 
     [Authorize]
     public class EmailController : BaseController
     {
-        private readonly HttpClient httpClient;
+        private readonly ISendEmail sendEmail;
 
-        public EmailController(HttpClient httpClient)
+        public EmailController(ISendEmail sendEmail)
         {
-            this.httpClient = httpClient;
+            this.sendEmail = sendEmail;
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(200)]
-        public async Task<IActionResult> Post(SendMailModel emailModel)
+        public async Task<IActionResult> Post(SendEmailModel emailModel)
         {
-            UriBuilder uriBuilder = new UriBuilder(AzureFunctionConstants.SendMailUrlAddress);
-            uriBuilder.Query += $"/?Name={emailModel.Name}&Type={emailModel.Type}&To={emailModel.To}";
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
-
-            var response = await this.httpClient.SendAsync(httpRequest);
+            var response = await this.sendEmail.Send(emailModel);
 
             return this.Ok(response);
         }

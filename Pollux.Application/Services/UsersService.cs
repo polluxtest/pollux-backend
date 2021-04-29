@@ -24,7 +24,7 @@
         /// </summary>
         /// <param name="logInModel">The log in model.</param>
         /// <returns>Task.</returns>
-        Task LogInAsync(LogInModel logInModel);
+        Task<bool> LogInAsync(LogInModel logInModel);
 
         /// <summary>
         /// Logs the out asynchronous.
@@ -144,20 +144,12 @@
         /// </summary>
         /// <param name="loginModel">The log in model.</param>
         /// <returns>
-        /// Task.
+        /// True if logged in correctly.
         /// </returns>
-        public async Task LogInAsync(LogInModel loginModel)
+        public async Task<bool> LogInAsync(LogInModel loginModel)
         {
             var signInResult = await this.userIdentitySignManager.PasswordSignInAsync(loginModel.Email, loginModel.Password, true, lockoutOnFailure: true);
-
-            if (signInResult.Succeeded)
-            {
-                await this.events.RaiseAsync(new UserLoginSuccessEvent(loginModel.Email, string.Empty, loginModel.Email));
-            }
-            else
-            {
-                await this.events.RaiseAsync(new UserLoginFailureEvent(loginModel.Email, "invalid credentials"));
-            }
+            return signInResult.Succeeded;
         }
 
         /// <summary>
@@ -191,7 +183,6 @@
         {
             var user = await this.usersRepository.GetAsync(p => p.Email == email);
             var hashedPassword = this.passwordHasher.HashPassword(user, newPassword);
-            //var result = await this.userIdentityManager.ChangePasswordAsync(user, user.PasswordHash, hashedPassword);
             user.PasswordHash = hashedPassword;
             this.usersRepository.Update(user);
             this.usersRepository.Save();

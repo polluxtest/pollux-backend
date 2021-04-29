@@ -10,6 +10,7 @@ namespace Pollux.API
     using Microsoft.Extensions.DependencyInjection;
     using Pollux.API.AuthIdentityServer;
     using Pollux.Application;
+    using Pollux.Application.Serverless;
     using Pollux.Common.Constants;
     using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
@@ -82,6 +83,7 @@ namespace Pollux.API
         public static void AddDIMiscelaneus(this IServiceCollection services)
         {
             services.AddSingleton<HttpClient, HttpClient>();
+            services.AddTransient<ISendEmail, SendEmail>();
         }
     }
 }

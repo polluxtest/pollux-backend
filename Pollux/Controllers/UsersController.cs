@@ -7,6 +7,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Pollux.Application;
+    using Pollux.Application.Serverless;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
@@ -17,11 +18,14 @@
     {
         private readonly IUsersService userService;
         private readonly IAuthService authService;
+        private readonly ISendEmail sendEmail;
 
-        public UsersController(IUsersService userService, IAuthService authService)
+
+        public UsersController(IUsersService userService, IAuthService authService, ISenISendEmaildEmail sendEmail)
         {
             this.userService = userService;
             this.authService = authService;
+            this.sendEmail = sendEmail;
         }
 
         /// <summary>
@@ -52,7 +56,13 @@
         [ProducesResponseType(400)]
         public async Task<IActionResult> LogIn([FromBody] LogInModel loginModel)
         {
-            await this.userService.LogInAsync(loginModel);
+            var succeded = await this.userService.LogInAsync(loginModel);
+
+            if (!succeded)
+            {
+                return this.NotFound();
+            }
+
             var token = await this.authService.SetAuth(loginModel);
             this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieTokenName, token.AccessToken);
             return this.Ok(token);
@@ -78,19 +88,18 @@
         /// <summary>
         /// Resets the password.
         /// </summary>
-        /// <param name="token">The token.</param>
-        /// <param name="newPassword">The new password.</param>
-        /// <returns>No Content (204).</returns>
+        /// <param name="resetPasswordModel">The reset password model.</param>
+        /// <returns>200.Ok.</returns>
         [HttpPost]
         [AllowAnonymous]
         [Route(ApiConstants.ResetPassword)]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> ResetPassword([FromRoute] string token, [FromBody] string newPassword)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel resetPasswordModel)
         {
             try
             {
-                var email = TokenFactory.DecodeToken(token);
-                await this.userService.ResetPassword(email, newPassword);
+                var email = TokenFactory.DecodeToken(resetPasswordModel.Token);
+                await this.userService.ResetPassword(email, resetPasswordModel.NewPassword);
                 return this.Ok();
             }
             catch (ArgumentException ex)

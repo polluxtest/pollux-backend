@@ -12,6 +12,6 @@
 
         public const string Exist = "Exist/";
 
-        public const string ResetPassword = "ResetPassword/{token}";
+        public const string ResetPassword = "ResetPassword/";
     }
 }
