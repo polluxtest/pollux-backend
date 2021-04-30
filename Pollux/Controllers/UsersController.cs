@@ -18,14 +18,12 @@
     {
         private readonly IUsersService userService;
         private readonly IAuthService authService;
-        private readonly ISendEmail sendEmail;
 
 
-        public UsersController(IUsersService userService, IAuthService authService, ISenISendEmaildEmail sendEmail)
+        public UsersController(IUsersService userService, IAuthService authService)
         {
             this.userService = userService;
             this.authService = authService;
-            this.sendEmail = sendEmail;
         }
 
         /// <summary>
