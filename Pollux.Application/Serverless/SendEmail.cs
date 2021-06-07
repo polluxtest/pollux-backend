@@ -27,7 +27,7 @@
         }
 
         /// <summary>
-        /// Sends the specified email model to a serverless function hosted on azude.
+        /// Sends the specified email model to a server less function hosted on azurre.
         /// </summary>
         /// <param name="emailModel">The email model.</param>
         /// <returns>HttpResponseMessage.</returns>

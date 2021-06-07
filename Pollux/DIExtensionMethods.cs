@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace Pollux.API
 {
     using IdentityModel.AspNetCore.AccessTokenManagement;
@@ -48,9 +50,10 @@ namespace Pollux.API
             services.AddScoped<IRoleStore<Role>, RoleStore<Role>>();
             services.AddScoped<IUserStore<User>, UserStore<User>>();
             services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<IAuthService, AuthService>();
+            services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<ITokenIdentityService, TokenIdentityService>();
             services.AddTransient<IRedisCacheService, RedisCacheService>();
+            services.AddSingleton<ClaimsPrincipal, ClaimsPrincipal>();
         }
 
         /// <summary>

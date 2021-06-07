@@ -103,7 +103,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
             {
                 Method = HttpMethod.Post,
                 Address = this.identityServerSettings.HostUrl,
-                ClientId = IdentityServerConstants.ClientName,
+                ClientId = IdentityServerConstants.ClientNameRefreshToken,
                 ClientSecret = IdentityServerConstants.ClientSecret,
                 GrantType = IdentityServerConstants.GrantAccessRefreshToken,
                 RefreshToken = refreshToken,

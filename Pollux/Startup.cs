@@ -1,3 +1,6 @@
+using Newtonsoft.Json;
+using Pollux.Application;
+
 namespace Pollux.API
 {
     using System.Collections.Generic;
@@ -15,7 +18,6 @@ namespace Pollux.API
     using Microsoft.IdentityModel.Protocols.OpenIdConnect;
     using Microsoft.OpenApi.Models;
     using Pollux.Application.Mappers;
-    using Pollux.Application.OAuth;
     using Pollux.Common.Application.Models.Settings;
     using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
@@ -104,7 +106,7 @@ namespace Pollux.API
         private void AddSwagger(IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint(@"https://localhost:5001/swagger/v1/swagger.json", "My API V1"); });
         }
 
         /// <summary>
@@ -136,6 +138,7 @@ namespace Pollux.API
                                         Scheme = "oauth2",
                                         Name = "Bearer",
                                         In = ParameterLocation.Header,
+
                                     },
                                 new List<string>()
                             },
@@ -164,9 +167,14 @@ namespace Pollux.API
                     return Task.CompletedTask;
                 };
 
+                // This event controls de authorization handler when an entity want to access a resource Authorized
                 options.Events.OnValidatePrincipal = async context =>
                 {
-                    await new AuthEventHandler(services).Handle(context);
+                    var token = await new AuthEventHandler(services).Handle(context);
+                    if (token != null)
+                    {
+                        context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
+                    }
                 };
             });
         }

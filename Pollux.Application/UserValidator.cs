@@ -1,6 +1,5 @@
-﻿namespace Pollux.Application.OAuth
+﻿namespace Pollux.Application
 {
-    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using IdentityServer4.Models;
@@ -10,7 +9,8 @@
     {
         private readonly IUsersService userService;
 
-        public UserValidator(IUsersService userService)
+        public UserValidator(
+            IUsersService userService)
         {
             this.userService = userService;
         }
@@ -19,16 +19,16 @@
         {
             var username = context.UserName;
 
-            if (await this.userService.ExistUser(username))
+            if (!await this.userService.ExistUser(username))
             {
-                context.Result = new GrantValidationResult(
-                   subject: context.UserName,
-                   authenticationMethod: "user_credentials",
-                   claims: new Claim[] { new Claim(ClaimTypes.Email, username) });
+                context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Invalid Credentials");
             }
             else
             {
-                context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Invalid Crdentials");
+                context.Result = new GrantValidationResult(
+                    subject: context.UserName,
+                    authenticationMethod: "user_credentials",
+                    claims: new Claim[] { new Claim(ClaimTypes.Email, username) });
             }
         }
     }

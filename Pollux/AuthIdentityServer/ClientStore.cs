@@ -38,9 +38,10 @@
             {
                 return new Client()
                 {
-                    ClientId = "client",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
-                    AllowedGrantTypes = new List<string>() { "refresh_token" },
+                    ClientId = IdentityServerConstants.ClientName,
+                    ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
+                    AllowOfflineAccess = true,
+                    AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
                     AllowedScopes = new List<string>() { "api", "api/pollux" },
                     AccessTokenLifetime = 5,
                     RefreshTokenExpiration = TokenExpiration.Absolute,

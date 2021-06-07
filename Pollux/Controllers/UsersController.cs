@@ -1,4 +1,8 @@
-﻿namespace Pollux.API.Controllers
+﻿using IdentityServer4.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Pollux.Common.Application.Models.Auth;
+
+namespace Pollux.API.Controllers
 {
     using System;
     using System.Linq;
@@ -54,15 +58,16 @@
         [ProducesResponseType(400)]
         public async Task<IActionResult> LogIn([FromBody] LogInModel loginModel)
         {
-            var succeded = await this.userService.LogInAsync(loginModel);
+            var succeed = await this.userService.LogInAsync(loginModel);
 
-            if (!succeded)
+            if (!succeed)
             {
                 return this.NotFound();
             }
 
             var token = await this.authService.SetAuth(loginModel);
-            this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieTokenName, token.AccessToken);
+            this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
+
             return this.Ok(token);
         }
 
@@ -77,6 +82,7 @@
         public async Task<IActionResult> LogOut()
         {
             var username = this.User.Claims.First(p => p.Type.Equals(ClaimTypes.Email)).Value;
+            await this.HttpContext.SignOutAsync();
             await this.userService.LogOutAsync();
             await this.authService.RemoveAuth(username);
 
@@ -96,6 +102,7 @@
         {
             try
             {
+
                 var email = TokenFactory.DecodeToken(resetPasswordModel.Token);
                 await this.userService.ResetPassword(email, resetPasswordModel.NewPassword);
                 return this.Ok();
@@ -119,6 +126,19 @@
         {
             var exists = await this.userService.ExistUser(email);
             return this.Ok(exists);
+        }
+
+        /// <summary>
+        /// Check if the user Exists.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>Redirect to correct path.</returns>
+        [Authorize]
+        [HttpGet]
+        [Route("Test/")]
+        public async Task<IActionResult> Test()
+        {
+            return this.Ok("authorized");
         }
     }
 }

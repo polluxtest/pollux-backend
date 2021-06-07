@@ -1,10 +1,14 @@
-﻿namespace Pollux.API
+﻿using System.Collections.Generic;
+using Pollux.Common.Exceptions;
+
+namespace Pollux.API
 {
     using System;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using IdentityModel.AspNetCore.AccessTokenManagement;
+    using IdentityModel.Client;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.Extensions.DependencyInjection;
     using Pollux.Common.Application.Models.Auth;
@@ -13,56 +17,71 @@
     public class AuthEventHandler
     {
         private readonly IServiceCollection services;
+        private readonly List<string> anonymousRoutes;
 
         public AuthEventHandler(IServiceCollection services)
         {
             this.services = services;
+            this.anonymousRoutes = new List<string>() { "SignUp", "LogIn", "ResetPassword", "LogOut", "Exist" };
         }
 
-        public async Task Handle(CookieValidatePrincipalContext context)
+        public async Task<TokenResponse> Handle(CookieValidatePrincipalContext context)
         {
-            if (context.Request.Path.Equals("/api/pollux/User/LogIn"))
+            foreach (var anonymousRoute in this.anonymousRoutes)
             {
-                return;
+                if (context.Request.Path.Value.EndsWith(anonymousRoute))
+                {
+                    return null;
+                }
             }
+
 
             if (!context.Principal.Identity.IsAuthenticated)
             {
                 context.RejectPrincipal();
-                return;
+                return null;
             }
 
-            ServiceProvider serviceProvider = this.services.BuildServiceProvider();
+            var serviceProvider = this.services.BuildServiceProvider();
             var redisCacheService = serviceProvider.GetService<IRedisCacheService>();
-            var tokenEndpointServie = serviceProvider.GetService<ITokenIdentityService>();
-            var loggedUserEmail = context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email).Value;
-            var token = await redisCacheService.GetObjectAsync<TokenModel>(loggedUserEmail);
+            var tokenEndpointService = serviceProvider.GetService<ITokenIdentityService>();
+            var emailClaim = context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email);
+
+            if (emailClaim == null)
+            {
+                throw new NotAuthenticatedException("not authenticated");
+            }
+
+            var token = await redisCacheService.GetObjectAsync<TokenModel>(emailClaim.Value);
+            TokenResponse newAccessToken = null;
 
             context.Request.Headers.TryGetValue("Authorization", out var authValues);
-            var authotizationToken = authValues.First();
 
-            if (!token.AccessToken.Equals(authotizationToken) ||
+            if (!authValues.Any())
+            {
+                throw new NotAuthenticatedException("not authenticated");
+            }
+
+            var authorizationToken = authValues.First();
+
+            if (!token.AccessToken.Equals(authorizationToken) ||
                     !context.Principal.Identity.IsAuthenticated ||
                     string.IsNullOrEmpty(token.AccessToken) ||
                     DateTime.UtcNow > token.RefreshTokenExpirationDate)
             {
                 context.RejectPrincipal();
-                return;
+                throw new NotAuthenticatedException("not authenticated");
             }
 
             if (DateTime.UtcNow > token.AccessTokenExpirationDate)
             {
-                var newAccesstokenResponse = await tokenEndpointServie.RefreshUserAccessTokenAsync(token.RefreshToken);
-                token.AccessToken = newAccesstokenResponse.AccessToken;
-                token.AccessTokenExpirationDate = DateTime.UtcNow.AddSeconds(5); // todo definw expiration and join code
-                var success = await redisCacheService.SetObjectAsync<TokenModel>(loggedUserEmail, token, TimeSpan.FromDays(7));
-                if (success)
-                {
-
-                }
+                newAccessToken = await tokenEndpointService.RefreshUserAccessTokenAsync(token.RefreshToken);
+                token.AccessToken = newAccessToken.AccessToken;
+                token.AccessTokenExpirationDate = DateTime.UtcNow.AddSeconds(60);
+                var success = await redisCacheService.SetObjectAsync<TokenModel>(emailClaim.Value, token, TimeSpan.FromDays(7));
             }
 
-            return;
+            return newAccessToken;
         }
     }
 }

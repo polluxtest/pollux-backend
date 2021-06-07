@@ -34,5 +34,13 @@
         /// The refresh token expiration date.
         /// </value>
         public DateTime RefreshTokenExpirationDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
+        /// <value>
+        /// The password.
+        /// </value>
+        public string Password { get; set; }
     }
 }

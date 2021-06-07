@@ -8,5 +8,6 @@
         public const string Scope = "api/pollux";
         public const string RequestRefreshToken = "offline_access";
         public const string GrantAccessRefreshToken = "refresh_token";
+        public const string GrantAccessAuthorizationCode = "authorization_code";
     }
 }

@@ -3,6 +3,7 @@
     public static class CookiesConstants
     {
         public const string CookieSessionName = "pollux.auth.session";
-        public const string CookieTokenName = "pollux.auth.token";
+        public const string CookieAccessTokenName = "pollux.auth.access.token";
+        public const string CookieRefreshToken = "pollux.auth.refresh.token";
     }
 }
