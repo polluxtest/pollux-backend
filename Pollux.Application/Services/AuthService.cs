@@ -1,10 +1,11 @@
-﻿namespace Pollux.Application
+﻿using Pollux.Application.Services;
+
+namespace Pollux.Application
 {
     using System;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
-    using IdentityModel.AspNetCore.AccessTokenManagement;
     using IdentityModel.Client;
     using Pollux.Common.Application.Models.Auth;
     using Pollux.Common.Application.Models.Request;
@@ -54,8 +55,8 @@
         public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
-            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(20);
-            var refreshTokenExpirationDate = DateTime.UtcNow.AddMinutes(5);
+            var accessTokenExpirationDate = DateTime.UtcNow.AddMinutes(10); // todo change this values
+            var refreshTokenExpirationDate = DateTime.UtcNow.AddMinutes(20);
 
             var tokenCache = new TokenModel()
             {

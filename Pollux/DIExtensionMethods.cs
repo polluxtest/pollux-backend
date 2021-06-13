@@ -1,8 +1,8 @@
 using System.Security.Claims;
+using Pollux.Application.Services;
 
 namespace Pollux.API
 {
-    using IdentityModel.AspNetCore.AccessTokenManagement;
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
     using Microsoft.AspNetCore.Authentication;
@@ -83,9 +83,14 @@ namespace Pollux.API
             services.AddAuthentication();
         }
 
-        public static void AddDIMiscelaneus(this IServiceCollection services)
+        /// <summary>
+        /// Adds the di miscellaneous.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        public static void AddDIMiscellaneous(this IServiceCollection services)
         {
             services.AddSingleton<HttpClient, HttpClient>();
+            services.AddScoped<AuthEventHandler>();
             services.AddTransient<ISendEmail, SendEmail>();
         }
     }

@@ -19,7 +19,7 @@
         {
             var username = context.UserName;
 
-            if (!await this.userService.ExistUser(username))
+            if (!await this.userService.ExistUser(username)) //todo find a way to remove this.
             {
                 context.Result = new GrantValidationResult(TokenRequestErrors.UnauthorizedClient, "Invalid Credentials");
             }

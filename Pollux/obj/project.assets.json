@@ -7266,6 +7266,7 @@
       "IdentityServer4.Contrib.RedisStore >= 4.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 3.1.8",
       "Microsoft.AspNetCore.Authentication.OpenIdConnect >= 3.1.8",
+      "Microsoft.AspNetCore.Http.Extensions >= 2.2.0",
       "Microsoft.EntityFrameworkCore.Design >= 5.0.3",
       "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.3",
       "Microsoft.VisualStudio.Azure.Containers.Tools.Targets >= 1.10.9",
@@ -7360,6 +7361,10 @@
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
             "target": "Package",
             "version": "[3.1.8, )"
+          },
+          "Microsoft.AspNetCore.Http.Extensions": {
+            "target": "Package",
+            "version": "[2.2.0, )"
           },
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",

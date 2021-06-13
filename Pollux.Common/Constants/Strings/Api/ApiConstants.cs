@@ -13,5 +13,7 @@
         public const string Exist = "Exist/";
 
         public const string ResetPassword = "ResetPassword/";
+
+        public const string Test = "Test/";
     }
 }

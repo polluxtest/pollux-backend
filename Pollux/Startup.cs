@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using Pollux.Application;
 
@@ -56,13 +57,28 @@ namespace Pollux.API
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
             this.SetUpPasswordIdentity(services);
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CORSAllowLocalHost3000",
+                    builder =>
+                        builder.WithOrigins("https://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials() // <<< this is required for cookies to be set on the client - sets the 'Access-Control-Allow-Credentials' to true
+                );
+            });
             this.SetUpIdentityServer(services);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc();
             services.AddAuthorization();
+            services.AddSession(options =>
+            {
+                options.Cookie.HttpOnly = false;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.IsEssential = true;
+            });
             services.AddDIClientAccessTokenManagement();
-            services.AddDIMiscelaneus();
+            services.AddDIMiscellaneous();
             services.AddControllers();
             services.AddSwaggerGen();
             this.SetUpSwagger(services);
@@ -86,10 +102,11 @@ namespace Pollux.API
             }
 
             this.AddSwagger(app);
-            app.UseCors(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors("CORSAllowLocalHost3000");
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSession();
             app.UseIdentityServer();
             app.UseEndpoints(
             endpoints =>
@@ -156,6 +173,9 @@ namespace Pollux.API
             {
                 options.Cookie.Name = CookiesConstants.CookieSessionName;
                 options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.HttpOnly = false;
+                //options.Cookie.Domain = "https://localhost:5001";
+
                 options.Events.OnRedirectToLogin = context =>
                 {
                     if (context.HttpContext.User.Identity.IsAuthenticated)
@@ -163,14 +183,16 @@ namespace Pollux.API
                         return Task.CompletedTask;
                     }
 
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return Task.CompletedTask;
                 };
 
                 // This event controls de authorization handler when an entity want to access a resource Authorized
                 options.Events.OnValidatePrincipal = async context =>
                 {
-                    var token = await new AuthEventHandler(services).Handle(context);
+                    var authEventHandler = services.BuildServiceProvider().GetService<AuthEventHandler>();
+
+                    var token = await authEventHandler?.Handle(context);
                     if (token != null)
                     {
                         context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
@@ -214,12 +236,31 @@ namespace Pollux.API
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                     options.EmitStaticAudienceClaim = true;
+                    options.Authentication.CheckSessionCookieSameSiteMode = SameSiteMode.None;
+                    options.Authentication.CookieSameSiteMode = SameSiteMode.None;
                 })
              .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
              .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
              .AddAspNetIdentity<User>()
              .AddDeveloperSigningCredential()
              .AddResourceOwnerValidator<UserValidator>();
+
+            //services.Configure<CookiePolicyOptions>(options =>
+            //{
+            //    options.CheckConsentNeeded = context => false;
+            //    options.MinimumSameSitePolicy = SameSiteMode.None;
+            //});
+
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.Cookie.Name = ".AspNetCore.Auth.Cookie";
+            //    options.Cookie.Path = "/";
+            //    options.Cookie.HttpOnly = false;
+            //    options.Cookie.SameSite = SameSiteMode.None;
+            //});
+
+            //var authBuilder = services.AddAuthentication(options => { options.DefaultAuthenticateScheme = "idsvr"; });
+            //authBuilder.AddCookie();
         }
 
         /// <summary>
@@ -238,5 +279,4 @@ namespace Pollux.API
             });
         }
     }
-
 }

@@ -1,5 +1,4 @@
-﻿
-namespace IdentityModel.AspNetCore.AccessTokenManagement
+﻿namespace Pollux.Application.Services
 {
     using System.Linq;
     using System.Net.Http;
@@ -114,7 +113,7 @@ namespace IdentityModel.AspNetCore.AccessTokenManagement
         }
 
         /// <summary>
-        /// Revokes Refresh Token by not allowing the user access resurces in case the refresh token has been compromised or you
+        /// Revokes Refresh Token by not allowing the user access resources in case the refresh token has been compromised or you
         /// enchanged already a token for a refresh token.
         /// </summary>
         /// <param name="refreshToken">refreshToken</param>
