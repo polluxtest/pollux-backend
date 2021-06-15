@@ -4,51 +4,52 @@
     using System.Threading.Tasks;
     using IdentityServer4.Models;
     using IdentityServer4.Stores;
+    using Pollux.Common.Constants;
     using Pollux.Common.Constants.Strings;
 
     public class ClientStore : IClientStore
     {
         /// <summary>
-        /// Finds a identty server client configuration by id.
+        /// Finds a client by id.
         /// </summary>
         /// <param name="clientId">The client id</param>
         /// <returns>
-        /// The client.
+        /// The client based on the identity server request type.
         /// </returns>
-        public async Task<Client> FindClientByIdAsync(string clientId)
+        public Task<Client> FindClientByIdAsync(string clientId)
         {
             if (clientId == IdentityServerConstants.ClientName)
             {
-                return new Client()
+                return Task.FromResult(new Client()
                 {
                     ClientId = IdentityServerConstants.ClientName,
                     ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
                     AllowOfflineAccess = true,
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
                     AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
-                    AccessTokenLifetime = 5,
+                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiration,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
-                    IdentityTokenLifetime = 50,
-                    AbsoluteRefreshTokenLifetime = 50,
-                    SlidingRefreshTokenLifetime = 50,
-                };
+                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                });
             }
 
             if (clientId == IdentityServerConstants.ClientNameRefreshToken)
             {
-                return new Client()
+                return Task.FromResult(new Client()
                 {
                     ClientId = IdentityServerConstants.ClientName,
                     ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
                     AllowOfflineAccess = true,
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
                     AllowedScopes = new List<string>() { "api", "api/pollux" },
-                    AccessTokenLifetime = 5,
+                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiration,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
-                    IdentityTokenLifetime = 50,
-                    AbsoluteRefreshTokenLifetime = 50,
-                    SlidingRefreshTokenLifetime = 50,
-                };
+                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                });
             }
 
             return null;

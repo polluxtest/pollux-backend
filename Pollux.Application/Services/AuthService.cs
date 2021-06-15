@@ -1,16 +1,13 @@
-﻿using Pollux.Application.Services;
-
-namespace Pollux.Application
+﻿namespace Pollux.Application.Services
 {
     using System;
-    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using IdentityModel.Client;
     using Pollux.Common.Application.Models.Auth;
     using Pollux.Common.Application.Models.Request;
+    using Pollux.Common.Constants;
     using Pollux.Common.Constants.Strings;
-    using Pollux.Common.Exceptions;
     using Pollux.Persistence.Services.Cache;
 
     public interface IAuthService
@@ -18,8 +15,6 @@ namespace Pollux.Application
         Task<TokenResponse> SetAuth(LogInModel loginModel);
 
         Task<bool> RemoveAuth(string key);
-
-        Task<TokenResponse> CheckAuth(string email = null);
     }
 
     public class AuthService : IAuthService
@@ -34,6 +29,9 @@ namespace Pollux.Application
         /// </summary>
         private readonly IRedisCacheService redisCacheService;
 
+        /// <summary>
+        /// The identity.
+        /// </summary>
         private readonly ClaimsPrincipal identity;
 
         public AuthService(
@@ -55,8 +53,8 @@ namespace Pollux.Application
         public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
-            var accessTokenExpirationDate = DateTime.UtcNow.AddMinutes(10); // todo change this values
-            var refreshTokenExpirationDate = DateTime.UtcNow.AddMinutes(20);
+            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpiration);
+            var refreshTokenExpirationDate = DateTime.UtcNow.AddMinutes(ExpirationConstants.RefreshTokenExpiration);
 
             var tokenCache = new TokenModel()
             {
@@ -67,30 +65,9 @@ namespace Pollux.Application
                 Password = loginModel.Password,
             };
 
-            await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.Email, tokenCache, TimeSpan.FromHours(1)); // this must match expiration of token ??
+            await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.Email, tokenCache, TimeSpan.FromDays(30)); //todo this must match expiration of token ??
 
             return tokenResponse;
-        }
-
-        public async Task<TokenResponse> CheckAuth(string email = null)
-        {
-            var userLoggedEmail = this.identity.Claims.Single(p => p.Type == ClaimTypes.Email).Value;
-
-            var authRedis = await this.redisCacheService.GetObjectAsync<TokenModel>(userLoggedEmail);
-            if (DateTime.Now > authRedis.RefreshTokenExpirationDate)
-            {
-                throw new NotAuthenticatedException("Not Authenticated , must log in again");
-            }
-
-            if (DateTime.Now > authRedis.AccessTokenExpirationDate)
-            {
-                var loginModel = new LogInModel() { Email = userLoggedEmail, Password = authRedis.Password };
-                var response = await this.tokenService.RequestClientAccessToken(authRedis.RefreshToken, loginModel);
-
-                return response;
-            }
-
-            return null;
         }
 
         /// <summary>

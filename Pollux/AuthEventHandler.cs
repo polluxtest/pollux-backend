@@ -1,6 +1,4 @@
-﻿using Pollux.Application.Services;
-
-namespace Pollux.API
+﻿namespace Pollux.API
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +11,9 @@ namespace Pollux.API
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
     using Pollux.Application;
+    using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Auth;
+    using Pollux.Common.Constants.Strings;
     using Pollux.Common.Exceptions;
     using Pollux.Persistence.Services.Cache;
 
@@ -58,14 +58,22 @@ namespace Pollux.API
                 !authValues.Any())
             {
                 this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+                throw new NotAuthenticatedException("Not Authenticated");
             }
 
             var tokenModel = await this.GetAuthFromRedis(emailClaim?.Value);
             var accessToken = authValues.First();
 
+            if (!tokenModel.AccessToken.Equals(accessToken) ||
+                string.IsNullOrEmpty(tokenModel.AccessToken))
+            {
+                throw new NotAuthenticatedException("Not Authenticated");
+            }
+
             if (this.IsRefreshTokenExpired(tokenModel, accessToken))
             {
                 this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+                throw new NotAuthenticatedException("Not Authenticated");
             }
 
             return await this.IsAccessTokenExpired(emailClaim?.Value, tokenModel);
@@ -78,15 +86,9 @@ namespace Pollux.API
         /// <returns>True/False.</returns>
         private bool SkipAnonymousRoutes(string route)
         {
-            foreach (var anonymousRoute in this.anonymousRoutes)
-            {
-                if (route.EndsWith(anonymousRoute))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // todo this could have a faster solution.
+            var routeSegments = route.Split("/");
+            return this.anonymousRoutes.Any(p => p == routeSegments[routeSegments.Length - 1]);
         }
 
         /// <summary>
@@ -111,9 +113,7 @@ namespace Pollux.API
         /// </returns>
         private bool IsRefreshTokenExpired(TokenModel token, string accessToken)
         {
-            return !token.AccessToken.Equals(accessToken) ||
-                    string.IsNullOrEmpty(token.AccessToken) ||
-                    DateTime.UtcNow > token.RefreshTokenExpirationDate;
+            return DateTime.UtcNow > token.RefreshTokenExpirationDate;
         }
 
         /// <summary>
@@ -127,8 +127,9 @@ namespace Pollux.API
             if (DateTime.UtcNow > tokenModel.AccessTokenExpirationDate)
             {
                 var newAccessToken = await this.tokenIdentityService.RefreshUserAccessTokenAsync(tokenModel.RefreshToken);
-                tokenModel.AccessToken = newAccessToken.AccessToken;
-                tokenModel.AccessTokenExpirationDate = DateTime.UtcNow.AddMinutes(10); // todo change expiration
+                tokenModel.AccessToken = $"{OAuthConstants.JWTAuthScheme} {newAccessToken.AccessToken}";
+                tokenModel.AccessTokenExpirationDate = DateTime.UtcNow.AddMinutes(1); // todo change expiration
+                tokenModel.RefreshToken = newAccessToken.RefreshToken;
                 this.SetNewAccessToken(email, tokenModel);
 
                 return newAccessToken;
@@ -156,7 +157,6 @@ namespace Pollux.API
             await httpContext.SignOutAsync();
             await this.userService.LogOutAsync();
             await this.authService.RemoveAuth(username);
-            throw new NotAuthenticatedException("not authenticated");
         }
     }
 }

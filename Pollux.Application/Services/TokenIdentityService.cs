@@ -104,7 +104,7 @@
                 Address = this.identityServerSettings.HostUrl,
                 ClientId = IdentityServerConstants.ClientNameRefreshToken,
                 ClientSecret = IdentityServerConstants.ClientSecret,
-                GrantType = IdentityServerConstants.GrantAccessRefreshToken,
+                GrantType = GrantTypes.ResourceOwnerPassword.First(),
                 RefreshToken = refreshToken,
             };
 
@@ -114,7 +114,7 @@
 
         /// <summary>
         /// Revokes Refresh Token by not allowing the user access resources in case the refresh token has been compromised or you
-        /// enchanged already a token for a refresh token.
+        /// exchanged already a token for a refresh token.
         /// </summary>
         /// <param name="refreshToken">refreshToken</param>
         /// <param name="cancellationToken">cancellationToken</param>
@@ -132,7 +132,7 @@
             };
 
             var httpClient = this.httpClientFactory.CreateClient(AccessTokenManagementConstants.BackChannelHttpClientName);
-            return await httpClient.RevokeTokenAsync(tokenRevocationRequest);
+            return await httpClient.RevokeTokenAsync(tokenRevocationRequest, cancellationToken: cancellationToken);
         }
     }
 }

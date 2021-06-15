@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using IdentityServer4.Extensions;
-using Microsoft.AspNetCore.Http;
-
-namespace Pollux.API.Controllers
+﻿namespace Pollux.API.Controllers
 {
     using System;
     using System.Linq;
@@ -12,11 +8,11 @@ namespace Pollux.API.Controllers
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Pollux.Application;
+    using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
     using Pollux.Common.Factories;
-    using Microsoft.AspNetCore.Http.Extensions;
 
     [Authorize]
     public class UsersController : BaseController
@@ -66,35 +62,9 @@ namespace Pollux.API.Controllers
             }
 
             var token = await this.authService.SetAuth(loginModel);
-            var setCookieHeaders = this.HttpContext.Response.GetTypedHeaders().SetCookie;
-            //var identityServerCookie = setCookieHeaders?.FirstOrDefault(x => x.Name == CookiesConstants.CookieIdentityServerName);
-            var sessionCookie = setCookieHeaders?.FirstOrDefault(x => x.Name == CookiesConstants.CookieSessionName);
-            //this.HttpContext.Response.Cookies.Delete(CookiesConstants.CookieIdentityServerName);
-            //var identityServerCookie2 = setCookieHeaders?.FirstOrDefault(x => x.Name == CookiesConstants.CookieIdentityServerName);
-            //this.HttpContext.Response.Cookies.Delete(CookiesConstants.CookieIdentityServerName);
-
-            var cookieOptions = new CookieOptions()
-            {
-                SameSite = SameSiteMode.None,
-                Secure = false,
-                Path = "/",
-                IsEssential = true,
-                HttpOnly = false,
-            };
-
-
             this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
-            //this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieSessionName, sessionCookie.Value.Value);
-            //this.HttpContext.Response.Headers["Set-Cookie"] = CookiesConstants.CookieSessionName + "=" + sessionCookie.Value.Value;
 
-            var cookies = new Dictionary<string, string>()
-            {
-                {CookiesConstants.CookieAccessTokenName, token.AccessToken},
-                //{CookiesConstants.CookieIdentityServerName, identityServerCookie.Value.Value},
-                //{CookiesConstants.CookieSessionName,sessionCookie.Value.Value},
-            };
-
-            return this.Ok(cookies);
+            return this.Ok();
         }
 
         /// <summary>
@@ -132,7 +102,7 @@ namespace Pollux.API.Controllers
                 await this.userService.ResetPassword(email, resetPasswordModel.NewPassword);
                 return this.Ok();
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
                 return this.BadRequest();
             }
@@ -149,13 +119,6 @@ namespace Pollux.API.Controllers
         [Route(ApiConstants.Exist)]
         public async Task<IActionResult> Exist([FromQuery] string email)
         {
-
-            var cookies = HttpContext.Request.Cookies;
-
-            if (this.User.IsAuthenticated())
-            {
-                int a = 1;
-            }
             var exists = await this.userService.ExistUser(email);
             return this.Ok(exists);
         }
@@ -163,7 +126,6 @@ namespace Pollux.API.Controllers
         /// <summary>
         /// Check if the user Exists.
         /// </summary>
-        /// <param name="email">The email.</param>
         /// <returns>Redirect to correct path.</returns>
         [Authorize]
         [HttpGet]

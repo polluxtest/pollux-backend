@@ -4,6 +4,6 @@
     {
         public const string CookieSessionName = "pollux.auth.session";
         public const string CookieAccessTokenName = "pollux.auth.access.token";
-        public const string CookieIdentityServerName = "idsrv.session";
+        public const string CookiePolicy = "pollux.cookie.policy";
     }
 }

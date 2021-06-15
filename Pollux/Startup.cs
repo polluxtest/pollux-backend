@@ -1,7 +1,3 @@
-using System;
-using Newtonsoft.Json;
-using Pollux.Application;
-
 namespace Pollux.API
 {
     using System.Collections.Generic;
@@ -18,6 +14,8 @@ namespace Pollux.API
     using Microsoft.IdentityModel.Logging;
     using Microsoft.IdentityModel.Protocols.OpenIdConnect;
     using Microsoft.OpenApi.Models;
+    using Pollux.API.Middlewares;
+    using Pollux.Application;
     using Pollux.Application.Mappers;
     using Pollux.Common.Application.Models.Settings;
     using Pollux.Common.Constants.Strings;
@@ -57,26 +55,12 @@ namespace Pollux.API
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
             this.SetUpPasswordIdentity(services);
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CORSAllowLocalHost3000",
-                    builder =>
-                        builder.WithOrigins("https://localhost:3000")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials() // <<< this is required for cookies to be set on the client - sets the 'Access-Control-Allow-Credentials' to true
-                );
-            });
+            this.AddCors(services);
             this.SetUpIdentityServer(services);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc();
             services.AddAuthorization();
-            services.AddSession(options =>
-            {
-                options.Cookie.HttpOnly = false;
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.IsEssential = true;
-            });
+            this.AddSession(services);
             services.AddDIClientAccessTokenManagement();
             services.AddDIMiscellaneous();
             services.AddControllers();
@@ -102,7 +86,8 @@ namespace Pollux.API
             }
 
             this.AddSwagger(app);
-            app.UseCors("CORSAllowLocalHost3000");
+            app.UseCors(CookiesConstants.CookiePolicy);
+            app.UseMiddleware<NotAuthenticatedMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -174,7 +159,6 @@ namespace Pollux.API
                 options.Cookie.Name = CookiesConstants.CookieSessionName;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.HttpOnly = false;
-                //options.Cookie.Domain = "https://localhost:5001";
 
                 options.Events.OnRedirectToLogin = context =>
                 {
@@ -183,7 +167,7 @@ namespace Pollux.API
                         return Task.CompletedTask;
                     }
 
-                    //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return Task.CompletedTask;
                 };
 
@@ -191,9 +175,8 @@ namespace Pollux.API
                 options.Events.OnValidatePrincipal = async context =>
                 {
                     var authEventHandler = services.BuildServiceProvider().GetService<AuthEventHandler>();
-
                     var token = await authEventHandler?.Handle(context);
-                    if (token != null)
+                    if (token?.AccessToken != null)
                     {
                         context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
                     }
@@ -201,6 +184,11 @@ namespace Pollux.API
             });
         }
 
+        /// <summary>
+        /// Sets up authentication.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        /// <param name="identityServerUrl">The identity server URL.</param>
         private void SetUpAuthentication(IServiceCollection services, string identityServerUrl)
         {
             services.AddAuthentication(
@@ -244,23 +232,6 @@ namespace Pollux.API
              .AddAspNetIdentity<User>()
              .AddDeveloperSigningCredential()
              .AddResourceOwnerValidator<UserValidator>();
-
-            //services.Configure<CookiePolicyOptions>(options =>
-            //{
-            //    options.CheckConsentNeeded = context => false;
-            //    options.MinimumSameSitePolicy = SameSiteMode.None;
-            //});
-
-            //services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.Cookie.Name = ".AspNetCore.Auth.Cookie";
-            //    options.Cookie.Path = "/";
-            //    options.Cookie.HttpOnly = false;
-            //    options.Cookie.SameSite = SameSiteMode.None;
-            //});
-
-            //var authBuilder = services.AddAuthentication(options => { options.DefaultAuthenticateScheme = "idsvr"; });
-            //authBuilder.AddCookie();
         }
 
         /// <summary>
@@ -276,6 +247,38 @@ namespace Pollux.API
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
+            });
+        }
+
+        /// <summary>
+        /// Adds the cors policy set up.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        private void AddCors(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    CookiesConstants.CookiePolicy,
+                    builder =>
+                        builder.WithOrigins("https://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials());
+            });
+        }
+
+        /// <summary>
+        /// Adds the session.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        private void AddSession(IServiceCollection services)
+        {
+            services.AddSession(options =>
+            {
+                options.Cookie.HttpOnly = false;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.IsEssential = true;
             });
         }
     }
