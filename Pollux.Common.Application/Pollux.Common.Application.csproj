@@ -5,12 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Models\Response\**" />
-    <EmbeddedResource Remove="Models\Response\**" />
-    <None Remove="Models\Response\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Models\Settings\" />
   </ItemGroup>
 

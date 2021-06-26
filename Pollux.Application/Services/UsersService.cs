@@ -7,6 +7,7 @@
     using IdentityServer4.Services;
     using Microsoft.AspNetCore.Identity;
     using Pollux.Common.Application.Models.Request;
+    using Pollux.Common.Application.Models.Response;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
 
@@ -20,11 +21,11 @@
         Task<IdentityResult> SignUp(SignUpModel signUpModel);
 
         /// <summary>
-        /// Logs In the User.
+        /// Logs the in asynchronous.
         /// </summary>
-        /// <param name="logInModel">The log in model.</param>
-        /// <returns>Task.</returns>
-        Task<bool> LogInAsync(LogInModel logInModel);
+        /// <param name="loginModel">The login model.</param>
+        /// <returns></returns>
+        Task<UserIdentityModel> LogInAsync(LogInModel loginModel);
 
         /// <summary>
         /// Logs the out asynchronous.
@@ -146,10 +147,18 @@
         /// <returns>
         /// True if logged in correctly.
         /// </returns>
-        public async Task<bool> LogInAsync(LogInModel loginModel)
+        public async Task<UserIdentityModel> LogInAsync(LogInModel loginModel)
         {
+            var userDb = await this.usersRepository.GetAsync(p => p.Email == loginModel.Email.Trim());
+
+            if (userDb == null)
+            {
+                return null;
+            }
+
             var signInResult = await this.userIdentitySignManager.PasswordSignInAsync(loginModel.Email, loginModel.Password, true, lockoutOnFailure: true);
-            return signInResult.Succeeded;
+
+            return new UserIdentityModel() { Name = userDb.Name, UserId = userDb.Id };
         }
 
         /// <summary>

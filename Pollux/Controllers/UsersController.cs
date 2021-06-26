@@ -56,15 +56,15 @@
         {
             var succeed = await this.userService.LogInAsync(loginModel);
 
-            if (!succeed)
+            if (succeed != null)
             {
-                return this.NotFound();
+                var token = await this.authService.SetAuth(loginModel);
+                this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
+
+                return this.Ok(succeed);
             }
 
-            var token = await this.authService.SetAuth(loginModel);
-            this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
-
-            return this.Ok();
+            return this.NotFound();
         }
 
         /// <summary>
