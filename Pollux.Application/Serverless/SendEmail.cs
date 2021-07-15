@@ -34,7 +34,7 @@
         public async Task<HttpResponseMessage> Send(SendEmailModel emailModel = null)
         {
             UriBuilder uriBuilder = new UriBuilder(AzureFunctionConstants.SendMailUrlAddress);
-            uriBuilder.Query += $"/?Name={emailModel.Name}&Type={emailModel.Type}&To={emailModel.To}";
+            uriBuilder.Query += $"/?Name={emailModel.Name}&Type={emailModel.Type}&To={emailModel.To}&Text={emailModel.Text}&Topic={emailModel.Topic}";
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 
             var response = await this.httpClient.SendAsync(httpRequest);
