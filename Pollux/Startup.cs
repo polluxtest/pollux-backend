@@ -91,6 +91,7 @@ namespace Pollux.API
             this.AddSwagger(app);
             app.UseCors(CookiesConstants.CookiePolicy);
             app.UseMiddleware<NotAuthenticatedMiddleware>();
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
