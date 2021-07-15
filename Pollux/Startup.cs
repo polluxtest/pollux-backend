@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace Pollux.API
 {
     using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace Pollux.API
     using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
+    using FluentValidation.AspNetCore;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -58,7 +61,7 @@ namespace Pollux.API
             this.AddCors(services);
             this.SetUpIdentityServer(services);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
-            services.AddMvc();
+            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
             services.AddAuthorization();
             this.AddSession(services);
             services.AddDIClientAccessTokenManagement();

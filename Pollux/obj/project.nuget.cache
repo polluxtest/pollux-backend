@@ -1,11 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "Dbu/3vuisPUXDZvKq4nyORfjc/aosdp4XGsVXOgBzp3AJUiL2vMq5QP1EIxM5JE4SAClm93uNGmGbqVAzSgWTw==",
+  "dgSpecHash": "04RbhbgA7ccJMgOrj5ddnA2kuVdquVzP9+uCNR4L+plMoRsIM43Fv7HA2pjULSHhld3Q2mGHHSvOVR6cRaagcQ==",
   "success": true,
   "projectFilePath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.1.1\\automapper.extensions.microsoft.dependencyinjection.8.1.1.nupkg.sha512",
+    "C:\\Users\\octaviodiaz\\.nuget\\packages\\fluentvalidation\\10.3.0\\fluentvalidation.10.3.0.nupkg.sha512",
+    "C:\\Users\\octaviodiaz\\.nuget\\packages\\fluentvalidation.aspnetcore\\10.3.0\\fluentvalidation.aspnetcore.10.3.0.nupkg.sha512",
+    "C:\\Users\\octaviodiaz\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\10.3.0\\fluentvalidation.dependencyinjectionextensions.10.3.0.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identitymodel\\5.0.1\\identitymodel.5.0.1.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identityserver4\\4.1.1\\identityserver4.4.1.1.nupkg.sha512",
