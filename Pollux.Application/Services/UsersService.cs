@@ -72,15 +72,6 @@
         /// </summary>
         private readonly IMapper mapper;
 
-        /// <summary>
-        /// The interaction.
-        /// </summary>
-        private readonly IIdentityServerInteractionService interaction;
-
-        /// <summary>
-        /// The events service to log and raise events on auth.
-        /// </summary>
-        private readonly IEventService events;
 
         /// <summary>
         /// The password hasher
@@ -112,8 +103,6 @@
             this.userIdentityManager = userManager;
             this.userIdentitySignManager = userSignInManager;
             this.mapper = mapper;
-            this.interaction = iIdentityServerInteractionService;
-            this.events = eventsService;
             this.passwordHasher = passwordHasher;
         }
 

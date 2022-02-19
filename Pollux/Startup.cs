@@ -218,7 +218,8 @@ namespace Pollux.API
         /// Sets up identity server.
         /// </summary>
         /// <param name="services">The services.</param>
-        private void SetUpIdentityServer(IServiceCollection services)
+        private void
+            SetUpIdentityServer(IServiceCollection services)
         {
             services.AddIdentityServer(
                 options =>
