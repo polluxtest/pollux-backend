@@ -9,7 +9,7 @@
         {
             this.RuleFor(p => p.Name).NotEmpty().NotNull();
             this.RuleFor(p => p.To).EmailAddress().NotEmpty().NotNull();
-            this.RuleFor(p => p.Type).EmailAddress().NotEmpty().NotNull();
+            this.RuleFor(p => p.Type).NotEmpty().NotNull();
         }
     }
 }

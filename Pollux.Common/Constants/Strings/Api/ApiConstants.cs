@@ -15,5 +15,7 @@
         public const string ResetPassword = "ResetPassword/";
 
         public const string Test = "Test/";
+
+        public const string SendEmail = "SendEmail/";
     }
 }

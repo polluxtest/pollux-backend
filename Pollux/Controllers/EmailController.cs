@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Pollux.Application.Serverless;
     using Pollux.Common.Application.Models.Request;
+    using Pollux.Common.Constants.Strings.Api;
 
     [Authorize]
     public class EmailController : BaseController
@@ -16,6 +17,7 @@
             this.sendEmail = sendEmail;
         }
 
+        [Route(ApiConstants.SendEmail)]
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(200)]

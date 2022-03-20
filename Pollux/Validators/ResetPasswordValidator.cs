@@ -8,7 +8,7 @@
         public ResetPasswordValidator()
         {
             this.RuleFor(p => p.NewPassword).NotEmpty().NotNull().MinimumLength(8);
-            this.RuleFor(p => p.Token).EmailAddress().NotEmpty().NotNull();
+            this.RuleFor(p => p.Token).NotEmpty().NotNull();
         }
     }
 }
