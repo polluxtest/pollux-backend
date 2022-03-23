@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
+    using Microsoft.IdentityModel.Tokens;
 
     /// <summary>
     /// Generate tokens with or without expiration dates and also decodes tokens
@@ -22,7 +23,7 @@
 
             try
             {
-                var jsonToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                var jsonToken = (JwtSecurityToken)tokenHandler.ReadToken(token);
                 var email = ((List<Claim>)jsonToken.Claims)[0].Value;
                 return email;
             }

@@ -118,7 +118,7 @@
             var existsUser = await this.ExistUser(signUpModel.Email);
             if (existsUser)
             {
-                throw new ArgumentException("user already exists", signUpModel.Email);
+                return new IdentityResult();
             }
 
             var newUser = new User();
@@ -146,6 +146,11 @@
             }
 
             var signInResult = await this.userIdentitySignManager.PasswordSignInAsync(loginModel.Email, loginModel.Password, true, lockoutOnFailure: true);
+
+            if (signInResult == SignInResult.Failed)
+            {
+                return null;
+            }
 
             return new UserIdentityModel() { Name = userDb.Name, UserId = userDb.Id };
         }

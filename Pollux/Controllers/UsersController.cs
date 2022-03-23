@@ -39,7 +39,12 @@
         public async Task<ActionResult> SignUp([FromBody] SignUpModel signUpModel)
         {
             var identityResponse = await this.userService.SignUp(signUpModel);
-            return this.Created(string.Empty, identityResponse);
+            if (identityResponse.Succeeded)
+            {
+                return this.Created(string.Empty, identityResponse);
+            }
+
+            return this.BadRequest();
         }
 
         /// <summary>
@@ -99,12 +104,18 @@
             try
             {
                 var email = TokenFactory.DecodeToken(resetPasswordModel.Token);
+                var userExists = await this.userService.ExistUser(email);
+                if (!userExists)
+                {
+                    return this.NotFound();
+                }
+
                 await this.userService.ResetPassword(email, resetPasswordModel.NewPassword);
                 return this.Ok();
             }
             catch (ArgumentException)
             {
-                return this.BadRequest();
+                return this.NotFound();
             }
         }
 
