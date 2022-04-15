@@ -3,6 +3,7 @@
     using System;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using Pollux.Common.Constants;
     using StackExchange.Redis;
 
     public class RedisCacheService : IRedisCacheService
@@ -12,7 +13,8 @@
 
         public RedisCacheService()
         {
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379"); // todo change host to app settigs
+            // todo change host to app settigs deploy
+            this.connectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379");
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
         }
 
@@ -21,16 +23,12 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="expiration">The Expiration key.</param>
         /// <returns>
         /// True if success.
         /// </returns>
-        public Task<bool> SetKeyAsync(string key, string value, TimeSpan? expiration = null)
+        public Task<bool> SetKeyAsync(string key, string value)
         {
-            if (expiration == null)
-            {
-                expiration = TimeSpan.FromDays(3); // todo check expiration
-            }
+            var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
 
             return this.redisDatabase.StringSetAsync(key, value, expiration);
         }
@@ -82,7 +80,7 @@
         /// <param name="key">The key string</param>
         /// <param name="data">The data.</param>
         /// <returns>Model Serialized.</returns>
-        public async Task<bool> SetObjectAsync<T>(string key, T data, TimeSpan? expiration = null)
+        public async Task<bool> SetObjectAsync<T>(string key, T data)
         {
             var dataStr = JsonSerializer.Serialize<T>(data);
             return await this.SetKeyAsync(key, dataStr);

@@ -3,14 +3,29 @@
     public class ExpirationConstants
     {
         /// <summary>
-        /// The refresh token expiration in seconds.
+        /// The refresh token expiration in days.
         /// </summary>
-        public const int RefreshTokenExpiration = 3600;
+        public const int RefreshTokenExpirationDays = 30;
 
         /// <summary>
-        /// The access token expiration in seconds.
+        /// The refresh token expiration seconds.
         /// </summary>
-        public const int AccessTokenExpiration = 600;
+        public const int RefreshTokenExpirationSeconds = 300;
+
+        /// <summary>
+        /// The access token expiration in days.
+        /// </summary>
+        public const int AccessTokenExpirationDays = 3;
+
+        /// <summary>
+        /// The access token expiration seconds.
+        /// </summary>
+        public const int AccessTokenExpirationSeconds = 120;
+
+        /// <summary>
+        /// The redis cache expiration seconds.
+        /// </summary>
+        public const int RedisCacheExpirationSeconds = 300;
 
         /// <summary>
         /// The session expiration in seconds.

@@ -12,6 +12,7 @@
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
+    using Pollux.Common.Exceptions;
     using Pollux.Common.Factories;
 
     [Authorize]
@@ -83,9 +84,8 @@
         public async Task<IActionResult> LogOut()
         {
             var username = this.User.Claims.First(p => p.Type.Equals(ClaimTypes.Email)).Value;
-            await this.HttpContext.SignOutAsync();
-            await this.userService.LogOutAsync();
-            await this.authService.RemoveAuth(username);
+
+            await this.SignOut(username);
 
             return this.NoContent();
         }
@@ -128,6 +128,7 @@
         [AllowAnonymous]
         [HttpGet]
         [Route(ApiConstants.Exist)]
+
         public async Task<IActionResult> Exist([FromQuery] string email)
         {
             var exists = await this.userService.ExistUser(email);
@@ -135,15 +136,35 @@
         }
 
         /// <summary>
-        /// Check if the user Exists.
+        /// Determines whether [is user authenticated].
         /// </summary>
-        /// <returns>Redirect to correct path.</returns>
+        /// <returns>No Content.</returns>
         [Authorize]
         [HttpGet]
-        [Route(ApiConstants.Test)]
-        public async Task<ActionResult<string>> Test()
+        [Route(ApiConstants.IsUserAuthenticated)]
+        [ProducesResponseType(204)]
+        public async Task<ActionResult<string>> IsUserAuthenticated()
         {
-            return this.Ok("authorized");
+            try
+            {
+                return this.NoContent();
+            }
+            catch (NotAuthenticatedException ex)
+            {
+                this.SignOut();
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Represents an event that is raised when the sign-out operation is complete.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        private async Task SignOut(string username)
+        {
+            await this.HttpContext.SignOutAsync();
+            await this.userService.LogOutAsync();
+            await this.authService.RemoveAuth(username);
         }
     }
 }

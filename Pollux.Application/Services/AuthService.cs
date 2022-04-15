@@ -44,6 +44,7 @@
             this.identity = identity;
         }
 
+
         /// <summary>
         /// Sets the authentication requesting a token and saving it in redis cache.
         /// </summary>
@@ -53,8 +54,8 @@
         public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
-            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpiration);
-            var refreshTokenExpirationDate = DateTime.UtcNow.AddMinutes(ExpirationConstants.RefreshTokenExpiration);
+            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpirationSeconds);
+            var refreshTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.RefreshTokenExpirationSeconds);
 
             var tokenCache = new TokenModel()
             {
@@ -65,7 +66,7 @@
                 Password = loginModel.Password,
             };
 
-            await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.Email, tokenCache, TimeSpan.FromDays(30)); //todo this must match expiration of token ??
+            await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.Email, tokenCache);
 
             return tokenResponse;
         }

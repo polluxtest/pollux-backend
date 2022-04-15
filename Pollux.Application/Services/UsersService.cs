@@ -95,8 +95,6 @@
             UserManager<User> userManager,
             SignInManager<User> userSignInManager,
             IMapper mapper,
-            IIdentityServerInteractionService iIdentityServerInteractionService,
-            IEventService eventsService,
             IPasswordHasher<User> passwordHasher)
         {
             this.usersRepository = usersRepository;

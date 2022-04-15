@@ -13,6 +13,7 @@
     using Pollux.Application;
     using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Auth;
+    using Pollux.Common.Constants;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Exceptions;
     using Pollux.Persistence.Services.Cache;
@@ -58,22 +59,28 @@
                 !authValues.Any())
             {
                 this.RevokeAuth(context.HttpContext, emailClaim?.Value);
-                throw new NotAuthenticatedException("Not Authenticated");
+                throw new NotAuthenticatedException(MessagesConstants.NotAuthenticated);
             }
 
             var tokenModel = await this.GetAuthFromRedis(emailClaim?.Value);
+            if (tokenModel == null)
+            {
+                this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+                throw new NotAuthenticatedException(MessagesConstants.NotAuthenticated);
+            }
+
             var accessToken = authValues.First();
 
             if (!tokenModel.AccessToken.Equals(accessToken) ||
                 string.IsNullOrEmpty(tokenModel.AccessToken))
             {
-                throw new NotAuthenticatedException("Not Authenticated");
+                throw new NotAuthenticatedException(MessagesConstants.NotAuthenticated);
             }
 
             if (this.IsRefreshTokenExpired(tokenModel, accessToken))
             {
                 this.RevokeAuth(context.HttpContext, emailClaim?.Value);
-                throw new NotAuthenticatedException("Not Authenticated");
+                throw new NotAuthenticatedException(MessagesConstants.NotAuthenticated);
             }
 
             return await this.IsAccessTokenExpired(emailClaim?.Value, tokenModel);
@@ -98,6 +105,12 @@
         /// <returns>The Auth from Redis.</returns>
         private async Task<TokenModel> GetAuthFromRedis(string email)
         {
+            var exists = await this.redisCacheService.KeyExistsAsync(email);
+            if (!exists)
+            {
+                return null;
+            }
+
             var token = await this.redisCacheService.GetObjectAsync<TokenModel>(email);
 
             return token;
@@ -128,7 +141,7 @@
             {
                 var newAccessToken = await this.tokenIdentityService.RefreshUserAccessTokenAsync(tokenModel.RefreshToken);
                 tokenModel.AccessToken = $"{OAuthConstants.JWTAuthScheme} {newAccessToken.AccessToken}";
-                tokenModel.AccessTokenExpirationDate = DateTime.UtcNow.AddMinutes(1); // todo change expiration
+                tokenModel.AccessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpirationSeconds);
                 tokenModel.RefreshToken = newAccessToken.RefreshToken;
                 this.SetNewAccessToken(email, tokenModel);
 
@@ -145,7 +158,7 @@
         /// <param name="tokenModel">The token model.</param>
         private async void SetNewAccessToken(string email, TokenModel tokenModel)
         {
-            var success = await this.redisCacheService.SetObjectAsync<TokenModel>(email, tokenModel, TimeSpan.FromDays(7));
+            var success = await this.redisCacheService.SetObjectAsync<TokenModel>(email, tokenModel);
         }
 
         /// <summary>

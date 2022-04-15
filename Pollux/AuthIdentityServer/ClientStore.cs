@@ -27,11 +27,11 @@
                     AllowOfflineAccess = true,
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
                     AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
-                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiration,
+                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpirationSeconds,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
-                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
-                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
-                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                 });
             }
 
@@ -44,11 +44,11 @@
                     AllowOfflineAccess = true,
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
                     AllowedScopes = new List<string>() { "api", "api/pollux" },
-                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiration,
+                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpirationSeconds,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
-                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
-                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
-                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpiration,
+                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                 });
             }
 

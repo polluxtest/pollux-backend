@@ -10,9 +10,8 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="expiration">The expiration key time.</param>
         /// <returns>True if success.</returns>
-        Task<bool> SetKeyAsync(string key, string value, TimeSpan? expiration);
+        Task<bool> SetKeyAsync(string key, string value);
 
         /// <summary>
         /// Gets the key asynchronous.
@@ -27,7 +26,7 @@
         /// <typeparam name="T">Generic Type to store.</typeparam>
         /// <param name="data">The data.</param>
         /// <returns>Task.</returns>
-        Task<bool> SetObjectAsync<T>(string key, T data, TimeSpan? expiration = null);
+        Task<bool> SetObjectAsync<T>(string key, T data);
 
         /// <summary>
         /// Gets the object asynchronous.
