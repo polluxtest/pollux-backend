@@ -147,7 +147,7 @@
         {
             try
             {
-                return this.NoContent();
+                return this.Ok();
             }
             catch (NotAuthenticatedException ex)
             {

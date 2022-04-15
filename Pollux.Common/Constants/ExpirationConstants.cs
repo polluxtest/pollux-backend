@@ -5,31 +5,31 @@
         /// <summary>
         /// The refresh token expiration in days.
         /// </summary>
-        public const int RefreshTokenExpirationDays = 30;
+        public const int RefreshTokenExpirationDays = 20;
 
         /// <summary>
-        /// The refresh token expiration seconds.
+        /// The refresh token expiration seconds 20 days.
         /// </summary>
-        public const int RefreshTokenExpirationSeconds = 300;
+        public const int RefreshTokenExpirationSeconds = 1728000;
 
         /// <summary>
         /// The access token expiration in days.
         /// </summary>
-        public const int AccessTokenExpirationDays = 3;
+        public const int AccessTokenExpirationDays = 10;
 
         /// <summary>
-        /// The access token expiration seconds.
+        /// The access token expiration seconds 10 days.
         /// </summary>
-        public const int AccessTokenExpirationSeconds = 120;
+        public const int AccessTokenExpirationSeconds = 864000;
 
         /// <summary>
-        /// The redis cache expiration seconds.
+        /// The redis cache expiration seconds 20 days.
         /// </summary>
-        public const int RedisCacheExpirationSeconds = 300;
+        public const int RedisCacheExpirationSeconds = 1728000;
 
         /// <summary>
-        /// The session expiration in seconds.
+        /// The session expiration in seconds 20 days.
         /// </summary>
-        public const int SessionExpiration = 600;
+        public const int SessionExpiration = 1728000;
     }
 }
