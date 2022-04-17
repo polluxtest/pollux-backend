@@ -3,6 +3,7 @@
     using System;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Configuration;
     using Pollux.Common.Constants;
     using StackExchange.Redis;
 
@@ -11,10 +12,10 @@
         private readonly ConnectionMultiplexer connectionMultiplexer;
         private readonly IDatabase redisDatabase;
 
-        public RedisCacheService()
+        public RedisCacheService(IConfiguration configuration)
         {
-            // todo change host to app settigs deploy
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379");
+            var urlRedisServer = configuration.GetSection("AppSettings")["RedisUrl"];
+            this.connectionMultiplexer = ConnectionMultiplexer.Connect(urlRedisServer);
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
         }
 

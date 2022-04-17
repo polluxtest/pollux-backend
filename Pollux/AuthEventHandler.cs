@@ -181,7 +181,7 @@
             try
             {
                 token = token.ToString().Remove(0, 7);
-                var tokenIssuer = this.configuration.GetSection("Pollux")["TokenIssuer"];
+                var tokenIssuer = this.configuration.GetSection("AppSettings")["TokenIssuer"];
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.ReadJwtToken(token);
                 return securityToken.Issuer.Equals(tokenIssuer);

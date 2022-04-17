@@ -53,13 +53,14 @@ namespace Pollux.API
         {
             IdentityModelEventSource.ShowPII = true;
             var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
+            var allowedOrigin = this.Configuration.GetSection("AppSettings")["AllowedOrigin"];
             var identityServerSettings = new IdentityServerSettings();
             this.Configuration.Bind("IdentityServerSettings", identityServerSettings);
             services.AddSingleton(identityServerSettings);
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
             this.SetUpPasswordIdentity(services);
-            this.AddCors(services);
+            this.AddCors(services, allowedOrigin);
             this.SetUpIdentityServer(services);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
@@ -266,14 +267,15 @@ namespace Pollux.API
         /// Adds the cors policy set up.
         /// </summary>
         /// <param name="services">The services.</param>
-        private void AddCors(IServiceCollection services)
+        /// <param name="origin">The front end url.</param>
+        private void AddCors(IServiceCollection services, string origin)
         {
             services.AddCors(options =>
             {
                 options.AddPolicy(
                     CookiesConstants.CookiePolicy,
                     builder =>
-                        builder.WithOrigins("https://localhost:3000")
+                        builder.WithOrigins(origin)
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials());
