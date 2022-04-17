@@ -145,15 +145,7 @@
         [ProducesResponseType(204)]
         public async Task<ActionResult<string>> IsUserAuthenticated()
         {
-            try
-            {
-                return this.Ok();
-            }
-            catch (NotAuthenticatedException ex)
-            {
-                this.SignOut();
-                throw ex;
-            }
+            return new EmptyResult();
         }
 
         /// <summary>

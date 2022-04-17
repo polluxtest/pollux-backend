@@ -1,9 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-
-namespace Pollux.API.Middlewares
+﻿namespace Pollux.API.Middlewares
 {
+    using System;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using Pollux.Common.Constants.Strings;
+    using Pollux.Common.Exceptions;
+
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate nextDelegate;
@@ -24,10 +26,15 @@ namespace Pollux.API.Middlewares
             {
                 await this.nextDelegate.Invoke(httpContext);
             }
-            catch (Exception)
+            catch (NotAuthenticatedException)
+            {
+                httpContext.Response.StatusCode = 440;
+                await httpContext.Response.WriteAsync(MessagesConstants.NotAuthenticated);
+            }
+            catch (Exception ex)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await httpContext.Response.WriteAsync("Unexpected Error");
+                await httpContext.Response.WriteAsync(MessagesConstants.UnExpectedError);
             }
         }
     }

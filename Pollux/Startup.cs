@@ -24,6 +24,7 @@ namespace Pollux.API
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
     using FluentValidation.AspNetCore;
+    using Pollux.Common.Exceptions;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
@@ -88,10 +89,9 @@ namespace Pollux.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<ExceptionMiddleware>();
             this.AddSwagger(app);
             app.UseCors(CookiesConstants.CookiePolicy);
-            app.UseMiddleware<NotAuthenticatedMiddleware>();
-            app.UseMiddleware<ExceptionMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -171,18 +171,26 @@ namespace Pollux.API
                         return Task.CompletedTask;
                     }
 
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.StatusCode = 440;
                     return Task.CompletedTask;
                 };
 
                 // This event controls de authorization handler when an entity want to access a resource Authorized
                 options.Events.OnValidatePrincipal = async context =>
                 {
-                    var authEventHandler = services.BuildServiceProvider().GetService<AuthEventHandler>();
-                    var token = await authEventHandler?.Handle(context);
-                    if (token?.AccessToken != null)
+                    try
                     {
-                        context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
+                        var authEventHandler = services.BuildServiceProvider().GetService<AuthEventHandler>();
+                        var token = await authEventHandler?.Handle(context);
+                        if (token?.AccessToken != null)
+                        {
+                            context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
+                        }
+                    }
+                    catch (NotAuthenticatedException)
+                    {
+                        context.Response.StatusCode = 440;
+                        await context.Response.WriteAsync(MessagesConstants.NotAuthenticated);
                     }
                 };
             });
