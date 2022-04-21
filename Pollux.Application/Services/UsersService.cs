@@ -186,7 +186,7 @@
             var hashedPassword = this.passwordHasher.HashPassword(user, newPassword);
             user.PasswordHash = hashedPassword;
             this.usersRepository.Update(user);
-            this.usersRepository.Save();
+            await this.usersRepository.SaveAsync();
         }
     }
 }

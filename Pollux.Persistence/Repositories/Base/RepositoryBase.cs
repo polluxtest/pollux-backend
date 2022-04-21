@@ -349,11 +349,14 @@
         }
 
         /// <summary>
-        /// Saves this instance.
+        /// Saves asynchronous.
         /// </summary>
-        public void Save()
+        /// <returns>
+        /// Task.
+        /// </returns>
+        public async Task SaveAsync()
         {
-            this.dbContext.SaveChanges(); // todo research why and async throws an exception
+            await this.dbContext.SaveChangesAsync(); // todo research why and async throws an exception
         }
     }
 }
