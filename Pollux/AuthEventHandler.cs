@@ -182,9 +182,11 @@
             {
                 token = token.ToString().Remove(0, 7);
                 var tokenIssuer = this.configuration.GetSection("AppSettings")["TokenIssuer"];
+                var signingKeyId = this.configuration.GetSection("AppSettings")["SigningKeyId"];
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.ReadJwtToken(token);
-                return securityToken.Issuer.Equals(tokenIssuer);
+                var securityTokenSigningKeyId = securityToken.Header["kid"];
+                return securityToken.Issuer.Equals(tokenIssuer) && signingKeyId.Equals(securityTokenSigningKeyId);
             }
             catch (Exception)
             {

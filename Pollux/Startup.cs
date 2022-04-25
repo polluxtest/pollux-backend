@@ -243,8 +243,7 @@ namespace Pollux.API
                 })
              .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
              .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
-             .AddAspNetIdentity<User>()
-             .AddDeveloperSigningCredential();
+             .AddAspNetIdentity<User>();
         }
 
         /// <summary>

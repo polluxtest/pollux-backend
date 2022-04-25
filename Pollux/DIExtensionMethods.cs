@@ -92,6 +92,9 @@ namespace Pollux.API
             services.AddSingleton<HttpClient, HttpClient>();
             services.AddScoped<AuthEventHandler>();
             services.AddTransient<ISendEmail, SendEmail>();
+            services.AddTransient<ISigningCredentialStore, SigningCredentialStore>();
+            services.AddTransient<IValidationKeysStore, ValidationKeysStore>();
+
         }
     }
 }
