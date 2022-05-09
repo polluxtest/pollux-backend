@@ -113,7 +113,7 @@ namespace Pollux.API
         private void AddSwagger(IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint(@"https://localhost:5001/swagger/v1/swagger.json", "My API V1"); });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
         }
 
         /// <summary>
