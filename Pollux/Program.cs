@@ -1,8 +1,9 @@
-namespace Pollux.Movies
+namespace Pollux
 {
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
+    using Pollux.API;
 
     public class Program
     {
@@ -26,9 +27,10 @@ namespace Pollux.Movies
                     if (environment == "Development")
                     {
                         webBuilder.UseStartup<Startup>()
-                        .UseUrls("http:localhost:4001");
+                        .UseUrls("http:localhost:5001");
 
                     }
+
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel();
 
