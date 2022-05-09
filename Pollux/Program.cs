@@ -1,34 +1,37 @@
-namespace Pollux
+namespace Pollux.Movies
 {
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Hosting;
 
-    using Pollux.API;
-
-    /// <summary>
-    /// Defines the <see cref="Program" />.
-    /// </summary>
     public class Program
     {
-        /// <summary>
-        /// The Main.
-        /// </summary>
-        /// <param name="args">The args<see cref="string[]"/>.</param>
+        private static string environment;
+
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }
 
-        /// <summary>
-        /// The CreateHostBuilder.
-        /// </summary>
-        /// <param name="args">The args<see cref="string[]"/>.</param>
-        /// <returns>The <see cref="IHostBuilder"/>.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    environment = hostingContext.HostingEnvironment.EnvironmentName;
+                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
+                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    if (environment == "Development")
+                    {
+                        webBuilder.UseStartup<Startup>()
+                        .UseUrls("http:localhost:4001");
+
+                    }
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel();
+
                 });
     }
 }
