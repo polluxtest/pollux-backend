@@ -56,7 +56,7 @@ namespace Pollux.API
             services.AddTransient<IRedisCacheService, RedisCacheService>();
             services.AddSingleton<ClaimsPrincipal, ClaimsPrincipal>();
             var serviceProvider = services.BuildServiceProvider();
-            var logger = serviceProvider.GetServices<ILogger>();
+            var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
             services.AddSingleton(typeof(ILogger), logger);
         }
 
