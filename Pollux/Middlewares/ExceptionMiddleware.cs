@@ -3,16 +3,19 @@
     using System;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Logging;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Exceptions;
 
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate nextDelegate;
+        private ILogger logger;
 
-        public ExceptionMiddleware(RequestDelegate nextDelegate)
+        public ExceptionMiddleware(RequestDelegate nextDelegate, ILogger logger)
         {
             this.nextDelegate = nextDelegate;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -33,6 +36,10 @@
             }
             catch (Exception ex)
             {
+                this.logger.LogError("UnExpected Fall Back 500 Error");
+                this.logger.LogError(ex.Message);
+                this.logger.LogError(ex.StackTrace);
+                this.logger.LogError(ex.InnerException.Message);
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsync(MessagesConstants.UnExpectedError);
             }

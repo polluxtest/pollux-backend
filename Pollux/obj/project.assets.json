@@ -7375,11 +7375,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
+      "projectUniqueName": "C:\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
       "projectName": "Pollux.API",
-      "projectPath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
+      "projectPath": "C:\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
       "packagesPath": "C:\\Users\\octaviodiaz\\.nuget\\packages\\",
-      "outputPath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux\\obj\\",
+      "outputPath": "C:\\Pollux\\pollux-backend\\Pollux\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\octaviodiaz\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -7396,17 +7396,17 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Application\\Pollux.Application.csproj": {
-              "projectPath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Application\\Pollux.Application.csproj"
+            "C:\\Pollux\\pollux-backend\\Pollux.Application\\Pollux.Application.csproj": {
+              "projectPath": "C:\\Pollux\\pollux-backend\\Pollux.Application\\Pollux.Application.csproj"
             },
-            "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Common.Application\\Pollux.Common.Application.csproj": {
-              "projectPath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Common.Application\\Pollux.Common.Application.csproj"
+            "C:\\Pollux\\pollux-backend\\Pollux.Common.Application\\Pollux.Common.Application.csproj": {
+              "projectPath": "C:\\Pollux\\pollux-backend\\Pollux.Common.Application\\Pollux.Common.Application.csproj"
             },
-            "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Common\\Pollux.Common.csproj": {
-              "projectPath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Common\\Pollux.Common.csproj"
+            "C:\\Pollux\\pollux-backend\\Pollux.Common\\Pollux.Common.csproj": {
+              "projectPath": "C:\\Pollux\\pollux-backend\\Pollux.Common\\Pollux.Common.csproj"
             },
-            "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Persistence\\Pollux.Persistence.csproj": {
-              "projectPath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux.Persistence\\Pollux.Persistence.csproj"
+            "C:\\Pollux\\pollux-backend\\Pollux.Persistence\\Pollux.Persistence.csproj": {
+              "projectPath": "C:\\Pollux\\pollux-backend\\Pollux.Persistence\\Pollux.Persistence.csproj"
             }
           }
         }

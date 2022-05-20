@@ -20,7 +20,10 @@ namespace Pollux
                 {
                     environment = hostingContext.HostingEnvironment.EnvironmentName;
                     config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
-                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                    if (environment == "Development")
+                    {
+                        config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                    }
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -28,12 +31,10 @@ namespace Pollux
                     {
                         webBuilder.UseStartup<Startup>()
                         .UseUrls("http:localhost:5001");
-
                     }
 
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel();
-
                 });
     }
 }

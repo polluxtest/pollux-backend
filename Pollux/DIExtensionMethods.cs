@@ -10,6 +10,7 @@ namespace Pollux.API
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using Pollux.API.AuthIdentityServer;
     using Pollux.Application;
     using Pollux.Application.Serverless;
@@ -54,6 +55,9 @@ namespace Pollux.API
             services.AddTransient<ITokenIdentityService, TokenIdentityService>();
             services.AddTransient<IRedisCacheService, RedisCacheService>();
             services.AddSingleton<ClaimsPrincipal, ClaimsPrincipal>();
+            var serviceProvider = services.BuildServiceProvider();
+            var logger = serviceProvider.GetServices<ILogger>();
+            services.AddSingleton(typeof(ILogger), logger);
         }
 
         /// <summary>

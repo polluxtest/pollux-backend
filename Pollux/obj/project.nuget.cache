@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nYiixY/gx135q+NQFeppTPqPn3AzL4gFT9gipLfOrg8reGqDb1iBYC6r6Tot3a2XVzpqc2IDcjoqZ9G1xpveWg==",
+  "dgSpecHash": "mDFREmNDHVcydICG8YLJWWWdjdKvDviXPUURPfxf3ANo73M954q8E1Eo+/3zoSWGLlw2ImAhpsWCw3uE2h7mQw==",
   "success": true,
-  "projectFilePath": "\\\\Mac\\Home\\Documents\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
+  "projectFilePath": "C:\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.1.1\\automapper.extensions.microsoft.dependencyinjection.8.1.1.nupkg.sha512",
