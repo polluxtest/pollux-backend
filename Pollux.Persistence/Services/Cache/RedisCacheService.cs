@@ -15,7 +15,12 @@
         public RedisCacheService(IConfiguration configuration)
         {
             var urlRedisServer = configuration.GetSection("AppSettings")["RedisUrl"];
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect(urlRedisServer);
+            var redisConfiguration = new ConfigurationOptions
+            {
+                AbortOnConnectFail = false,
+                EndPoints = { urlRedisServer },
+            };
+            this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
         }
 
