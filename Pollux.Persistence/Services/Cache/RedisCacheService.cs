@@ -23,7 +23,7 @@
         {
             return new RedisConfiguration()
             {
-                AbortOnConnectFail = true,
+                AbortOnConnectFail = false,
                 Hosts = new RedisHost[] {
                     new RedisHost()
                     {
