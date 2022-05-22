@@ -39,7 +39,7 @@
                 this.logger.LogError("UnExpected Fall Back 500 Error");
                 this.logger.LogError(ex.Message);
                 this.logger.LogError(ex.StackTrace);
-                this.logger.LogError(ex.InnerException.Message);
+                this.logger.LogError(ex.InnerException?.Message);
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsync(MessagesConstants.UnExpectedError);
             }

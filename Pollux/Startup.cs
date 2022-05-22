@@ -53,14 +53,14 @@ namespace Pollux.API
         {
             IdentityModelEventSource.ShowPII = true;
             var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
-            var allowedOrigin = this.Configuration.GetSection("AppSettings")["AllowedOrigin"];
+            var allowedOrigins = this.Configuration.GetSection("AppSettings")["AllowedOrigins"];
             var identityServerSettings = new IdentityServerSettings();
             this.Configuration.Bind("IdentityServerSettings", identityServerSettings);
             services.AddSingleton(identityServerSettings);
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
             this.SetUpPasswordIdentity(services);
-            this.AddCors(services, allowedOrigin);
+            this.AddCors(services, allowedOrigins);
             this.SetUpIdentityServer(services);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
@@ -267,14 +267,15 @@ namespace Pollux.API
         /// </summary>
         /// <param name="services">The services.</param>
         /// <param name="origin">The front end url.</param>
-        private void AddCors(IServiceCollection services, string origin)
+        private void AddCors(IServiceCollection services, string allowedOrigins)
         {
+            var origins = allowedOrigins.Split(",");
             services.AddCors(options =>
             {
                 options.AddPolicy(
                     CookiesConstants.CookiePolicy,
                     builder =>
-                        builder.WithOrigins(origin)
+                        builder.WithOrigins(origins)
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials());
