@@ -6,6 +6,8 @@
     using Microsoft.Extensions.Configuration;
     using Pollux.Common.Constants;
     using StackExchange.Redis;
+    using StackExchange.Redis.Extensions.Core.Abstractions;
+    using StackExchange.Redis.Extensions.Core.Configuration;
 
     public class RedisCacheService : IRedisCacheService
     {
@@ -14,14 +16,33 @@
 
         public RedisCacheService(IConfiguration configuration)
         {
-            var urlRedisServer = configuration.GetSection("AppSettings")["RedisUrl"];
-            var redisConfiguration = new ConfigurationOptions
+            this.connectionMultiplexer = ConnectionMultiplexer.Connect(this.GetRedisConfiguration(configuration).ConfigurationOptions);
+            this.redisDatabase = this.connectionMultiplexer.GetDatabase();
+        }
+
+        private RedisConfiguration GetRedisConfiguration(IConfiguration configuration)
+        {
+            return new RedisConfiguration()
             {
                 AbortOnConnectFail = false,
-                EndPoints = { urlRedisServer },
+                Hosts = new RedisHost[] {
+                    new RedisHost()
+                    {
+                        Host = configuration.GetSection("AppSettings")["RedisUrl"],
+                        Port = 6379,
+                    },
+                },
+                ConnectTimeout = 10000,
+                Database = 0,
+                Ssl = false,
+                ServerEnumerationStrategy = new ServerEnumerationStrategy()
+                {
+                    Mode = ServerEnumerationStrategy.ModeOptions.All,
+                    TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
+                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw,
+                },
+                PoolSize = 50,
             };
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
-            this.redisDatabase = this.connectionMultiplexer.GetDatabase();
         }
 
         /// <summary>
