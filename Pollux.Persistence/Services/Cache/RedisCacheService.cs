@@ -6,7 +6,6 @@
     using Microsoft.Extensions.Configuration;
     using Pollux.Common.Constants;
     using StackExchange.Redis;
-    using StackExchange.Redis.Extensions.Core.Abstractions;
     using StackExchange.Redis.Extensions.Core.Configuration;
 
     public class RedisCacheService : IRedisCacheService
@@ -24,24 +23,29 @@
         {
             return new RedisConfiguration()
             {
-                AbortOnConnectFail = false,
+                AbortOnConnectFail = true,
                 Hosts = new RedisHost[] {
                     new RedisHost()
                     {
                         Host = configuration.GetSection("AppSettings")["RedisUrl"],
                         Port = 6379,
                     },
+                    new RedisHost()
+                    {
+                        Host = "redis",
+                        Port = 6380,
+                    },
                 },
-                ConnectTimeout = 10000,
                 Database = 0,
                 Ssl = false,
+                SyncTimeout = 10000,
                 ServerEnumerationStrategy = new ServerEnumerationStrategy()
                 {
                     Mode = ServerEnumerationStrategy.ModeOptions.All,
                     TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
                     UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw,
                 },
-                PoolSize = 50,
+                PoolSize = 50
             };
         }
 
