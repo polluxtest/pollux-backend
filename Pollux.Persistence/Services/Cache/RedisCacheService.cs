@@ -15,7 +15,9 @@
 
         public RedisCacheService(IConfiguration configuration)
         {
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect(this.GetRedisConfiguration(configuration).ConfigurationOptions);
+            var host = "localhost:6379";
+            var redisConfiguration = $"{host},connectRetry=3,connectTimeout=1000";
+            this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
         }
 
