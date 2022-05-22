@@ -4,6 +4,7 @@
     using System.Text.Json;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
     using Pollux.Common.Constants;
     using Polly;
     using StackExchange.Redis;
@@ -13,9 +14,12 @@
     {
         private readonly ConnectionMultiplexer connectionMultiplexer;
         private readonly IDatabase redisDatabase;
+        private readonly ILogger logger;
 
-        public RedisCacheService(IConfiguration configuration)
+        public RedisCacheService(IConfiguration configuration, ILogger logger)
         {
+            this.logger = logger;
+            this.logger.LogInformation("Connecting Redis Engine");
             var host = "localhost:6379";
             var redisConfiguration = $"{host},connectRetry=3,connectTimeout=1000,abortConnect=false";
             this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
@@ -118,13 +122,19 @@
         public async Task<bool> SetObjectAsync<T>(string key, T data)
         {
             var dataStr = JsonSerializer.Serialize<T>(data);
+            this.logger.LogInformation("Setting Key Redis Engine");
+
             var value = await Policy
-            .Handle<RedisConnectionException>() // Possible network issue 
-            .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(3)) // retry 3 times, with a 3 second delay, before giving up
+            .Handle<Exception>()
+            .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(3))
             .ExecuteAsync(async () =>
             {
                 return await this.SetKeyAsync(key, dataStr);
+                this.logger.LogInformation("Retry Set Key Redis Engine");
             });
+
+            this.logger.LogInformation("Finishing Key Redis Engine with false result");
+
 
             return false;
         }
