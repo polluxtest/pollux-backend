@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Pollux.Common.Constants;
+    using Polly;
     using StackExchange.Redis;
     using StackExchange.Redis.Extensions.Core.Configuration;
 
@@ -47,7 +48,8 @@
                     TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
                     UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw,
                 },
-                PoolSize = 50
+                PoolSize = 50,
+
             };
         }
 
@@ -116,7 +118,15 @@
         public async Task<bool> SetObjectAsync<T>(string key, T data)
         {
             var dataStr = JsonSerializer.Serialize<T>(data);
-            return await this.SetKeyAsync(key, dataStr);
+            var value = await Policy
+            .Handle<RedisConnectionException>() // Possible network issue 
+            .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(3)) // retry 3 times, with a 3 second delay, before giving up
+            .ExecuteAsync(async () =>
+            {
+                return await this.SetKeyAsync(key, dataStr);
+            });
+
+            return false;
         }
 
         /// <summary>
