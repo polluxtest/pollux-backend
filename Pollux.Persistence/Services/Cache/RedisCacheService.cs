@@ -21,10 +21,12 @@
             this.logger = logger;
             this.logger.LogInformation("Connecting Redis Engine");
             var host = "localhost:6379";
-            var redisConfiguration = $"{host},connectRetry=3,connectTimeout=1000,abortConnect=false";
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
+            var redisConfiguration = $"{host},connectRetry=3,connectTimeout=3000,abortConnect=false";
+            this.connectionMultiplexer = ConnectionMultiplexer.ConnectAsync(redisConfiguration).Result;
+            this.logger.LogInformation($"Redis engine connected = {this.connectionMultiplexer.IsConnected}");
+            this.logger.LogInformation($"Redis engine is connecting = {this.connectionMultiplexer.IsConnecting}");
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
-            //this.logger.LogInformation($"Redis engine connected = {this.redisDatabase.IsConnected(new RedisKey())}")
+
         }
 
         private RedisConfiguration GetRedisConfiguration(IConfiguration configuration)

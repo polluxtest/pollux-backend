@@ -53,7 +53,7 @@ namespace Pollux.API
             services.AddScoped<IUsersService, UsersService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<ITokenIdentityService, TokenIdentityService>();
-            services.AddTransient<IRedisCacheService, RedisCacheService>();
+            services.AddSingleton<IRedisCacheService, RedisCacheService>();
             services.AddSingleton<ClaimsPrincipal, ClaimsPrincipal>();
             var serviceProvider = services.BuildServiceProvider();
             var logger = serviceProvider.GetService<ILogger<ApplicationLogger>>();
