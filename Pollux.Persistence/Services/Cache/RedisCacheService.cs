@@ -13,14 +13,14 @@
     public class RedisCacheService : IRedisCacheService
     {
         private static readonly Lazy<ConnectionMultiplexer> Connection;
-        private static readonly IDatabase redisDatabase;
+        private static readonly IDatabase RedisDatabase;
 
         static RedisCacheService()
         {
             var connectionString = "127.0.0.1:6379,127.0.0.1:6380,syncTimeout =3000";
             var options = ConfigurationOptions.Parse(connectionString);
             Connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(options));
-            redisDatabase = Connection.Value.GetDatabase();
+            RedisDatabase = Connection.Value.GetDatabase();
         }
 
         private RedisConfiguration GetRedisConfiguration(IConfiguration configuration)
@@ -66,7 +66,7 @@
         {
             var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
 
-            return await redisDatabase.StringSetAsync(key, value, expiration);
+            return await RedisDatabase.StringSetAsync(key, value, expiration);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@
         {
             if (await this.KeyExistsAsync(key))
             {
-                var redisValue = await redisDatabase.StringGetAsync(key);
+                var redisValue = await RedisDatabase.StringGetAsync(key);
                 return redisValue;
             }
 
@@ -94,7 +94,7 @@
         /// </returns>
         public Task<bool> KeyExistsAsync(string key)
         {
-            return redisDatabase.KeyExistsAsync(key);
+            return RedisDatabase.KeyExistsAsync(key);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@
         /// </returns>
         public Task<bool> DeleteKeyAsync(string key)
         {
-            return redisDatabase.KeyDeleteAsync(key);
+            return RedisDatabase.KeyDeleteAsync(key);
         }
 
         /// <summary>
