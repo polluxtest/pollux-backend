@@ -12,21 +12,16 @@
 
     public class RedisCacheService : IRedisCacheService
     {
-        private readonly ConnectionMultiplexer connectionMultiplexer;
-        private readonly IDatabase redisDatabase;
+        private static readonly Lazy<ConnectionMultiplexer> Connection;
+        private static readonly IDatabase redisDatabase;
         private readonly ILogger logger;
 
-        public RedisCacheService(IConfiguration configuration, ILogger logger)
+        static RedisCacheService()
         {
-            this.logger = logger;
-            this.logger.LogInformation("Connecting Redis Engine");
-            var host = "localhost:6379";
-            var redisConfiguration = $"{host},connectRetry=3,connectTimeout=3000,abortConnect=false";
-            this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
-            this.logger.LogInformation($"Redis engine connected = {this.connectionMultiplexer.IsConnected}");
-            this.logger.LogInformation($"Redis engine is connecting = {this.connectionMultiplexer.IsConnecting}");
-            this.redisDatabase = this.connectionMultiplexer.GetDatabase();
-
+            var connectionString = "127.0.0.1:6379,127.0.0.1:6380,syncTimeout =3000";
+            var options = ConfigurationOptions.Parse(connectionString);
+            Connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(options));
+            redisDatabase = Connection.Value.GetDatabase();
         }
 
         private RedisConfiguration GetRedisConfiguration(IConfiguration configuration)
@@ -70,34 +65,9 @@
         /// </returns>
         public async Task<bool> SetKeyAsync(string key, string value)
         {
-            this.logger.LogInformation("Setting Key Redis Engine");
-            bool result = false;
-            var maxRetryAttempts = 3;
-            var pauseBetweenFailures = TimeSpan.FromSeconds(2);
             var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
 
-            var retryPolicy = Policy
-                .Handle<Exception>()
-                .WaitAndRetryAsync(maxRetryAttempts, i => pauseBetweenFailures);
-
-            await retryPolicy.ExecuteAsync(async () =>
-            {
-                var result = await this.redisDatabase.StringSetAsync(key, value, expiration);
-                if (result)
-                {
-                    this.logger.LogInformation("Redis Key Set");
-                }
-                else
-                {
-                    this.logger.LogInformation("Redis Key Not Set , retrying...");
-                }
-
-            });
-
-            this.logger.LogInformation("Finishing Key Redis Engine with false result");
-
-            return result;
-
+            return await redisDatabase.StringSetAsync(key, value, expiration);
         }
 
         /// <summary>
@@ -109,7 +79,7 @@
         {
             if (await this.KeyExistsAsync(key))
             {
-                var redisValue = await this.redisDatabase.StringGetAsync(key);
+                var redisValue = await redisDatabase.StringGetAsync(key);
                 return redisValue;
             }
 
@@ -125,7 +95,7 @@
         /// </returns>
         public Task<bool> KeyExistsAsync(string key)
         {
-            return this.redisDatabase.KeyExistsAsync(key);
+            return redisDatabase.KeyExistsAsync(key);
         }
 
         /// <summary>
@@ -137,7 +107,7 @@
         /// </returns>
         public Task<bool> DeleteKeyAsync(string key)
         {
-            return this.redisDatabase.KeyDeleteAsync(key);
+            return redisDatabase.KeyDeleteAsync(key);
         }
 
         /// <summary>
