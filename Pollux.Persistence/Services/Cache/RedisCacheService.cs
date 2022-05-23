@@ -43,15 +43,8 @@
                         Port = 6379,
                     },
                 },
-                Database = 0,
-                Ssl = false,
-                SyncTimeout = 10000,
-                ServerEnumerationStrategy = new ServerEnumerationStrategy()
-                {
-                    Mode = ServerEnumerationStrategy.ModeOptions.All,
-                    TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
-                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw,
-                },
+                Ssl = true,
+                SyncTimeout = 3000,
                 PoolSize = 50,
 
             };
