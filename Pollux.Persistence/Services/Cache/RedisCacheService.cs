@@ -17,12 +17,11 @@
 
         static RedisCacheService()
         {
-            var connectionString = "127.0.0.1:6379,127.0.0.1:6380,syncTimeout =3000,abortOnConnectFail=false";
-            Connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(connectionString));
+            Connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(GetRedisConfiguration().ConfigurationOptions));
             RedisDatabase = Connection.Value.GetDatabase();
         }
 
-        private RedisConfiguration GetRedisConfiguration(IConfiguration configuration)
+        private static RedisConfiguration GetRedisConfiguration()
         {
             return new RedisConfiguration()
             {
@@ -30,13 +29,18 @@
                 Hosts = new RedisHost[] {
                     new RedisHost()
                     {
-                        Host = configuration.GetSection("AppSettings")["RedisUrl"],
+                        Host = "localhost",
                         Port = 6379,
                     },
                     new RedisHost()
                     {
                         Host = "redis",
                         Port = 6380,
+                    },
+                    new RedisHost()
+                    {
+                        Host = "127.0.0.1",
+                        Port = 6379,
                     },
                 },
                 Database = 0,
