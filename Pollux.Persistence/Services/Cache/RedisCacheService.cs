@@ -24,6 +24,7 @@
             var redisConfiguration = $"{host},connectRetry=3,connectTimeout=1000,abortConnect=false";
             this.connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfiguration);
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
+            //this.logger.LogInformation($"Redis engine connected = {this.redisDatabase.IsConnected(new RedisKey())}")
         }
 
         private RedisConfiguration GetRedisConfiguration(IConfiguration configuration)
@@ -123,20 +124,30 @@
         {
             var dataStr = JsonSerializer.Serialize<T>(data);
             this.logger.LogInformation("Setting Key Redis Engine");
+            bool result = false;
+            var maxRetryAttempts = 3;
+            var pauseBetweenFailures = TimeSpan.FromSeconds(2);
 
-            var value = await Policy
-            .Handle<Exception>()
-            .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(3))
-            .ExecuteAsync(async () =>
+            var retryPolicy = Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(maxRetryAttempts, i => pauseBetweenFailures);
+
+            await retryPolicy.ExecuteAsync(async () =>
             {
-                return await this.SetKeyAsync(key, dataStr);
-                this.logger.LogInformation("Retry Set Key Redis Engine");
+                result = await this.SetKeyAsync(key, dataStr);
+                if (result)
+                {
+                    this.logger.LogInformation("Redis Key Set");
+                }
+                else
+                {
+                    this.logger.LogInformation("Redis Key Not Set , retrying...");
+                }
             });
 
             this.logger.LogInformation("Finishing Key Redis Engine with false result");
 
-
-            return false;
+            return result;
         }
 
         /// <summary>
