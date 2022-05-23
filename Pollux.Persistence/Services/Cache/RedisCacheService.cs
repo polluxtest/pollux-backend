@@ -17,7 +17,7 @@
 
         static RedisCacheService()
         {
-            var connectionString = "127.0.0.1:6379,127.0.0.1:6380,syncTimeout =3000";
+            var connectionString = "127.0.0.1:6379,127.0.0.1:6380,syncTimeout =3000,abortOnConnectFail=false";
             var options = ConfigurationOptions.Parse(connectionString);
             Connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(options));
             RedisDatabase = Connection.Value.GetDatabase();
