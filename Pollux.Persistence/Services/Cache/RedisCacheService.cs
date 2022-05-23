@@ -68,11 +68,36 @@
         /// <returns>
         /// True if success.
         /// </returns>
-        public Task<bool> SetKeyAsync(string key, string value)
+        public async Task<bool> SetKeyAsync(string key, string value)
         {
+            this.logger.LogInformation("Setting Key Redis Engine");
+            bool result = false;
+            var maxRetryAttempts = 3;
+            var pauseBetweenFailures = TimeSpan.FromSeconds(2);
             var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
 
-            return this.redisDatabase.StringSetAsync(key, value, expiration);
+            var retryPolicy = Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(maxRetryAttempts, i => pauseBetweenFailures);
+
+            await retryPolicy.ExecuteAsync(async () =>
+            {
+                var result = await this.redisDatabase.StringSetAsync(key, value, expiration);
+                if (result)
+                {
+                    this.logger.LogInformation("Redis Key Set");
+                }
+                else
+                {
+                    this.logger.LogInformation("Redis Key Not Set , retrying...");
+                }
+
+            });
+
+            this.logger.LogInformation("Finishing Key Redis Engine with false result");
+
+            return result;
+
         }
 
         /// <summary>
@@ -125,31 +150,7 @@
         public async Task<bool> SetObjectAsync<T>(string key, T data)
         {
             var dataStr = JsonSerializer.Serialize<T>(data);
-            this.logger.LogInformation("Setting Key Redis Engine");
-            bool result = false;
-            var maxRetryAttempts = 3;
-            var pauseBetweenFailures = TimeSpan.FromSeconds(2);
-
-            var retryPolicy = Policy
-                .Handle<Exception>()
-                .WaitAndRetryAsync(maxRetryAttempts, i => pauseBetweenFailures);
-
-            await retryPolicy.ExecuteAsync(async () =>
-            {
-                result = await this.SetKeyAsync(key, dataStr);
-                if (result)
-                {
-                    this.logger.LogInformation("Redis Key Set");
-                }
-                else
-                {
-                    this.logger.LogInformation("Redis Key Not Set , retrying...");
-                }
-            });
-
-            this.logger.LogInformation("Finishing Key Redis Engine with false result");
-
-            return result;
+            return await this.SetKeyAsync(key, dataStr);
         }
 
         /// <summary>
