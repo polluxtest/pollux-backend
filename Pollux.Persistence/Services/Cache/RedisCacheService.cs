@@ -14,7 +14,6 @@
     {
         private static readonly Lazy<ConnectionMultiplexer> Connection;
         private static readonly IDatabase redisDatabase;
-        private readonly ILogger logger;
 
         static RedisCacheService()
         {
