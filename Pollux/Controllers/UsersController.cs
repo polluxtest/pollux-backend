@@ -7,6 +7,7 @@
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
     using Pollux.Application;
     using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
@@ -20,11 +21,13 @@
     {
         private readonly IUsersService userService;
         private readonly IAuthService authService;
+        private readonly ILogger logger;
 
-        public UsersController(IUsersService userService, IAuthService authService)
+        public UsersController(IUsersService userService, IAuthService authService, ILogger logger)
         {
             this.userService = userService;
             this.authService = authService;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -61,10 +64,13 @@
         public async Task<ActionResult> LogIn([FromBody] LogInModel loginModel)
         {
             var succeed = await this.userService.LogInAsync(loginModel);
-
+            this.logger.LogInformation($"logged in response information {succeed?.Name} {succeed?.UserId}");
             if (succeed != null)
             {
                 var token = await this.authService.SetAuth(loginModel);
+                this.logger.LogInformation($"logged in response token {token}");
+                this.logger.LogInformation($"Append response token cookie {token?.AccessToken}");
+
                 this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
 
                 return this.Ok(succeed);
