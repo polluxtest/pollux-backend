@@ -22,10 +22,14 @@
             var urlRedisServer = configuration.GetSection("AppSettings")["RedisUrl"];
             this.connectionMultiplexer = ConnectionMultiplexer.Connect(urlRedisServer);
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
+            while (!this.connectionMultiplexer.IsConnected)
+            {
+                this.logger.LogInformation("waiting until redis coneccts");
+                this.logger.LogInformation($"redis status connected= {this.connectionMultiplexer.IsConnected}");
+                this.logger.LogInformation($"redis status connecting= {this.connectionMultiplexer.IsConnecting}");
 
-            this.logger.LogInformation("waiting until redis coneccts");
-            this.logger.LogInformation($"redis status connected= {this.connectionMultiplexer.IsConnected}");
-            this.logger.LogInformation($"redis status connecting= {this.connectionMultiplexer.IsConnecting}");
+                Thread.Sleep(1000);
+            }
         }
 
         /// <summary>
@@ -39,7 +43,7 @@
         public Task<bool> SetKeyAsync(string key, string value)
         {
             var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
-            this.logger.LogInformation($"saving redis key");
+            this.logger.LogInformation($"saving redis key=");
             return this.redisDatabase.StringSetAsync(key, value, expiration);
         }
 
