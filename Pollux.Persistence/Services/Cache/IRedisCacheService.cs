@@ -1,6 +1,5 @@
 ﻿namespace Pollux.Persistence.Services.Cache
 {
-    using System;
     using System.Threading.Tasks;
 
     public interface IRedisCacheService
