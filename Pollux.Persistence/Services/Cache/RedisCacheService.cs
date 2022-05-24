@@ -2,52 +2,34 @@
 {
     using System;
     using System.Text.Json;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Pollux.Common.Constants;
-    using Polly;
     using StackExchange.Redis;
-    using StackExchange.Redis.Extensions.Core.Configuration;
 
     public class RedisCacheService : IRedisCacheService
     {
-        private static readonly Lazy<ConnectionMultiplexer> Connection;
-        private static readonly IDatabase RedisDatabase;
+        private readonly ConnectionMultiplexer connectionMultiplexer;
+        private readonly IDatabase redisDatabase;
+        private readonly ILogger logger;
 
-        static RedisCacheService()
+        public RedisCacheService(IConfiguration configuration, ILogger logger)
         {
-            Connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(GetRedisConfiguration().ConfigurationOptions));
-            RedisDatabase = Connection.Value.GetDatabase();
-        }
+            this.logger = logger;
 
-        private static RedisConfiguration GetRedisConfiguration()
-        {
-            return new RedisConfiguration()
+            var urlRedisServer = configuration.GetSection("AppSettings")["RedisUrl"];
+            this.connectionMultiplexer = ConnectionMultiplexer.Connect(urlRedisServer);
+            this.redisDatabase = this.connectionMultiplexer.GetDatabase();
+            while (!this.connectionMultiplexer.IsConnected)
             {
-                AbortOnConnectFail = false,
-                Hosts = new RedisHost[] {
-                    new RedisHost()
-                    {
-                        Host = "localhost",
-                        Port = 6379,
-                    },
-                    new RedisHost()
-                    {
-                        Host = "redis",
-                        Port = 6380,
-                    },
-                    new RedisHost()
-                    {
-                        Host = "127.0.0.1",
-                        Port = 6379,
-                    },
-                },
-                Ssl = true,
-                SyncTimeout = 3000,
-                PoolSize = 50,
+                this.logger.LogInformation("waiting until redis coneccts");
+                this.logger.LogInformation($"redis status connected= {this.connectionMultiplexer.IsConnected}");
+                this.logger.LogInformation($"redis status connecting= {this.connectionMultiplexer.IsConnecting}");
 
-            };
+                Thread.Sleep(1000);
+            }
         }
 
         /// <summary>
@@ -58,11 +40,11 @@
         /// <returns>
         /// True if success.
         /// </returns>
-        public async Task<bool> SetKeyAsync(string key, string value)
+        public Task<bool> SetKeyAsync(string key, string value)
         {
             var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
-
-            return await RedisDatabase.StringSetAsync(key, value, expiration);
+            this.logger.LogInformation($"saving redis key");
+            return this.redisDatabase.StringSetAsync(key, value, expiration);
         }
 
         /// <summary>
@@ -74,7 +56,7 @@
         {
             if (await this.KeyExistsAsync(key))
             {
-                var redisValue = await RedisDatabase.StringGetAsync(key);
+                var redisValue = await this.redisDatabase.StringGetAsync(key);
                 return redisValue;
             }
 
@@ -90,7 +72,7 @@
         /// </returns>
         public Task<bool> KeyExistsAsync(string key)
         {
-            return RedisDatabase.KeyExistsAsync(key);
+            return this.redisDatabase.KeyExistsAsync(key);
         }
 
         /// <summary>
@@ -102,7 +84,7 @@
         /// </returns>
         public Task<bool> DeleteKeyAsync(string key)
         {
-            return RedisDatabase.KeyDeleteAsync(key);
+            return this.redisDatabase.KeyDeleteAsync(key);
         }
 
         /// <summary>
