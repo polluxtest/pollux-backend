@@ -4,6 +4,7 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
     using IdentityModel.Client;
+    using Microsoft.Extensions.Logging;
     using Pollux.Common.Application.Models.Auth;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants;
@@ -33,8 +34,10 @@
         /// The identity.
         /// </summary>
         private readonly ClaimsPrincipal identity;
+        private readonly ILogger logger;
 
         public AuthService(
+            ILogger logger,
             ITokenIdentityService tokenService,
             IRedisCacheService redisCacheService,
             ClaimsPrincipal identity)
@@ -42,6 +45,7 @@
             this.tokenService = tokenService;
             this.redisCacheService = redisCacheService;
             this.identity = identity;
+            this.logger = logger;
         }
 
 
@@ -54,6 +58,11 @@
         public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
+            this.logger.LogInformation($"response from token request {tokenResponse.HttpStatusCode}");
+            this.logger.LogInformation($"response from token request is error {tokenResponse.IsError}");
+            this.logger.LogInformation($"response from token request is reason {tokenResponse?.HttpErrorReason}");
+            this.logger.LogInformation($"response from token request is error {tokenResponse.Exception.Message}");
+
             var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpirationSeconds);
             var refreshTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.RefreshTokenExpirationSeconds);
 

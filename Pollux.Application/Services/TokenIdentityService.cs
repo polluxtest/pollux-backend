@@ -87,6 +87,7 @@
 
             var httpClient = this.httpClientFactory.CreateClient(AccessTokenManagementConstants.BackChannelHttpClientName);
             return await httpClient.RequestPasswordTokenAsync(clientCredentials);
+
         }
 
         /// <summary>
