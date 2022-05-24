@@ -69,11 +69,11 @@
             {
                 var token = await this.authService.SetAuth(loginModel);
                 this.logger.LogInformation($"logged in response token {token}");
-                this.logger.LogInformation($"Append response token cookie {token?.AccessToken}");
+                this.logger.LogInformation($"logged in response token {token.AccessToken}");
 
                 this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
 
-                return this.Ok(succeed);
+                return this.Ok();
             }
 
             return this.NotFound();
