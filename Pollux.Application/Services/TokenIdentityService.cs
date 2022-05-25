@@ -87,6 +87,8 @@
             };
 
             var httpClient = this.httpClientFactory.CreateClient(AccessTokenManagementConstants.BackChannelHttpClientName);
+            this.logger.LogInformation($"Requesting client access token for url base: {httpClient.BaseAddress}", clientName);
+
             return await httpClient.RequestPasswordTokenAsync(clientCredentials);
 
         }
