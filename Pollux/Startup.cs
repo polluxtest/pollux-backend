@@ -233,7 +233,7 @@ namespace Pollux.API
             services.AddIdentityServer(
                 options =>
                 {
-                    options.IssuerUri = identityServerUrl,
+                    options.IssuerUri = identityServerUrl;
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
