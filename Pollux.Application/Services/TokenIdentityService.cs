@@ -71,7 +71,8 @@
         /// <returns>TokenResponse.</returns>
         public async Task<TokenResponse> RequestClientAccessToken(string clientName, LogInModel loginModel)
         {
-            this.logger.LogDebug("Requesting client access token for client: {client}", clientName);
+            this.logger.LogInformation("Requesting client access token for client: {client}", clientName);
+            this.logger.LogInformation($"Requesting client access token for url: {this.identityServerSettings.HostUrl}", clientName);
 
             var clientCredentials = new IdentityModel.Client.PasswordTokenRequest()
             {
