@@ -58,6 +58,12 @@
         public async Task<TokenResponse> SetAuth(LogInModel loginModel)
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
+
+            if (tokenResponse == null)
+            {
+                this.logger.LogInformation($"response from token request  is null");
+
+            }
             this.logger.LogInformation($"response from token request {tokenResponse.HttpStatusCode}");
             this.logger.LogInformation($"response from token request is error {tokenResponse.IsError}");
             this.logger.LogInformation($"response from token request is reason {tokenResponse?.HttpErrorReason}");
