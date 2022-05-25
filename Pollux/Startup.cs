@@ -61,7 +61,7 @@ namespace Pollux.API
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
             this.SetUpPasswordIdentity(services);
             this.AddCors(services, allowedOrigins);
-            this.SetUpIdentityServer(services);
+            this.SetUpIdentityServer(services, identityServerSettings.HostUrl);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
             services.AddAuthorization();
@@ -228,11 +228,12 @@ namespace Pollux.API
         /// </summary>
         /// <param name="services">The services.</param>
         private void
-            SetUpIdentityServer(IServiceCollection services)
+            SetUpIdentityServer(IServiceCollection services, string identityServerUrl)
         {
             services.AddIdentityServer(
                 options =>
                 {
+                    options.IssuerUri = identityServerUrl,
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
