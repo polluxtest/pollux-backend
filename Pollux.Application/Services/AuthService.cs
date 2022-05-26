@@ -59,16 +59,6 @@
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
 
-            if (tokenResponse == null)
-            {
-                this.logger.LogInformation($"response from token request  is null");
-
-            }
-            this.logger.LogInformation($"response from token request {tokenResponse.HttpStatusCode}");
-            this.logger.LogInformation($"response from token request is error {tokenResponse.IsError}");
-            this.logger.LogInformation($"response from token request is reason {tokenResponse?.HttpErrorReason}");
-            this.logger.LogInformation($"response from token request is error {tokenResponse.Exception.Message}");
-
             var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpirationSeconds);
             var refreshTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.RefreshTokenExpirationSeconds);
 

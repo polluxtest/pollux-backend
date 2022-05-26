@@ -64,12 +64,9 @@
         public async Task<ActionResult> LogIn([FromBody] LogInModel loginModel)
         {
             var succeed = await this.userService.LogInAsync(loginModel);
-            this.logger.LogInformation($"logged in response information {succeed?.Name} {succeed?.UserId}");
             if (succeed != null)
             {
                 var token = await this.authService.SetAuth(loginModel);
-                this.logger.LogInformation($"logged in response token {token}");
-                this.logger.LogInformation($"logged in response token {token.AccessToken}");
 
                 this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
 
