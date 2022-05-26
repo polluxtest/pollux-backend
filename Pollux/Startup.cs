@@ -185,7 +185,7 @@ namespace Pollux.API
                         var token = await authEventHandler?.Handle(context);
                         if (token?.AccessToken != null)
                         {
-                            context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken);
+                            context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, CookieOptionsConfig.GetOptions());
                         }
                     }
                     catch (NotAuthenticatedException)
