@@ -55,7 +55,7 @@ namespace Pollux.API
             var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
             var allowedOrigins = this.Configuration.GetSection("AppSettings")["AllowedOrigins"];
             var identityServerSettings = new IdentityServerSettings();
-            this.Configuration.Bind("IdentityServerSettings", identityServerSettings);
+            this.Configuration.Bind("AppSettings:IdentityServerSettings", identityServerSettings);
             services.AddSingleton(identityServerSettings);
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
