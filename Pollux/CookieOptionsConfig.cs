@@ -4,6 +4,10 @@
 
     public class CookieOptionsConfig
     {
+        /// <summary>
+        /// Gets the options to set for all cookies.
+        /// </summary>
+        /// <returns>CookieOptions</returns>
         public static CookieOptions GetOptions()
         {
             var cookieOptions = new CookieOptions
