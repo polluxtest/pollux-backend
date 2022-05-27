@@ -76,7 +76,7 @@
 
                 this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, this.cookieConfiguration.GetOptions());
 
-                return this.Ok(new { });
+                return this.Ok(succeed);
             }
 
             return this.NotFound();
