@@ -33,7 +33,7 @@
                 // Add the SameSite attribute, this will emit the attribute with a value of none.
                 // To not emit the attribute at all set
                 // SameSite = (SameSiteMode)(-1)
-                SameSite = SameSiteMode.Unspecified,
+                SameSite = SameSiteMode.None,
 
                 IsEssential = true,
             };

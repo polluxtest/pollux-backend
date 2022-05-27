@@ -165,7 +165,7 @@ namespace Pollux.API
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = CookiesConstants.CookieSessionName;
-                options.Cookie.SameSite = SameSiteMode.Unspecified;
+                options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
 
@@ -296,7 +296,7 @@ namespace Pollux.API
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = true;
-                options.Cookie.SameSite = SameSiteMode.Unspecified;
+                options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.IsEssential = true;
             });
         }
