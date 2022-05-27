@@ -21,13 +21,19 @@
     {
         private readonly IUsersService userService;
         private readonly IAuthService authService;
+        private readonly CookieOptionsConfig cookieConfiguration;
         private readonly ILogger logger;
 
-        public UsersController(IUsersService userService, IAuthService authService, ILogger logger)
+        public UsersController(
+            IUsersService userService,
+            IAuthService authService,
+            ILogger logger,
+            CookieOptionsConfig cookieConfiguration)
         {
             this.userService = userService;
             this.authService = authService;
             this.logger = logger;
+            this.cookieConfiguration = cookieConfiguration;
         }
 
         /// <summary>
@@ -68,7 +74,7 @@
             {
                 var token = await this.authService.SetAuth(loginModel);
 
-                this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, CookieOptionsConfig.GetOptions());
+                this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, this.cookieConfiguration.GetOptions());
 
                 return this.Ok(new { });
             }

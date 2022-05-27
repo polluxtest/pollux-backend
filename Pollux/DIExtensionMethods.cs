@@ -83,6 +83,7 @@ namespace Pollux.API
             services.AddSingleton<IAuthenticationSchemeProvider, AuthenticationSchemeProvider>();
             services.AddTransient<ITokenIdentityService, TokenIdentityService>();
             services.AddHttpClient(AccessTokenManagementConstants.BackChannelHttpClientName);
+            services.AddSingleton<CookieOptionsConfig, CookieOptionsConfig>();
             services.AddHttpContextAccessor();
             services.AddAuthentication();
         }

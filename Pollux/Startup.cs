@@ -54,6 +54,7 @@ namespace Pollux.API
             IdentityModelEventSource.ShowPII = true;
             var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
             var allowedOrigins = this.Configuration.GetSection("AppSettings")["AllowedOrigins"];
+            var frontEndUrl = this.Configuration.GetSection("AppSettings")["FrontEndUrl"];
             var identityServerSettings = new IdentityServerSettings();
             this.Configuration.Bind("AppSettings:IdentityServerSettings", identityServerSettings);
             services.AddSingleton(identityServerSettings);
@@ -65,7 +66,7 @@ namespace Pollux.API
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
             services.AddAuthorization();
-            this.AddSession(services);
+            this.AddSession(services, frontEndUrl);
             services.AddDIClientAccessTokenManagement();
             services.AddDIMiscellaneous();
             services.AddControllers();
@@ -75,7 +76,7 @@ namespace Pollux.API
             services.AddDIServices();
             services.AddDIIdentityServerServices();
             services.AddAutoMapper(AssemblyApplication.Assembly);
-            this.SetUpCookieAndHandler(services);
+            this.SetUpCookieAndHandler(services, frontEndUrl);
         }
 
         /// <summary>
@@ -157,13 +158,17 @@ namespace Pollux.API
         /// Sets up cookie and handler.
         /// </summary>
         /// <param name="services">The services.</param>
-        private void SetUpCookieAndHandler(IServiceCollection services)
+        private void SetUpCookieAndHandler(IServiceCollection services, string host)
         {
+            var cookieConfig = services.BuildServiceProvider().GetService<CookieOptionsConfig>();
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = CookiesConstants.CookieSessionName;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+                options.Cookie.Domain = host;
 
                 options.Events.OnRedirectToLogin = context =>
                 {
@@ -185,7 +190,7 @@ namespace Pollux.API
                         var token = await authEventHandler?.Handle(context);
                         if (token?.AccessToken != null)
                         {
-                            context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, CookieOptionsConfig.GetOptions());
+                            context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, cookieConfig.GetOptions());
                         }
                     }
                     catch (NotAuthenticatedException)
@@ -287,13 +292,14 @@ namespace Pollux.API
         /// Adds the session.
         /// </summary>
         /// <param name="services">The services.</param>
-        private void AddSession(IServiceCollection services)
+        private void AddSession(IServiceCollection services, string host)
         {
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.None;
                 options.Cookie.IsEssential = true;
+                options.Cookie.Domain = host;
             });
         }
     }

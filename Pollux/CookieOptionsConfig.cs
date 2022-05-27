@@ -1,15 +1,25 @@
 ﻿namespace Pollux.API
 {
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Configuration;
 
     public class CookieOptionsConfig
     {
+        private readonly IConfiguration configuration;
+
+        public CookieOptionsConfig(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
         /// <summary>
         /// Gets the options to set for all cookies.
         /// </summary>
         /// <returns>CookieOptions</returns>
-        public static CookieOptions GetOptions()
+        public CookieOptions GetOptions()
         {
+            var frontEndUrl = this.configuration.GetSection("AppSettings")["FrontEndUrl"];
+
             var cookieOptions = new CookieOptions
             {
                 // Set the secure flag, which Chrome's changes will require for SameSite none.
@@ -24,6 +34,10 @@
                 // To not emit the attribute at all set
                 // SameSite = (SameSiteMode)(-1)
                 SameSite = SameSiteMode.None,
+
+                IsEssential = true,
+
+                Domain = frontEndUrl,
             };
 
             return cookieOptions;
