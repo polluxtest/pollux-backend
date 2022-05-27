@@ -33,11 +33,9 @@
                 // Add the SameSite attribute, this will emit the attribute with a value of none.
                 // To not emit the attribute at all set
                 // SameSite = (SameSiteMode)(-1)
-                SameSite = SameSiteMode.None,
+                SameSite = SameSiteMode.Unspecified,
 
                 IsEssential = true,
-
-                Domain = frontEndUrl,
             };
 
             return cookieOptions;
