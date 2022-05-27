@@ -74,7 +74,10 @@
             {
                 var token = await this.authService.SetAuth(loginModel);
 
-                this.HttpContext.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, this.cookieConfiguration.GetOptions());
+                this.HttpContext.Response.Cookies.Append(
+                    CookiesConstants.CookieAccessTokenName,
+                    token.AccessToken,
+                    this.cookieConfiguration.GetOptions());
 
                 return this.Ok(succeed);
             }
