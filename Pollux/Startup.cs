@@ -1,9 +1,8 @@
-using System.Reflection;
-
 namespace Pollux.API
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -17,14 +16,12 @@ namespace Pollux.API
     using Microsoft.IdentityModel.Protocols.OpenIdConnect;
     using Microsoft.OpenApi.Models;
     using Pollux.API.Middlewares;
-    using Pollux.Application;
     using Pollux.Application.Mappers;
     using Pollux.Common.Application.Models.Settings;
     using Pollux.Common.Constants.Strings;
+    using Pollux.Common.Exceptions;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
-    using FluentValidation.AspNetCore;
-    using Pollux.Common.Exceptions;
 
     /// <summary>
     /// Defines the <see cref="Startup" />.
