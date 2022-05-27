@@ -73,7 +73,7 @@
             if (succeed != null)
             {
                 var token = await this.authService.SetAuth(loginModel);
-                this.logger.LogInformation("Cookie Domain : " + this.cookieConfiguration.GetOptions().Domain);
+                this.logger.LogInformation("Cookie Domain :  " + this.cookieConfiguration.GetOptions().Domain);
                 this.HttpContext.Response.Cookies.Append(
                     CookiesConstants.CookieAccessTokenName,
                     token.AccessToken,
