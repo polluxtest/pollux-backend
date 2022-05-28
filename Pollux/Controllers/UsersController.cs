@@ -79,7 +79,8 @@
                     token.AccessToken,
                     this.cookieConfiguration.GetOptions());
 
-                return this.Ok(succeed);
+                var cookies = this.Response.Headers["set-cookie"];
+                return this.Ok(new { succeed, cookies });
             }
 
             return this.NotFound();
