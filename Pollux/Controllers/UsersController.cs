@@ -1,7 +1,9 @@
 ﻿namespace Pollux.API.Controllers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Security.Claims;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authentication;
@@ -82,8 +84,7 @@
                 this.Response.Headers["Access-Control-Allow-Origin"] = "*";
                 this.Response.Headers["Access-Control-Allow-Credentials"] = "true";
 
-
-                return this.Ok(succeed);
+                return this.Ok(new { succeed, this.Response.Cookies });
             }
 
             return this.NotFound();
