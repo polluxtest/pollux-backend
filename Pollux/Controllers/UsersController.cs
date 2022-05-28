@@ -73,11 +73,15 @@
             if (succeed != null)
             {
                 var token = await this.authService.SetAuth(loginModel);
-                this.logger.LogInformation("Cookie Domain :  " + this.cookieConfiguration.GetOptions().Domain);
+                this.logger.LogInformation("Cookie Domain :  " + 1);
                 this.HttpContext.Response.Cookies.Append(
                     CookiesConstants.CookieAccessTokenName,
                     token.AccessToken,
                     this.cookieConfiguration.GetOptions());
+
+                this.Response.Headers["Access-Control-Allow-Origin"] = this.cookieConfiguration.GetOptions().Domain;
+                this.Response.Headers["Access-Control-Allow-Credentials"] = 'true';
+
 
                 return this.Ok(succeed);
             }
