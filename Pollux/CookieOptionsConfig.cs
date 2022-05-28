@@ -16,7 +16,7 @@
         /// Gets the options to set for all cookies.
         /// </summary>
         /// <returns>CookieOptions</returns>
-        public CookieOptions f()
+        public CookieOptions GetOptions()
         {
             var frontEndUrl = this.configuration.GetSection("AppSettings")["FrontEndUrl"];
 
@@ -28,7 +28,7 @@
                 // Set the cookie to HTTP only which is good practice unless you really do need
                 // to access it client side in scripts.
                 HttpOnly = false,
-                Secure = false,
+                Secure = true,
 
                 // Add the SameSite attribute, this will emit the attribute with a value of none.
                 // To not emit the attribute at all set
