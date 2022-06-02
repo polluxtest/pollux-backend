@@ -2,6 +2,6 @@
 {
     public class AzureFunctionConstants
     {
-        public const string SendMailUrlAddress = "https://polluxemailservicefunctionapp.azurewebsites.net/api/ServerLessSendMailFunction?";
+        public const string SendMailUrlAddress = "https://polluxserverlessemailservicefunction.azurewebsites.net/api/polluxserverlessemailfuntion?clientId=secret-key&";
     }
 }
