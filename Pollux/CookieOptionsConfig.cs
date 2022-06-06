@@ -34,7 +34,6 @@
                 // To not emit the attribute at all set
                 // SameSite = (SameSiteMode)(-1)
                 SameSite = SameSiteMode.None,
-                Domain = frontEndUrl,
                 IsEssential = true,
             };
 

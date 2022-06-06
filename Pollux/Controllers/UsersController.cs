@@ -1,9 +1,5 @@
 ﻿namespace Pollux.API.Controllers
 {
-    using System;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -13,8 +9,11 @@
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
-    using Pollux.Common.Exceptions;
     using Pollux.Common.Factories;
+    using System;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Threading.Tasks;
 
     [Authorize]
     public class UsersController : BaseController
@@ -73,7 +72,6 @@
             if (succeed != null)
             {
                 var token = await this.authService.SetAuth(loginModel);
-                this.logger.LogInformation("Cookie Domain :  " + 1);
                 this.HttpContext.Response.Cookies.Append(
                     CookiesConstants.CookieAccessTokenName,
                     token.AccessToken,
