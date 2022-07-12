@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using Pollux.Application.Services;
+using System.Security.Claims;
 
 namespace Pollux.API
 {
@@ -14,7 +14,6 @@ namespace Pollux.API
     using Pollux.API.AuthIdentityServer;
     using Pollux.Application;
     using Pollux.Application.Serverless;
-    using Pollux.Common.Constants;
     using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
@@ -34,6 +33,7 @@ namespace Pollux.API
         public static void AddDIRepositories(this IServiceCollection services)
         {
             services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IUserPreferencesRepository, UserPreferencesRepository>();
         }
 
         /// <summary>
@@ -51,6 +51,7 @@ namespace Pollux.API
             services.AddScoped<IRoleStore<Role>, RoleStore<Role>>();
             services.AddScoped<IUserStore<User>, UserStore<User>>();
             services.AddScoped<IUsersService, UsersService>();
+            services.AddScoped<IUserPreferencesService, UserPreferencesService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<ITokenIdentityService, TokenIdentityService>();
             services.AddSingleton<IRedisCacheService, RedisCacheService>();

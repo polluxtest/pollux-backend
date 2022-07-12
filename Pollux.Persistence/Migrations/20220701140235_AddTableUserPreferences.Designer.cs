@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pollux.Persistence;
 
@@ -11,9 +12,10 @@ using Pollux.Persistence;
 namespace Pollux.Persistence.Migrations
 {
     [DbContext(typeof(PolluxDbContext))]
-    partial class PolluxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220701140235_AddTableUserPreferences")]
+    partial class AddTableUserPreferences
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
