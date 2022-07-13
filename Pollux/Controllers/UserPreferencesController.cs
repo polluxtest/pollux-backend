@@ -1,5 +1,6 @@
 ﻿namespace Pollux.API.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
@@ -7,6 +8,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    [Authorize]
     public class UserPreferencesController : BaseController
     {
         private readonly IUserPreferencesService userPreferencesService;
