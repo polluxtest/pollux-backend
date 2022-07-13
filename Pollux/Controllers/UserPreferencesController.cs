@@ -8,7 +8,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    [Authorize]
+    [AllowAnonymous]
     public class UserPreferencesController : BaseController
     {
         private readonly IUserPreferencesService userPreferencesService;
