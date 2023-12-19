@@ -12,7 +12,7 @@
     {
         Task Save(string userId, List<UserPreferenceModel> userPreferenceModel);
 
-        Task<List<UserPreferenceModel>> GetAll(string userId);
+        Task<UserPreferenceModelResponse> GetAll(string userId);
     }
 
     public class UserPreferencesService : IUserPreferencesService
@@ -58,8 +58,8 @@
 
         /// <summary>Gets all.</summary>
         /// <param name="userId">The user identifier.</param>
-        /// <returns>List<UserPreferenceModel/></returns>
-        public async Task<List<UserPreferenceModel>> GetAll(string userId)
+        /// <returns>Dic<UserPreferenceModel/></returns>
+        public async Task<UserPreferenceModelResponse> GetAll(string userId)
         {
             var preferencesDb = await this.userPreferencesRepository.GetManyAsync(p => p.UserId == userId);
 
@@ -68,7 +68,9 @@
                 return null;
             }
 
-            return this.mapper.Map<List<UserPreferences>, List<UserPreferenceModel>>(preferencesDb);
+            var preferencesHash = preferencesDb.ToDictionary(p => p.Key, p => p.Value);
+
+            return new UserPreferenceModelResponse { Preferences = preferencesHash.Count == 0 ? null : preferencesHash };
         }
     }
 }

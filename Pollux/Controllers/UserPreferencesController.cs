@@ -37,7 +37,7 @@
         /// <returns>List<UserPreferenceModel/></returns>
         [HttpGet]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<List<UserPreferenceModel>>> Get([FromQuery] string userId)
+        public async Task<ActionResult<UserPreferenceModelResponse>> Get([FromQuery] string userId)
         {
             var preferences = await this.userPreferencesService.GetAll(userId);
 
