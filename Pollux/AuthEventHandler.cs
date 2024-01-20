@@ -58,13 +58,14 @@
 
             var emailClaim = context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email);
             context.Request.Headers.TryGetValue("Authorization", out var authValues);
-            var accessToken = authValues.First();
+            var accessToken = authValues.FirstOrDefault();
 
             if (!context.Principal.Identity.IsAuthenticated ||
                 emailClaim == null ||
+                string.IsNullOrEmpty(accessToken) ||
                 !authValues.Any())
             {
-                this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+               this.RevokeAuth(context.HttpContext, emailClaim?.Value);
             }
 
             var tokenModel = await this.GetAuthFromRedis(emailClaim?.Value);
@@ -74,6 +75,7 @@
                 string.IsNullOrEmpty(tokenModel.AccessToken))
             {
                 this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+                throw new NotAuthenticatedException("not authenticated");
             }
 
             return await this.IsAccessTokenExpired(emailClaim?.Value, tokenModel, context.HttpContext);

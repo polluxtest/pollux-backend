@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-16"?>
+<GhostDocSettings>
+  <Optimization>Performance</Optimization>
+  <LogDetails>basic</LogDetails>
+  <ConfigurationFolderPath>SubMain\GhostDoc for VS2022</ConfigurationFolderPath>
+</GhostDocSettings>

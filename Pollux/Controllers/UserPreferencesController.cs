@@ -1,14 +1,18 @@
 ﻿namespace Pollux.API.Controllers
 {
+    using System.Security.Claims;
+    using System.Threading.Tasks;
+    using IdentityModel;
+    using IdentityServer4.Extensions;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore.Metadata;
     using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Application.Models.Response;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using Pollux.Domain.Entities;
 
-    [AllowAnonymous]
+    [Authorize]
     public class UserPreferencesController : BaseController
     {
         private readonly IUserPreferencesService userPreferencesService;
@@ -28,7 +32,6 @@
         public async Task<ActionResult> Post([FromBody] UserPreferencesPostModel userPreferences)
         {
             await this.userPreferencesService.Save(userPreferences.UserId, userPreferences.Preferences);
-
             return this.Ok();
         }
 
@@ -39,9 +42,8 @@
         [ProducesResponseType(200)]
         public async Task<ActionResult<UserPreferenceModelResponse>> Get([FromQuery] string userId)
         {
-            var preferences = await this.userPreferencesService.GetAll(userId);
-
-            return this.Ok(preferences);
+             var preferences = await this.userPreferencesService.GetAll(userId);
+             return this.Ok(preferences);
         }
     }
 }

@@ -169,7 +169,7 @@ namespace Pollux.API
 
                 options.Events.OnRedirectToLogin = context =>
                 {
-                    if (context.HttpContext.User.Identity.IsAuthenticated)
+                    if (context.HttpContext.User.Identity.IsAuthenticated || context.Response.StatusCode == 200)
                     {
                         return Task.CompletedTask;
                     }
@@ -194,6 +194,7 @@ namespace Pollux.API
                     {
                         context.Response.StatusCode = 440;
                         await context.Response.WriteAsync(MessagesConstants.NotAuthenticated);
+                        throw;
                     }
                 };
             });
