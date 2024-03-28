@@ -56,7 +56,7 @@
                 return null;
             }
 
-            var emailClaim = context.Principal.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email);
+            var emailClaim = context?.Principal?.Claims.FirstOrDefault(p => p.Type == ClaimTypes.Email);
             context.Request.Headers.TryGetValue("Authorization", out var authValues);
             var accessToken = authValues.FirstOrDefault();
 

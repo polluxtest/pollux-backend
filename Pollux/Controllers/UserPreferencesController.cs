@@ -1,16 +1,11 @@
 ﻿namespace Pollux.API.Controllers
 {
-    using System.Security.Claims;
     using System.Threading.Tasks;
-    using IdentityModel;
-    using IdentityServer4.Extensions;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore.Metadata;
-    using Pollux.Application.Services;
+    using Application.Services;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Application.Models.Response;
-    using Pollux.Domain.Entities;
 
     [Authorize]
     public class UserPreferencesController : BaseController

@@ -166,6 +166,7 @@ namespace Pollux.API
                 options.Cookie.HttpOnly = false;
                 options.Cookie.Domain = host;
                 options.Cookie.IsEssential = true;
+                // todo fix the authorize problem here
 
                 options.Events.OnRedirectToLogin = context =>
                 {
