@@ -1,4 +1,4 @@
-﻿namespace Pollux.API.AuthIdentityServer
+﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
     using System;
     using System.Collections.Generic;

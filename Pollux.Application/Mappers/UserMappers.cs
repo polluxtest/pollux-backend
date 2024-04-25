@@ -3,7 +3,7 @@
     using AutoMapper;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Application.Models.Response;
-    using Pollux.Domain.Entities;
+    using Domain.Entities;
 
     public class UserMappers : Profile
     {

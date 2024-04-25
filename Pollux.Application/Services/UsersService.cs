@@ -1,10 +1,7 @@
 ﻿namespace Pollux.Application
 {
-    using System;
     using System.Threading.Tasks;
     using AutoMapper;
-    using IdentityServer4.Events;
-    using IdentityServer4.Services;
     using Microsoft.AspNetCore.Identity;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Application.Models.Response;

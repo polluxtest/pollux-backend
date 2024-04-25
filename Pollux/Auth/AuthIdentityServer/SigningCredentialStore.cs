@@ -1,4 +1,4 @@
-﻿namespace Pollux.API.AuthIdentityServer
+﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
     using System.Security.Cryptography;
     using System.Threading.Tasks;
@@ -13,14 +13,14 @@
         public SigningCredentialStore(IConfiguration configuration)
             : base()
         {
-            this.signingKeyId = configuration.GetSection("AppSettings")["SigningKeyId"];
+            signingKeyId = configuration.GetSection("AppSettings")["SigningKeyId"];
         }
 
         public Task<SigningCredentials> GetSigningCredentialsAsync()
         {
             var rsa = RSA.Create();
             var securityKey = new RsaSecurityKey(rsa);
-            securityKey.KeyId = this.signingKeyId;
+            securityKey.KeyId = signingKeyId;
             var signInCredentials = new SigningCredentials(securityKey, "RS256");
 
             return Task.FromResult(signInCredentials);

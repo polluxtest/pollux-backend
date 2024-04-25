@@ -1,4 +1,4 @@
-﻿namespace Pollux.API.AuthIdentityServer
+﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
     using System.Threading.Tasks;
     using IdentityServer4.Models;

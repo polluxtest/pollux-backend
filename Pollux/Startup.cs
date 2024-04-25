@@ -1,3 +1,5 @@
+using Pollux.Common.Constants.Strings.Auth;
+
 namespace Pollux.API
 {
     using System.Collections.Generic;
@@ -15,6 +17,9 @@ namespace Pollux.API
     using Microsoft.IdentityModel.Logging;
     using Microsoft.IdentityModel.Protocols.OpenIdConnect;
     using Microsoft.OpenApi.Models;
+    using Pollux.API.Auth;
+    using Pollux.API.Auth.AuthIdentityServer;
+    using Pollux.API.ExtensionMethods;
     using Pollux.API.Middlewares;
     using Pollux.Application.Mappers;
     using Pollux.Common.Application.Models.Settings;
@@ -59,6 +64,7 @@ namespace Pollux.API
             services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
             this.SetUpPasswordIdentity(services);
             this.AddCors(services, allowedOrigins);
+            this.SetUpAuthentication(services);
             this.SetUpIdentityServer(services, identityServerSettings.HostUrl);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
@@ -209,22 +215,19 @@ namespace Pollux.API
         private void SetUpAuthentication(IServiceCollection services, string identityServerUrl)
         {
             services.AddAuthentication(
-               options =>
-               {
-                   options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-               })
+                    options => { options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; })
                 .AddOpenIdConnect(
-                   OpenIdConstants.SchemaName,
-                   options =>
-                   {
-                       options.Authority = identityServerUrl;
-                       options.ClientId = IdentityServerConstants.ClientName;
-                       options.ClientSecret = IdentityServerConstants.ClientSecret;
-                       options.SaveTokens = true;
-                       options.Configuration = new OpenIdConnectConfiguration() { };
-                       options.Scope.Add(IdentityServerConstants.Scope);
-                       options.Scope.Add(IdentityServerConstants.RequestRefreshToken);
-                   });
+                    OpenIdConstants.SchemaName,
+                    options =>
+                    {
+                        options.Authority = identityServerUrl;
+                        options.ClientId = IdentityServerConstants.ClientName;
+                        options.ClientSecret = IdentityServerConstants.ClientSecret;
+                        options.SaveTokens = true;
+                        options.Configuration = new OpenIdConnectConfiguration() { };
+                        options.Scope.Add(IdentityServerConstants.Scope);
+                        options.Scope.Add(IdentityServerConstants.RequestRefreshToken);
+                    });
         }
 
         /// <summary>
@@ -243,8 +246,8 @@ namespace Pollux.API
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                     options.EmitStaticAudienceClaim = true;
-                    options.Authentication.CheckSessionCookieSameSiteMode = SameSiteMode.None;
-                    options.Authentication.CookieSameSiteMode = SameSiteMode.None;
+                    options.Authentication.CheckSessionCookieSameSiteMode = SameSiteMode.Lax;
+                    options.Authentication.CookieSameSiteMode = SameSiteMode.Lax;
                 })
              .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
              .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
@@ -296,10 +299,21 @@ namespace Pollux.API
             services.AddSession(options =>
             {
                 options.Cookie.HttpOnly = false;
-                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.IsEssential = true;
                 options.Cookie.Domain = host;
             });
+        }
+
+        /// <summary>
+        /// Adds the authentication scheme.
+        /// </summary>
+        /// <param name="services">serviceCollection</param>
+        private void SetUpAuthentication(IServiceCollection services)
+        {
+            services.AddAuthentication(o => { o.DefaultScheme = AuthConstants.TokenAuthenticationDefaultScheme; })
+                .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(
+                    AuthConstants.TokenAuthenticationDefaultScheme, o => { });
         }
     }
 }

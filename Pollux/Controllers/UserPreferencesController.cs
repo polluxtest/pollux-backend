@@ -6,8 +6,9 @@
     using Application.Services;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Application.Models.Response;
+    using Pollux.Common.Constants.Strings.Auth;
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = AuthConstants.TokenAuthenticationDefaultScheme)]
     public class UserPreferencesController : BaseController
     {
         private readonly IUserPreferencesService userPreferencesService;
@@ -37,8 +38,8 @@
         [ProducesResponseType(200)]
         public async Task<ActionResult<UserPreferenceModelResponse>> Get([FromQuery] string userId)
         {
-             var preferences = await this.userPreferencesService.GetAll(userId);
-             return this.Ok(preferences);
+            var preferences = await this.userPreferencesService.GetAll(userId);
+            return this.Ok(preferences);
         }
     }
 }

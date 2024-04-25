@@ -33,6 +33,7 @@
             builder.Ignore(p => p.NormalizedEmail);
 
             builder.HasIndex(p => p.Id);
+            builder.HasIndex(p => p.Email);
         }
     }
 }

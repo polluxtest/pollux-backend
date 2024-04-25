@@ -33,18 +33,15 @@
         /// <summary>
         /// The identity.
         /// </summary>
-        private readonly ClaimsPrincipal identity;
         private readonly ILogger logger;
 
         public AuthService(
             ILogger logger,
             ITokenIdentityService tokenService,
-            IRedisCacheService redisCacheService,
-            ClaimsPrincipal identity)
+            IRedisCacheService redisCacheService)
         {
             this.tokenService = tokenService;
             this.redisCacheService = redisCacheService;
-            this.identity = identity;
             this.logger = logger;
         }
 
@@ -59,8 +56,9 @@
         {
             var tokenResponse = await this.tokenService.RequestClientAccessToken(IdentityServerConstants.ClientName, loginModel);
 
-            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpirationSeconds);
-            var refreshTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.RefreshTokenExpirationSeconds);
+            var accessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpiratioSeconds);
+            var refreshTokenExpirationDate =
+                DateTime.UtcNow.AddSeconds(ExpirationConstants.RefreshTokenExpirationSeconds);
 
             var tokenCache = new TokenModel()
             {

@@ -1,19 +1,19 @@
 ﻿namespace Pollux.API.Controllers
 {
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Logging;
-    using Pollux.Application;
-    using Pollux.Application.Services;
-    using Pollux.Common.Application.Models.Request;
-    using Pollux.Common.Constants.Strings;
-    using Pollux.Common.Constants.Strings.Api;
-    using Pollux.Common.Factories;
     using System;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
+    using Application;
+    using Application.Services;
+    using Pollux.Common.Application.Models.Request;
+    using Common.Constants.Strings;
+    using Common.Constants.Strings.Api;
+    using Common.Factories;
 
     [Authorize]
     public class UsersController : BaseController
@@ -135,28 +135,13 @@
         /// </summary>
         /// <param name="email">The email.</param>
         /// <returns>Redirect to correct path.</returns>
-        [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
         [AllowAnonymous]
         [HttpGet]
         [Route(ApiConstants.Exist)]
-
         public async Task<IActionResult> Exist([FromQuery] string email)
         {
             var exists = await this.userService.ExistUser(email);
             return this.Ok(exists);
-        }
-
-        /// <summary>
-        /// Determines whether [is user authenticated].
-        /// </summary>
-        /// <returns>No Content.</returns>
-        [Authorize]
-        [HttpGet]
-        [Route(ApiConstants.IsUserAuthenticated)]
-        [ProducesResponseType(204)]
-        public async Task<ActionResult<string>> IsUserAuthenticated()
-        {
-            return new EmptyResult();
         }
 
         /// <summary>

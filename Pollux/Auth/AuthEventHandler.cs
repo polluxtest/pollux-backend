@@ -1,4 +1,4 @@
-﻿namespace Pollux.API
+﻿namespace Pollux.API.Auth
 {
     using System;
     using System.Collections.Generic;
@@ -36,7 +36,7 @@
             IAuthService authService,
             IConfiguration configuration)
         {
-            this.anonymousRoutes = new List<string>() { "SignUp", "LogIn", "ResetPassword", "LogOut", "Exist" };
+            anonymousRoutes = new List<string>() { "SignUp", "LogIn", "ResetPassword", "LogOut", "Exist" };
             this.tokenIdentityService = tokenIdentityService;
             this.redisCacheService = redisCacheService;
             this.userService = userService;
@@ -51,7 +51,7 @@
         /// <returns>New Access token if need it or Revoke Auth.</returns>
         public async Task<TokenResponse> Handle(CookieValidatePrincipalContext context)
         {
-            if (this.SkipAnonymousRoutes(context.Request.Path.Value))
+            if (SkipAnonymousRoutes(context.Request.Path.Value))
             {
                 return null;
             }
@@ -65,20 +65,20 @@
                 string.IsNullOrEmpty(accessToken) ||
                 !authValues.Any())
             {
-               this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+                RevokeAuth(context.HttpContext, emailClaim?.Value);
             }
 
-            var tokenModel = await this.GetAuthFromRedis(emailClaim?.Value);
+            var tokenModel = await GetAuthFromRedis(emailClaim?.Value);
             if (tokenModel == null ||
-                this.IsRefreshTokenExpired(tokenModel) ||
-                !this.ValidateIssuer(tokenModel.AccessToken) ||
+                IsRefreshTokenExpired(tokenModel) ||
+                !ValidateIssuer(tokenModel.AccessToken) ||
                 string.IsNullOrEmpty(tokenModel.AccessToken))
             {
-                this.RevokeAuth(context.HttpContext, emailClaim?.Value);
+                RevokeAuth(context.HttpContext, emailClaim?.Value);
                 throw new NotAuthenticatedException("not authenticated");
             }
 
-            return await this.IsAccessTokenExpired(emailClaim?.Value, tokenModel, context.HttpContext);
+            return await IsAccessTokenExpired(emailClaim?.Value, tokenModel, context.HttpContext);
         }
 
         /// <summary>
@@ -88,9 +88,8 @@
         /// <returns>True/False.</returns>
         private bool SkipAnonymousRoutes(string route)
         {
-            // todo this could have a faster solution.
             var routeSegments = route.Split("/");
-            return this.anonymousRoutes.Any(p => p == routeSegments[routeSegments.Length - 1]);
+            return anonymousRoutes.Any(p => p == routeSegments[routeSegments.Length - 1]);
         }
 
         /// <summary>
@@ -100,13 +99,13 @@
         /// <returns>The Auth from Redis.</returns>
         private async Task<TokenModel> GetAuthFromRedis(string email)
         {
-            var exists = await this.redisCacheService.KeyExistsAsync(email);
+            var exists = await redisCacheService.KeyExistsAsync(email);
             if (!exists)
             {
                 return null;
             }
 
-            var token = await this.redisCacheService.GetObjectAsync<TokenModel>(email);
+            var token = await redisCacheService.GetObjectAsync<TokenModel>(email);
 
             return token;
         }
@@ -133,17 +132,18 @@
 
             if (tokenModel == null)
             {
-                this.WriteSessionExpired(httpContext);
+                WriteSessionExpired(httpContext);
                 return null;
             }
 
             if (DateTime.UtcNow > tokenModel.AccessTokenExpirationDate)
             {
-                var newAccessToken = await this.tokenIdentityService.RefreshUserAccessTokenAsync(tokenModel.RefreshToken);
+                var newAccessToken = await tokenIdentityService.RefreshUserAccessTokenAsync(tokenModel.RefreshToken);
                 tokenModel.AccessToken = $"{OAuthConstants.JWTAuthScheme} {newAccessToken.AccessToken}";
-                tokenModel.AccessTokenExpirationDate = DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpirationSeconds);
+                tokenModel.AccessTokenExpirationDate =
+                    DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpiratioSeconds);
                 tokenModel.RefreshToken = newAccessToken.RefreshToken;
-                this.SetNewAccessToken(email, tokenModel);
+                SetNewAccessToken(email, tokenModel);
 
                 return newAccessToken;
             }
@@ -158,7 +158,7 @@
         /// <param name="tokenModel">The token model.</param>
         private async void SetNewAccessToken(string email, TokenModel tokenModel)
         {
-            var success = await this.redisCacheService.SetObjectAsync<TokenModel>(email, tokenModel);
+            var success = await redisCacheService.SetObjectAsync(email, tokenModel);
         }
 
         /// <summary>
@@ -167,10 +167,10 @@
         private async void RevokeAuth(HttpContext httpContext, string username)
         {
             await httpContext.SignOutAsync();
-            await this.userService.LogOutAsync();
-            await this.authService.RemoveAuth(username);
+            await userService.LogOutAsync();
+            await authService.RemoveAuth(username);
 
-            this.WriteSessionExpired(httpContext);
+            WriteSessionExpired(httpContext);
         }
 
         /// <summary>
@@ -183,8 +183,8 @@
             try
             {
                 token = token.ToString().Remove(0, 7);
-                var tokenIssuer = this.configuration.GetSection("AppSettings")["TokenIssuer"];
-                var signingKeyId = this.configuration.GetSection("AppSettings")["SigningKeyId"];
+                var tokenIssuer = configuration.GetSection("AppSettings")["TokenIssuer"];
+                var signingKeyId = configuration.GetSection("AppSettings")["SigningKeyId"];
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.ReadJwtToken(token);
                 var securityTokenSigningKeyId = securityToken.Header["kid"];

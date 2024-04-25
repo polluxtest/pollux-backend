@@ -1,4 +1,4 @@
-﻿namespace Pollux.API
+﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
     using System.Collections.Generic;
     using IdentityServer4.Models;

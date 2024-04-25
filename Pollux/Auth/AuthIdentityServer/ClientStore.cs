@@ -1,4 +1,4 @@
-﻿namespace Pollux.API.AuthIdentityServer
+﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -27,7 +27,7 @@
                     AllowOfflineAccess = true,
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
                     AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
-                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpirationSeconds,
+                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
                     IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                     AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
@@ -44,7 +44,7 @@
                     AllowOfflineAccess = true,
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
                     AllowedScopes = new List<string>() { "api", "api/pollux" },
-                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpirationSeconds,
+                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
                     RefreshTokenExpiration = TokenExpiration.Absolute,
                     IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                     AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,

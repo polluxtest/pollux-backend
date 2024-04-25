@@ -1,7 +1,7 @@
 using Pollux.Application.Services;
 using System.Security.Claims;
 
-namespace Pollux.API
+namespace Pollux.API.ExtensionMethods
 {
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
@@ -11,7 +11,8 @@ namespace Pollux.API
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
-    using Pollux.API.AuthIdentityServer;
+    using Pollux.API.Auth;
+    using Pollux.API.Auth.AuthIdentityServer;
     using Pollux.Application;
     using Pollux.Application.Serverless;
     using Pollux.Common.Constants.Strings;
@@ -43,10 +44,7 @@ namespace Pollux.API
         public static void AddDIServices(this IServiceCollection services)
         {
             services.AddIdentity<User, Role>(
-                options =>
-                    {
-                        options.User.RequireUniqueEmail = false;
-                    });
+                options => { options.User.RequireUniqueEmail = false; });
             services.AddScoped<DbContext, PolluxDbContext>();
             services.AddScoped<IRoleStore<Role>, RoleStore<Role>>();
             services.AddScoped<IUserStore<User>, UserStore<User>>();
@@ -100,7 +98,6 @@ namespace Pollux.API
             services.AddTransient<ISendEmail, SendEmail>();
             services.AddTransient<ISigningCredentialStore, SigningCredentialStore>();
             services.AddTransient<IValidationKeysStore, ValidationKeysStore>();
-
         }
     }
 }

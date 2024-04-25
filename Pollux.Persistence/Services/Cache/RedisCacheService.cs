@@ -35,7 +35,6 @@
         public Task<bool> SetKeyAsync(string key, string value)
         {
             var expiration = TimeSpan.FromSeconds(ExpirationConstants.RedisCacheExpirationSeconds);
-            this.logger.LogInformation($"saving redis key=");
             return this.redisDatabase.StringSetAsync(key, value, expiration);
         }
 
