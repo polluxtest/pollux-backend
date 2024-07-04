@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Pollux.Common.Application\Pollux.Common.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ExtensionMethods\" />
+  </ItemGroup>
+
 </Project>

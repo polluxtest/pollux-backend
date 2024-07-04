@@ -65,20 +65,20 @@
                 string.IsNullOrEmpty(accessToken) ||
                 !authValues.Any())
             {
-                RevokeAuth(context.HttpContext, emailClaim?.Value);
+                this.RevokeAuth(context.HttpContext, emailClaim?.Value);
             }
 
-            var tokenModel = await GetAuthFromRedis(emailClaim?.Value);
+            var tokenModel = await this.GetAuthFromRedis(emailClaim?.Value);
             if (tokenModel == null ||
-                IsRefreshTokenExpired(tokenModel) ||
-                !ValidateIssuer(tokenModel.AccessToken) ||
+                this.IsRefreshTokenExpired(tokenModel) ||
+                !this.ValidateIssuer(tokenModel.AccessToken) ||
                 string.IsNullOrEmpty(tokenModel.AccessToken))
             {
-                RevokeAuth(context.HttpContext, emailClaim?.Value);
+                this.RevokeAuth(context.HttpContext, emailClaim?.Value);
                 throw new NotAuthenticatedException("not authenticated");
             }
 
-            return await IsAccessTokenExpired(emailClaim?.Value, tokenModel, context.HttpContext);
+            return await this.IsAccessTokenExpired(emailClaim?.Value, tokenModel, context.HttpContext);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@
         private bool SkipAnonymousRoutes(string route)
         {
             var routeSegments = route.Split("/");
-            return anonymousRoutes.Any(p => p == routeSegments[routeSegments.Length - 1]);
+            return this.anonymousRoutes.Any(p => p == routeSegments[routeSegments.Length - 1]);
         }
 
         /// <summary>
@@ -99,13 +99,13 @@
         /// <returns>The Auth from Redis.</returns>
         private async Task<TokenModel> GetAuthFromRedis(string email)
         {
-            var exists = await redisCacheService.KeyExistsAsync(email);
+            var exists = await this.redisCacheService.KeyExistsAsync(email);
             if (!exists)
             {
                 return null;
             }
 
-            var token = await redisCacheService.GetObjectAsync<TokenModel>(email);
+            var token = await this.redisCacheService.GetObjectAsync<TokenModel>(email);
 
             return token;
         }
@@ -129,21 +129,21 @@
         /// <returns>Token response , access token.</returns>
         private async Task<TokenResponse> IsAccessTokenExpired(string email, TokenModel tokenModel, HttpContext httpContext)
         {
-
             if (tokenModel == null)
             {
-                WriteSessionExpired(httpContext);
+                this.WriteSessionExpired(httpContext);
                 return null;
             }
 
             if (DateTime.UtcNow > tokenModel.AccessTokenExpirationDate)
             {
-                var newAccessToken = await tokenIdentityService.RefreshUserAccessTokenAsync(tokenModel.RefreshToken);
+                var newAccessToken =
+                    await this.tokenIdentityService.RefreshUserAccessTokenAsync(tokenModel.RefreshToken);
                 tokenModel.AccessToken = $"{OAuthConstants.JWTAuthScheme} {newAccessToken.AccessToken}";
                 tokenModel.AccessTokenExpirationDate =
                     DateTime.UtcNow.AddSeconds(ExpirationConstants.AccessTokenExpiratioSeconds);
                 tokenModel.RefreshToken = newAccessToken.RefreshToken;
-                SetNewAccessToken(email, tokenModel);
+                this.SetNewAccessToken(email, tokenModel);
 
                 return newAccessToken;
             }
@@ -158,7 +158,8 @@
         /// <param name="tokenModel">The token model.</param>
         private async void SetNewAccessToken(string email, TokenModel tokenModel)
         {
-            var success = await redisCacheService.SetObjectAsync(email, tokenModel);
+            await this.redisCacheService.DeleteKeyAsync(email);
+            var success = await this.redisCacheService.SetObjectAsync(email, tokenModel);
         }
 
         /// <summary>
@@ -167,10 +168,10 @@
         private async void RevokeAuth(HttpContext httpContext, string username)
         {
             await httpContext.SignOutAsync();
-            await userService.LogOutAsync();
-            await authService.RemoveAuth(username);
+            await this.userService.LogOutAsync();
+            await this.authService.RemoveAuth(username);
 
-            WriteSessionExpired(httpContext);
+            this.WriteSessionExpired(httpContext);
         }
 
         /// <summary>
@@ -183,8 +184,8 @@
             try
             {
                 token = token.ToString().Remove(0, 7);
-                var tokenIssuer = configuration.GetSection("AppSettings")["TokenIssuer"];
-                var signingKeyId = configuration.GetSection("AppSettings")["SigningKeyId"];
+                var tokenIssuer = this.configuration.GetSection("AppSettings")["TokenIssuer"];
+                var signingKeyId = this.configuration.GetSection("AppSettings")["SigningKeyId"];
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.ReadJwtToken(token);
                 var securityTokenSigningKeyId = securityToken.Header["kid"];

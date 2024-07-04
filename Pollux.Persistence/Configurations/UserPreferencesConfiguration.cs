@@ -1,4 +1,6 @@
-﻿namespace Pollux.Persistence.Configurations
+﻿using Polly.Bulkhead;
+
+namespace Pollux.Persistence.Configurations
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -14,6 +16,7 @@
             builder.Property(p => p.Value).HasMaxLength(20).IsRequired();
 
             builder.HasIndex("UserId", "Key");
+            builder.HasIndex(p => p.Key);
         }
     }
 }

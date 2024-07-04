@@ -74,7 +74,7 @@
             this.logger.LogInformation("Requesting client access token for client: {client}", clientName);
             this.logger.LogInformation($"Requesting client access token for url: {this.identityServerSettings.HostUrl}", clientName);
 
-            var clientCredentials = new IdentityModel.Client.PasswordTokenRequest()
+            var clientCredentials = new PasswordTokenRequest()
             {
                 Method = HttpMethod.Post,
                 Address = this.identityServerSettings.HostUrl,
@@ -109,7 +109,7 @@
                 ClientId = IdentityServerConstants.ClientNameRefreshToken,
                 ClientSecret = IdentityServerConstants.ClientSecret,
                 GrantType = GrantTypes.ResourceOwnerPassword.First(),
-                RefreshToken = refreshToken,
+                RefreshToken = refreshToken
             };
 
             var httpClient = this.httpClientFactory.CreateClient(AccessTokenManagementConstants.BackChannelHttpClientName);

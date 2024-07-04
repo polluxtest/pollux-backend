@@ -12,7 +12,7 @@
         /// <summary>
         /// Finds a client by id.
         /// </summary>
-        /// <param name="clientId">The client id</param>
+        /// <param name="clientId">The client id.</param>
         /// <returns>
         /// The client based on the identity server request type.
         /// </returns>
@@ -28,7 +28,7 @@
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
                     AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
                     AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
-                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    RefreshTokenExpiration = TokenExpiration.Sliding,
                     IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                     AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                     SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
@@ -45,7 +45,7 @@
                     AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
                     AllowedScopes = new List<string>() { "api", "api/pollux" },
                     AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
-                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    RefreshTokenExpiration = TokenExpiration.Sliding,
                     IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                     AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
                     SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,

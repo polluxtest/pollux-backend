@@ -38,7 +38,7 @@ namespace Pollux.API.Auth
             ISystemClock clock,
             IServiceProvider serviceProvider,
             IConfiguration configuration)
-       : base(options, loggerFactory, encoder, clock)
+            : base(options, loggerFactory, encoder, clock)
         {
             this.logger = logger;
             this.serviceProvider = serviceProvider;

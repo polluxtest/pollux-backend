@@ -1,12 +1,12 @@
 ﻿namespace Pollux.Application.Services
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
     using AutoMapper;
     using Pollux.Common.Application.Models.Response;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     public interface IUserPreferencesService
     {

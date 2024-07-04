@@ -18,7 +18,8 @@
         {
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Id).ValueGeneratedOnAdd();
-            builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
+            builder.Property(p => p.Name).IsRequired().HasMaxLength(20);
+            builder.Property(p => p.Email).IsRequired().HasMaxLength(50);
             builder.Property(p => p.EmailConfirmed).HasDefaultValue(false);
             builder.Property(p => p.PhoneNumber).IsRequired(false);
             builder.Property(p => p.UserName).IsRequired(false);
@@ -33,7 +34,7 @@
             builder.Ignore(p => p.NormalizedEmail);
 
             builder.HasIndex(p => p.Id);
-            builder.HasIndex(p => p.Email);
+            builder.HasIndex(p => p.Email).IsUnique().IncludeProperties("Id", "Name", "UserName");
         }
     }
 }

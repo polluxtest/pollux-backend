@@ -8,12 +8,12 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
-    using Application;
-    using Application.Services;
+    using Pollux.Application;
+    using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
-    using Common.Constants.Strings;
-    using Common.Constants.Strings.Api;
-    using Common.Factories;
+    using Pollux.Common.Constants.Strings;
+    using Pollux.Common.Constants.Strings.Api;
+    using Pollux.Common.Factories;
 
     [Authorize]
     public class UsersController : BaseController

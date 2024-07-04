@@ -1,7 +1,6 @@
 ﻿namespace Pollux.Application.Services
 {
     using System;
-    using System.Security.Claims;
     using System.Threading.Tasks;
     using IdentityModel.Client;
     using Microsoft.Extensions.Logging;

@@ -14,8 +14,6 @@
 
         public const string ResetPassword = "ResetPassword/";
 
-        public const string IsUserAuthenticated = "IsUserAuthenticated/";
-
         public const string SendEmail = "SendEmail/";
     }
 }
