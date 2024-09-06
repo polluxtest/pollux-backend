@@ -5,6 +5,10 @@
     using Pollux.Common.Application.Models.Response;
     using Domain.Entities;
 
+    /// <summary>
+    /// Auto Mapper mapping profiles
+    /// </summary>
+    /// <seealso cref="AutoMapper.Profile" />
     public class UserMappers : Profile
     {
         public UserMappers()

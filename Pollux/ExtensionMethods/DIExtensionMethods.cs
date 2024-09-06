@@ -43,8 +43,6 @@ namespace Pollux.API.ExtensionMethods
         /// <param name="services">The service collection.</param>
         public static void AddDIServices(this IServiceCollection services)
         {
-            services.AddIdentity<User, Role>(
-                options => { options.User.RequireUniqueEmail = false; });
             services.AddScoped<DbContext, PolluxDbContext>();
             services.AddScoped<IRoleStore<Role>, RoleStore<Role>>();
             services.AddScoped<IUserStore<User>, UserStore<User>>();
@@ -94,7 +92,6 @@ namespace Pollux.API.ExtensionMethods
         public static void AddDIMiscellaneous(this IServiceCollection services)
         {
             services.AddSingleton<HttpClient, HttpClient>();
-            services.AddScoped<AuthEventHandler>();
             services.AddTransient<ISendEmail, SendEmail>();
             services.AddTransient<ISigningCredentialStore, SigningCredentialStore>();
             services.AddTransient<IValidationKeysStore, ValidationKeysStore>();

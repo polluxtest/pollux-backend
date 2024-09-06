@@ -20,36 +20,40 @@
         {
             if (clientId == IdentityServerConstants.ClientName)
             {
-                return Task.FromResult(new Client()
-                {
-                    ClientId = IdentityServerConstants.ClientName,
-                    ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
-                    AllowOfflineAccess = true,
-                    AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
-                    AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
-                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
-                    RefreshTokenExpiration = TokenExpiration.Sliding,
-                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
-                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
-                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
-                });
+                return Task.FromResult(
+                    new Client()
+                        {
+                            ClientId = IdentityServerConstants.ClientName,
+                            ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
+                            AllowOfflineAccess = true,
+                            AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword) { "refresh_token" },
+                            AllowedScopes = new List<string>() { "api", "api/pollux", "offline_access" },
+                            AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
+                            RefreshTokenExpiration = TokenExpiration.Sliding,
+                            RefreshTokenUsage = TokenUsage.ReUse,
+                            IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                            AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                            SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                        });
             }
 
             if (clientId == IdentityServerConstants.ClientNameRefreshToken)
             {
-                return Task.FromResult(new Client()
-                {
-                    ClientId = IdentityServerConstants.ClientName,
-                    ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
-                    AllowOfflineAccess = true,
-                    AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
-                    AllowedScopes = new List<string>() { "api", "api/pollux" },
-                    AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
-                    RefreshTokenExpiration = TokenExpiration.Sliding,
-                    IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
-                    AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
-                    SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
-                });
+                return Task.FromResult(
+                    new Client()
+                        {
+                            ClientId = IdentityServerConstants.ClientName,
+                            ClientSecrets = { new Secret(IdentityServerConstants.ClientSecret.Sha256()) },
+                            AllowOfflineAccess = true,
+                            AllowedGrantTypes = new List<string>(GrantTypes.ResourceOwnerPassword),
+                            AllowedScopes = new List<string>() { "api", "api/pollux" },
+                            AccessTokenLifetime = ExpirationConstants.AccessTokenExpiratioSeconds,
+                            RefreshTokenExpiration = TokenExpiration.Sliding,
+                            RefreshTokenUsage = TokenUsage.ReUse,
+                            IdentityTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                            AbsoluteRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                            SlidingRefreshTokenLifetime = ExpirationConstants.RefreshTokenExpirationSeconds,
+                        });
             }
 
             return null;

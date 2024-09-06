@@ -1,6 +1,7 @@
 ﻿namespace Pollux.Common.Application.Models.Auth
 {
     using System;
+
     public class TokenModel
     {
         /// <summary>

@@ -13,14 +13,20 @@
         public SigningCredentialStore(IConfiguration configuration)
             : base()
         {
-            signingKeyId = configuration.GetSection("AppSettings")["SigningKeyId"];
+            this.signingKeyId = configuration.GetSection("AppSettings")["SigningKeyId"];
         }
 
+        /// <summary>
+        /// Gets the signing credentials.
+        /// </summary>
+        /// <returns>SigningCredentials</returns>
         public Task<SigningCredentials> GetSigningCredentialsAsync()
         {
             var rsa = RSA.Create();
-            var securityKey = new RsaSecurityKey(rsa);
-            securityKey.KeyId = signingKeyId;
+            var securityKey = new RsaSecurityKey(rsa)
+            {
+                KeyId = this.signingKeyId,
+            };
             var signInCredentials = new SigningCredentials(securityKey, "RS256");
 
             return Task.FromResult(signInCredentials);

@@ -1,9 +1,8 @@
-using Pollux.Common.Constants.Strings.Auth;
+using Pollux.Common.Application.Settings;
 
 namespace Pollux.API
 {
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using FluentValidation.AspNetCore;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
@@ -22,9 +21,9 @@ namespace Pollux.API
     using Pollux.API.ExtensionMethods;
     using Pollux.API.Middlewares;
     using Pollux.Application.Mappers;
-    using Pollux.Common.Application.Models.Settings;
     using Pollux.Common.Constants.Strings;
-    using Pollux.Common.Exceptions;
+    using Pollux.Common.Constants.Strings.Auth;
+    using Pollux.Common.Constants.Strings.ServerLess;
     using Pollux.Domain.Entities;
     using Pollux.Persistence;
 
@@ -54,22 +53,25 @@ namespace Pollux.API
         public void ConfigureServices(IServiceCollection services)
         {
             IdentityModelEventSource.ShowPII = true;
-            var connectionString = this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
+            var connectionString =
+                this.Configuration.GetSection("AppSettings")["DbConnectionStrings:PolluxSQLConnectionString"];
             var allowedOrigins = this.Configuration.GetSection("AppSettings")["AllowedOrigins"];
             var frontEndUrl = this.Configuration.GetSection("AppSettings")["FrontEndUrl"];
             var identityServerSettings = new IdentityServerSettings();
             this.Configuration.Bind("AppSettings:IdentityServerSettings", identityServerSettings);
             services.AddSingleton(identityServerSettings);
             services.AddDbContext<PolluxDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
-            this.SetUpPasswordIdentity(services);
-            this.AddCors(services, allowedOrigins);
-            this.SetUpAuthentication(services);
-            this.SetUpIdentityServer(services, identityServerSettings.HostUrl);
             this.SetUpAuthentication(services, identityServerSettings.HostUrl);
-            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
+            services.AddIdentityCore<User>().AddEntityFrameworkStores<PolluxDbContext>().AddDefaultTokenProviders();
+            services.AddIdentity<User, Role>(
+                options => { options.User.RequireUniqueEmail = false; });
+            this.SetUpIdentityServer(services, identityServerSettings.HostUrl);
             services.AddAuthorization();
             this.AddSession(services, frontEndUrl);
+            this.SetUpPasswordIdentity(services);
+            this.AddCors(services, allowedOrigins);
+            services.AddMvc()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(AssemblyPresentation.Assembly));
             services.AddDIClientAccessTokenManagement();
             services.AddDIMiscellaneous();
             services.AddControllers();
@@ -78,7 +80,9 @@ namespace Pollux.API
             services.AddDIRepositories();
             services.AddDIServices();
             services.AddDIIdentityServerServices();
+            this.MapConfigurationAppSettings(services);
             services.AddAutoMapper(AssemblyApplication.Assembly);
+
             this.SetUpCookieAndHandler(services, frontEndUrl);
         }
 
@@ -141,19 +145,18 @@ namespace Pollux.API
 
                 options.AddSecurityRequirement(
                     new OpenApiSecurityRequirement()
+                    {
                         {
+                            new OpenApiSecurityScheme
                             {
-                                new OpenApiSecurityScheme
-                                    {
-                                        Reference = new OpenApiReference{ Type = ReferenceType.SecurityScheme, Id = "Bearer"},
-                                        Scheme = "oauth2",
-                                        Name = "Bearer",
-                                        In = ParameterLocation.Header,
-
-                                    },
-                                new List<string>()
+                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
+                                Scheme = "oauth2",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header,
                             },
-                        });
+                            new List<string>()
+                        },
+                    });
             });
         }
 
@@ -163,8 +166,6 @@ namespace Pollux.API
         /// <param name="services">The services.</param>
         private void SetUpCookieAndHandler(IServiceCollection services, string host)
         {
-            var cookieConfig = services.BuildServiceProvider().GetService<CookieOptionsConfig>();
-
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = CookiesConstants.CookieSessionName;
@@ -172,38 +173,6 @@ namespace Pollux.API
                 options.Cookie.HttpOnly = false;
                 options.Cookie.Domain = host;
                 options.Cookie.IsEssential = true;
-                // todo fix the authorize problem here
-
-                options.Events.OnRedirectToLogin = context =>
-                {
-                    if (context.HttpContext.User.Identity.IsAuthenticated || context.Response.StatusCode == 200)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    context.Response.StatusCode = 440;
-                    return Task.CompletedTask;
-                };
-
-                // This event controls de authorization handler when an entity want to access a resource Authorized
-                options.Events.OnValidatePrincipal = async context =>
-                {
-                    try
-                    {
-                        var authEventHandler = services.BuildServiceProvider().GetService<AuthEventHandler>();
-                        var token = await authEventHandler?.Handle(context);
-                        if (token?.AccessToken != null)
-                        {
-                            context.Response.Cookies.Append(CookiesConstants.CookieAccessTokenName, token.AccessToken, cookieConfig.GetOptions());
-                        }
-                    }
-                    catch (NotAuthenticatedException)
-                    {
-                        context.Response.StatusCode = 440;
-                        await context.Response.WriteAsync(MessagesConstants.NotAuthenticated);
-                        throw;
-                    }
-                };
             });
         }
 
@@ -216,6 +185,8 @@ namespace Pollux.API
         {
             services.AddAuthentication(
                     options => { options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; })
+                .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(
+                    AuthConstants.TokenAuthenticationDefaultScheme, o => { })
                 .AddOpenIdConnect(
                     OpenIdConstants.SchemaName,
                     options =>
@@ -306,14 +277,15 @@ namespace Pollux.API
         }
 
         /// <summary>
-        /// Adds the authentication scheme.
+        /// Maps the configuration application settings.
         /// </summary>
-        /// <param name="services">serviceCollection</param>
-        private void SetUpAuthentication(IServiceCollection services)
+        /// <param name="services">The services.</param>
+        private void MapConfigurationAppSettings(IServiceCollection services)
         {
-            services.AddAuthentication(o => { o.DefaultScheme = AuthConstants.TokenAuthenticationDefaultScheme; })
-                .AddScheme<TokenAuthenticationOptions, TokenAuthenticationHandler>(
-                    AuthConstants.TokenAuthenticationDefaultScheme, o => { });
+            var azureServerlessSettings = this.Configuration.GetSection("AzureServerlessSettings")
+                .Get<AzureServerlessSettings>();
+
+            services.AddSingleton<AzureServerlessSettings>(azureServerlessSettings);
         }
     }
 }

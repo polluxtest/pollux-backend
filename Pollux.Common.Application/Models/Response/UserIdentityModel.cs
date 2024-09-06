@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pollux.Common.Application.Models.Response
+﻿namespace Pollux.Common.Application.Models.Response
 {
     public class UserIdentityModel
     {

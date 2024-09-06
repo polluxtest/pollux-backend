@@ -1,19 +1,19 @@
 ﻿namespace Pollux.API.Controllers
 {
     using System;
-    using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
+
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
-    using Pollux.Application;
+
     using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings;
     using Pollux.Common.Constants.Strings.Api;
-    using Pollux.Common.Factories;
+    using Pollux.Common.Constants.Strings.Auth;
+    using Pollux.Common.Utilities;
 
     [Authorize]
     public class UsersController : BaseController
@@ -71,13 +71,15 @@
             var succeed = await this.userService.LogInAsync(loginModel);
             if (succeed != null)
             {
+                loginModel.UserId = succeed.UserId;
                 var token = await this.authService.SetAuth(loginModel);
                 this.HttpContext.Response.Cookies.Append(
-                    CookiesConstants.CookieAccessTokenName,
-                    token.AccessToken,
-                    this.cookieConfiguration.GetOptions());
+                        CookiesConstants.CookieAccessTokenName,
+                        token.AccessToken,
+                        this.cookieConfiguration.GetOptions());
 
                 var cookies = this.Response.Headers["set-cookie"];
+
                 return this.Ok(new { succeed, cookies });
             }
 
@@ -85,36 +87,35 @@
         }
 
         /// <summary>
-        /// Logs the out.
+        /// Logout from app
         /// </summary>
-        /// <returns>No Content (204).</returns>
+        /// <param name="userId">User Id</param>
+        /// <returns>Task.</returns>
         [HttpPost]
         [AllowAnonymous]
         [Route(ApiConstants.LogOut)]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> LogOut()
+        public async Task<IActionResult> LogOut(string userId)
         {
-            var username = this.User.Claims.First(p => p.Type.Equals(ClaimTypes.Email)).Value;
+            await this.SignOut(userId);
 
-            await this.SignOut(username);
-
-            return this.NoContent();
+            return this.Ok();
         }
 
         /// <summary>
         /// Resets the password.
         /// </summary>
         /// <param name="resetPasswordModel">The reset password model.</param>
-        /// <returns>200.Ok.</returns>
+        /// <returns>200/404</returns>
         [HttpPost]
         [AllowAnonymous]
         [Route(ApiConstants.ResetPassword)]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel resetPasswordModel)
         {
             try
             {
-                var email = TokenFactory.DecodeToken(resetPasswordModel.Token);
+                var email = TokenUtility.GetUserIdFromToken(resetPasswordModel.Token);
                 var userExists = await this.userService.ExistUser(email);
                 if (!userExists)
                 {
@@ -144,15 +145,31 @@
             return this.Ok(exists);
         }
 
+
+        /// <summary>
+        /// Verifies if the tokens have not experired , other wise session must be closed or new access token is provdied
+        /// </summary>
+        /// <returns>Redirect to correct path.</returns>
+        [Authorize(AuthenticationSchemes = AuthConstants.TokenAuthenticationDefaultScheme)]
+        [HttpGet]
+        [Route(ApiConstants.VerifyAuthetication)]
+        public async Task<IActionResult> VerifyAuthetication()
+        {
+            var cookies = this.Response.Headers["set-cookie"];
+
+            return this.Ok(cookies);
+        }
+
         /// <summary>
         /// Represents an event that is raised when the sign-out operation is complete.
         /// </summary>
-        /// <param name="username">The username.</param>
-        private async Task SignOut(string username)
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>Task</returns>
+        private async Task SignOut(string userId)
         {
             await this.HttpContext.SignOutAsync();
             await this.userService.LogOutAsync();
-            await this.authService.RemoveAuth(username);
+            await this.authService.RemoveAuth(userId);
         }
     }
 }

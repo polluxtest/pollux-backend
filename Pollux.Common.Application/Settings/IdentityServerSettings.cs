@@ -1,4 +1,4 @@
-﻿namespace Pollux.Common.Application.Models.Settings
+﻿namespace Pollux.Common.Application.Settings
 {
     public class IdentityServerSettings
     {

@@ -2,6 +2,9 @@
 {
     public static class AuthConstants
     {
+        /// <summary>
+        /// The token authentication default scheme
+        /// </summary>
         public const string TokenAuthenticationDefaultScheme = "TokenAuthenticationScheme";
     }
 }

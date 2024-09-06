@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Application.Services;
+    using Pollux.Application.Services;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Application.Models.Response;
     using Pollux.Common.Constants.Strings.Auth;
@@ -24,6 +24,7 @@
         /// <param name="userPreferences">The User Preferences Model</param>
         /// <returns>Ok.</returns>
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(200)]
         public async Task<ActionResult> Post([FromBody] UserPreferencesPostModel userPreferences)
         {
@@ -39,6 +40,7 @@
         public async Task<ActionResult<UserPreferenceModelResponse>> Get([FromQuery] string userId)
         {
             var preferences = await this.userPreferencesService.GetAll(userId);
+
             return this.Ok(preferences);
         }
     }

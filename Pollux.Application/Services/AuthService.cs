@@ -1,4 +1,5 @@
-﻿namespace Pollux.Application.Services
+﻿
+namespace Pollux.Application.Services
 {
     using System;
     using System.Threading.Tasks;
@@ -68,7 +69,7 @@
                 Password = loginModel.Password,
             };
 
-            await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.Email, tokenCache);
+            await this.redisCacheService.SetObjectAsync<TokenModel>(loginModel.UserId, tokenCache);
 
             return tokenResponse;
         }
@@ -78,9 +79,19 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>True if success.</returns>
-        public Task<bool> RemoveAuth(string key)
+        public async Task<bool> RemoveAuth(string key)
         {
-            return this.redisCacheService.DeleteKeyAsync(key);
+            if (string.IsNullOrEmpty(key))
+            {
+                return false;
+            }
+
+            if (await this.redisCacheService.KeyExistsAsync(key))
+            {
+                await this.redisCacheService.DeleteKeyAsync(key);
+            }
+
+            return false;
         }
     }
 }

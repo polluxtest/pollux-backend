@@ -1,6 +1,6 @@
 ﻿namespace Pollux.Common.Application.Models.Request
 {
-    using Pollux.Common.Application.Models.Response;
+    using Response;
     using System.Collections.Generic;
 
     public class UserPreferencesPostModel

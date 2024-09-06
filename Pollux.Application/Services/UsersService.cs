@@ -1,13 +1,13 @@
-﻿namespace Pollux.Application
-{
-    using System.Threading.Tasks;
-    using AutoMapper;
-    using Microsoft.AspNetCore.Identity;
-    using Pollux.Common.Application.Models.Request;
-    using Pollux.Common.Application.Models.Response;
-    using Pollux.Domain.Entities;
-    using Pollux.Persistence.Repositories;
+﻿using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Pollux.Common.Application.Models.Request;
+using Pollux.Common.Application.Models.Response;
+using Pollux.Domain.Entities;
+using Pollux.Persistence.Repositories;
 
+namespace Pollux.Application.Services
+{
     public interface IUsersService
     {
         /// <summary>

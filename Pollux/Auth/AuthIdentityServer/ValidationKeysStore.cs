@@ -1,8 +1,6 @@
 ﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Security.Cryptography;
     using System.Threading.Tasks;
     using IdentityServer4.Models;
@@ -11,13 +9,19 @@
 
     public class ValidationKeysStore : IValidationKeysStore
     {
+        /// <summary>
+        /// Gets all validation keys.
+        /// </summary>
+        /// <returns></returns>
         public Task<IEnumerable<SecurityKeyInfo>> GetValidationKeysAsync()
         {
             var rsa = RSA.Create();
             var securityKey = new RsaSecurityKey(rsa);
 
-            var securityKeyInfo = new SecurityKeyInfo();
-            securityKeyInfo.Key = securityKey;
+            var securityKeyInfo = new SecurityKeyInfo
+            {
+                Key = securityKey,
+            };
 
             var keys = new List<SecurityKeyInfo>() { securityKeyInfo };
 

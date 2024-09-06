@@ -13,10 +13,11 @@
         /// </value>
         public static IEnumerable<IdentityResource> IdentityResources =>
             new List<IdentityResource>
-                {
-                    new IdentityResources.OpenId(),
-                    new IdentityResources.Profile(),
-                };
+            {
+                new IdentityResources.OpenId(),
+                new IdentityResources.Profile(),
+                new IdentityResources.Email(),
+            };
 
         /// <summary>
         /// Gets the API scopes.

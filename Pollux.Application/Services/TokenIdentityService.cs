@@ -8,8 +8,8 @@
     using IdentityServer4.Models;
     using Microsoft.Extensions.Logging;
     using Pollux.Common.Application.Models.Request;
-    using Pollux.Common.Application.Models.Settings;
     using Pollux.Common.Constants.Strings;
+    using Pollux.Common.Application.Settings;
 
     public interface ITokenIdentityService
     {
@@ -109,7 +109,7 @@
                 ClientId = IdentityServerConstants.ClientNameRefreshToken,
                 ClientSecret = IdentityServerConstants.ClientSecret,
                 GrantType = GrantTypes.ResourceOwnerPassword.First(),
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
             };
 
             var httpClient = this.httpClientFactory.CreateClient(AccessTokenManagementConstants.BackChannelHttpClientName);

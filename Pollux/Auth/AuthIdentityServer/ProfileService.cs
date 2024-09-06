@@ -1,5 +1,7 @@
 ﻿namespace Pollux.API.Auth.AuthIdentityServer
 {
+    using System.Linq;
+    using System.Security.Claims;
     using System.Threading.Tasks;
     using IdentityServer4.Models;
     using IdentityServer4.Services;
@@ -13,6 +15,8 @@
         /// <returns>Task.</returns>
         public Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
+            var userId = context.Subject.Identities.First().Claims.First(p => p.Type.Equals("sub")).Value;
+            context.IssuedClaims.Add(new Claim("Id", userId));
             return Task.CompletedTask;
         }
 
@@ -24,8 +28,7 @@
         /// <returns>Task.</returns>
         public Task IsActiveAsync(IsActiveContext context)
         {
-            context.IsActive = true;
-            return Task.CompletedTask;
+            return Task.FromResult(context.IsActive);
         }
     }
 }

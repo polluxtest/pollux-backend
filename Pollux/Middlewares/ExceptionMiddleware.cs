@@ -29,11 +29,6 @@
             {
                 await this.nextDelegate.Invoke(httpContext);
             }
-            catch (NotAuthenticatedException)
-            {
-                httpContext.Response.StatusCode = 440;
-                await httpContext.Response.WriteAsync(MessagesConstants.NotAuthenticated);
-            }
             catch (Exception ex)
             {
                 this.logger.LogError("UnExpected Fall Back 500 Error");

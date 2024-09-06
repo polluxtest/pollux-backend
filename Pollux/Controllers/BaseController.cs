@@ -2,7 +2,7 @@
 {
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Pollux.Common.Constants.Strings.Api;
+    using Common.Constants.Strings.Api;
 
     /// <summary>
     /// Defines the Base Controllers attributes for the core domain <see cref="BaseController" />.

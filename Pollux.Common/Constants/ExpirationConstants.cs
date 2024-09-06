@@ -8,13 +8,13 @@
         public const int RefreshTokenExpirationSeconds = 2592000;
 
         /// <summary>
-        /// The access token expiration seconds 1 day.
+        /// The access token expiration seconds 10 day.
         /// </summary>
-        public const int AccessTokenExpiratioSeconds = 86400;
+        public const int AccessTokenExpiratioSeconds = 864000;
 
         /// <summary>
-        /// The redis cache expiration seconds 30 days.
+        /// The redis cache expiration seconds 31 days.
         /// </summary>
-        public const int RedisCacheExpirationSeconds = 2592000;
+        public const int RedisCacheExpirationSeconds = 2678400;
     }
 }

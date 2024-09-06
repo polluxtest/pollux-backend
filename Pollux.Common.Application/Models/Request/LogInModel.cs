@@ -3,6 +3,14 @@
     public class LogInModel
     {
         /// <summary>
+        /// Gets or sets the User Id.
+        /// </summary>
+        /// <value>
+        /// The User Id.
+        /// </value>
+        public string UserId { get; set; }
+
+        /// <summary>
         /// Gets or sets the email.
         /// </summary>
         /// <value>

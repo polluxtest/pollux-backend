@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "m3RfJ1ZB0OSS5skjdm+FLppNACPT5d81PMyjoRybxZUcU7ve+vIkriMA7GcZaStLXC+Io9EaLR6A+5FaPxgbzw==",
+  "dgSpecHash": "OZqWS1bQnPPEbxCZ1doP0mrvbtC34AI1aus4qFBYYViwLYl9UpBPJCKdAGNQzIImqvePeV4e8lvwNQvbX8xb0w==",
   "success": true,
   "projectFilePath": "C:\\Pollux\\pollux-backend\\Pollux\\Pollux.API.csproj",
   "expectedPackageFiles": [
@@ -11,7 +11,9 @@
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\10.3.0\\fluentvalidation.dependencyinjectionextensions.10.3.0.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identitymodel\\5.0.1\\identitymodel.5.0.1.nupkg.sha512",
+    "C:\\Users\\octaviodiaz\\.nuget\\packages\\identitymodel.aspnetcore.oauth2introspection\\4.0.1\\identitymodel.aspnetcore.oauth2introspection.4.0.1.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identityserver4\\4.1.1\\identityserver4.4.1.1.nupkg.sha512",
+    "C:\\Users\\octaviodiaz\\.nuget\\packages\\identityserver4.accesstokenvalidation\\3.0.1\\identityserver4.accesstokenvalidation.3.0.1.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identityserver4.aspnetidentity\\4.1.1\\identityserver4.aspnetidentity.4.1.1.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identityserver4.contrib.redisstore\\4.0.0\\identityserver4.contrib.redisstore.4.0.0.nupkg.sha512",
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\identityserver4.storage\\4.1.1\\identityserver4.storage.4.1.1.nupkg.sha512",
@@ -112,6 +114,26 @@
     "C:\\Users\\octaviodiaz\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.25\\microsoft.aspnetcore.app.ref.6.0.25.nupkg.sha512"
   ],
   "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'IdentityServer4' 4.1.1 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-55p7-v223-x366",
+      "libraryId": "IdentityServer4",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    },
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'IdentityServer4' 4.1.1 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-ff4q-64jc-gx98",
+      "libraryId": "IdentityServer4",
+      "targetGraphs": [
+        "net6.0"
+      ]
+    },
     {
       "code": "NU1902",
       "level": "Warning",

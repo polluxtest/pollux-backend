@@ -1,6 +1,6 @@
 ﻿namespace Pollux.Persistence.Repositories
 {
-    using Pollux.Domain.Entities;
+    using Domain.Entities;
 
     /// <summary>
     /// Users Repository contract.

@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-
-namespace Pollux.Application.Serverless
+﻿namespace Pollux.Application.Serverless
 {
     using System;
     using System.Net.Http;
@@ -8,6 +6,7 @@ namespace Pollux.Application.Serverless
     using Pitcher;
     using Pollux.Common.Application.Models.Request;
     using Pollux.Common.Constants.Strings.ServerLess;
+    using Pollux.Common.Constants.Strings;
 
     public interface ISendEmail
     {
@@ -22,10 +21,12 @@ namespace Pollux.Application.Serverless
     public class SendEmail : ISendEmail
     {
         private readonly HttpClient httpClient;
+        private readonly AzureServerlessSettings serverlessSettings;
 
-        public SendEmail(HttpClient httpClient)
+        public SendEmail(HttpClient httpClient, AzureServerlessSettings serverlessSettings)
         {
             this.httpClient = httpClient;
+            this.serverlessSettings = serverlessSettings;
         }
 
         /// <summary>
@@ -35,29 +36,36 @@ namespace Pollux.Application.Serverless
         /// <returns>HttpResponseMessage.</returns>
         public async Task<HttpResponseMessage> Send(SendEmailModel emailModel)
         {
-            Throw.When(emailModel == null, new ArgumentException("Email object is null", nameof(emailModel)));
+            Throw.When(
+                emailModel == null,
+                new ArgumentException(MessagesConstants.EmailEmptyError, nameof(emailModel)));
 
-            UriBuilder uriBuilder = new UriBuilder(AzureFunctionConstants.SendMailUrlAddress);
+            var emailParameters = this.AddQueryStringParams(emailModel);
 
-            // todo use this to create the query string
+            var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"{this.serverlessSettings.EmailAzureFunctionUrl}{emailParameters}");
 
-            NameValueCollection queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            queryString.Add("key1", "value1");
-            queryString.Add("key2", "value2");
-
-            queryString.Add("key1", "value1");
-            queryString.Add("key2", "value2");
-            uriBuilder.Query += $"{EmailParametersConstants.Name}={emailModel.Name}&" +
-                                $"{EmailParametersConstants.Type}={emailModel.Type}&" +
-                                $"{EmailParametersConstants.To}={emailModel.To}&" +
-                                $"{EmailParametersConstants.Text}={emailModel.Text}&" +
-                                $"{EmailParametersConstants.Topic}={emailModel.Topic}&" +
-                                $"{EmailParametersConstants.FromEmail}={emailModel.FromEmail}";
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
             var response = await this.httpClient.SendAsync(httpRequest);
-
             return response;
+        }
+
+        /// <summary>
+        /// Adds the query string parameters.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>Query String Parameters</returns>
+        private string AddQueryStringParams(SendEmailModel email)
+        {
+            var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            queryString.Add(EmailParametersConstants.Name, email.Name);
+            queryString.Add(EmailParametersConstants.Type, email.Type);
+            queryString.Add(EmailParametersConstants.To, email.To);
+            queryString.Add(EmailParametersConstants.Text, email.Text);
+            queryString.Add(EmailParametersConstants.Topic, email.Topic);
+            queryString.Add(EmailParametersConstants.FromEmail, email.FromEmail);
+
+            return queryString.ToString();
         }
     }
 }

@@ -18,7 +18,6 @@
         public RedisCacheService(IConfiguration configuration, ILogger logger)
         {
             this.logger = logger;
-
             var urlRedisServer = configuration.GetSection("AppSettings")["RedisUrl"];
             this.connectionMultiplexer = ConnectionMultiplexer.Connect(urlRedisServer);
             this.redisDatabase = this.connectionMultiplexer.GetDatabase();
