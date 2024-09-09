@@ -30,6 +30,7 @@ namespace Pollux
                     })
                 .ConfigureWebHostDefaults(webBuilder =>
                     {
+
                         webBuilder.UseStartup<Startup>();
                         webBuilder.UseKestrel();
                     });
