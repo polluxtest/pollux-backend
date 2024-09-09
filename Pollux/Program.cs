@@ -24,7 +24,7 @@ namespace Pollux
                        config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
                    }
                    else
-                   {
+                   { 
                        config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
                    }
                })
