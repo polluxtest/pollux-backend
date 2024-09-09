@@ -16,22 +16,22 @@ namespace Pollux
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                    {
-                        environment = hostingContext.HostingEnvironment.EnvironmentName;
-                        if (environment == "Development")
-                        {
-                            config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
-                        }
-                        else
-                        {
-                            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
-                        }
-                    })
+               .ConfigureAppConfiguration((hostingContext, config) =>
+               {
+                   environment = hostingContext.HostingEnvironment.EnvironmentName;
+                   if (environment == "Development")
+                   {
+                       config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                   }
+                   else
+                   {
+                       config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
+                   }
+               })
                 .ConfigureWebHostDefaults(webBuilder =>
-                    {
-                        webBuilder.UseStartup<Startup>();
-                        webBuilder.UseKestrel();
-                    });
+                {
+                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel();
+                });
     }
 }
