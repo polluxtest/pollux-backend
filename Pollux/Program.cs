@@ -27,7 +27,7 @@ namespace Pollux
                     {
                         config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
                     }
-                })
+                }) 
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
