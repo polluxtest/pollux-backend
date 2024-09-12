@@ -19,6 +19,7 @@
     public class UsersController : BaseController
     {
         private readonly IUsersService userService;
+        private readonly IUserPreferencesService userPreferencesService;
         private readonly IAuthService authService;
         private readonly CookieOptionsConfig cookieConfiguration;
         private readonly ILogger logger;
@@ -27,12 +28,14 @@
             IUsersService userService,
             IAuthService authService,
             ILogger logger,
-            CookieOptionsConfig cookieConfiguration)
+            CookieOptionsConfig cookieConfiguration,
+            IUserPreferencesService userPreferencesService)
         {
             this.userService = userService;
             this.authService = authService;
             this.logger = logger;
             this.cookieConfiguration = cookieConfiguration;
+            this.userPreferencesService = userPreferencesService;
         }
 
         /// <summary>
@@ -50,6 +53,8 @@
             var identityResponse = await this.userService.SignUp(signUpModel);
             if (identityResponse.Succeeded)
             {
+                var userId = await this.userService.GetUserIdAsync(signUpModel.Email);
+                await this.userPreferencesService.SaveDefaultAsync(userId);
                 return this.Created(string.Empty, identityResponse);
             }
 

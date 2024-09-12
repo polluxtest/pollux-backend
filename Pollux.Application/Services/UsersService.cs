@@ -45,6 +45,12 @@ namespace Pollux.Application.Services
         /// <returns>Task.</returns>
         Task ResetPassword(string email, string newPassword);
 
+        /// <summary>
+        /// Gets the user identifier asynchronous.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>Task<string></returns>
+        Task<string> GetUserIdAsync(string email);
     }
 
     public class UsersService : IUsersService
@@ -184,6 +190,18 @@ namespace Pollux.Application.Services
             user.PasswordHash = hashedPassword;
             this.usersRepository.Update(user);
             await this.usersRepository.SaveAsync();
+        }
+
+        /// <summary>
+        /// Gets the user identifier asynchronous.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns>Task<string></returns>
+        public async Task<string> GetUserIdAsync(string email)
+        {
+            var userId = (await this.usersRepository.GetAsync(p => p.Email.Equals(email))).Id;
+
+            return userId;
         }
     }
 }

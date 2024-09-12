@@ -149,6 +149,8 @@
                 }
                 else
                 {
+                    this.logger.LogInformation(tokenIssuer);
+                    this.logger.LogInformation(securityToken.Issuer);
                     this.logger.LogInformation("token issuer NOT MATCHED");
                     return false;
                 }

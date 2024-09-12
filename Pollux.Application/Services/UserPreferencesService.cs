@@ -3,14 +3,19 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+
     using AutoMapper;
+
     using Pollux.Common.Application.Models.Response;
+    using Pollux.Common.Constants.Strings;
     using Pollux.Domain.Entities;
     using Pollux.Persistence.Repositories;
 
     public interface IUserPreferencesService
     {
         Task Save(string userId, List<UserPreferenceModel> userPreferenceModel);
+
+        Task SaveDefaultAsync(string userId);
 
         Task<UserPreferenceModelResponse> GetAll(string userId);
     }
@@ -52,6 +57,36 @@
                     this.userPreferencesRepository.Add(p);
                 });
             }
+
+            await this.userPreferencesRepository.SaveAsync();
+        }
+
+        /// <summary>
+        /// Saves the default preferences on sign up asynchronous.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>Task.</returns>
+        public async Task SaveDefaultAsync(string userId)
+        {
+            this.userPreferencesRepository.Add(
+                new UserPreferences()
+                    {
+                        UserId = userId,
+                        Key = PreferencesConstants.Category,
+                        Value = PreferencesConstants.CategoryDefault,
+                    });
+            this.userPreferencesRepository.Add(
+                new UserPreferences()
+                    {
+                        UserId = userId, Key = PreferencesConstants.Sort, Value = PreferencesConstants.SortDefault,
+                    });
+            this.userPreferencesRepository.Add(
+                new UserPreferences()
+                    {
+                        UserId = userId,
+                        Key = PreferencesConstants.Language,
+                        Value = PreferencesConstants.LanguageDefault,
+                    });
 
             await this.userPreferencesRepository.SaveAsync();
         }
